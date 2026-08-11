@@ -22,7 +22,7 @@
   body {
     background: #ffffff;
     color: #000000;
-    font-family: "Freight", serif;
+    font-family: "Freight", georgia, "Times New Roman", Times, serif;
   }
   canvas {
     display: block;
