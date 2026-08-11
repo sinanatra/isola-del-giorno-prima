@@ -370,7 +370,7 @@
 
 <!-- RevealPanel: fixed overlay, slides in from the bottom once quotes are ready -->
 <div class="fixed inset-x-0 bottom-0 z-30 pointer-events-none">
-  <div class="pointer-events-auto max-w-[1060px] mx-auto">
+  <div class="pointer-events-auto max-w-360 mx-auto">
     <RevealPanel quotes={revealReady ? quotes : null} hidden={panelHidden} />
   </div>
 </div>
