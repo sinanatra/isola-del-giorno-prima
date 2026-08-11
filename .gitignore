@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.ipynb_checkpoints/
+.venv/
+venv/
+*.egg-info/
+
+# Jupyter
+.jupyter/
+
+# Node / SvelteKit
+app/node_modules/
+app/.svelte-kit/
+app/build/
+app/.env
+app/.env.*
+
+media/*
+# macOS
+.DS_Store
+.AppleDouble
+
+# Large data / PDF
+isola.pdf
+notebooks/raw_mentions.json
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+notebooks/images/*
+notebooks/media/*
+notebooks/media
+notebooks/preview*/
+notebooks/output*/
+notebooks/media copy
+notebooks/media copy/*
+app/static/font/*

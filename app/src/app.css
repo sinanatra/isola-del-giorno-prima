@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Freight";
+  src: url("/font/FreightBigProBook-Regular.otf") format("opentype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Freight";
+  src: url("/font/FreightBigProMedium-Regular.otf") format("opentype");
+  font-weight: 500;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background: #ffffff;
+    color: #000000;
+    font-family: "Freight", serif;
+  }
+  canvas {
+    display: block;
+    max-width: none !important;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+::selection {
+  background-color: #fef3c7;
+  color: #000000;
+}

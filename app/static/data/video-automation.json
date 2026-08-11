@@ -1,0 +1,251 @@
+{
+  "version": 1,
+  "basePreset": {
+    "steps": [
+      {
+        "type": "title",
+        "label": "titolo",
+        "duration": 10,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": true,
+          "labelsAlpha": 1,
+          "category": "all",
+          "minValue": 0.1,
+          "fontSize": 18,
+          "animate": true,
+          "displayMode": "collage",
+          "flowDensity": 20,
+          "showContext": false,
+          "speed": 0.6,
+          "contrast": 4,
+          "brightness": 2,
+          "citazioni": {
+            "open": true,
+            "text": "Plotting The Island of The Day Before",
+            "backgroundAlpha": 0.5,
+            "verticalAlign": "top",
+            "msPerWord": 120,
+            "fontSize": 74,
+            "lineHeight": 1.0
+          }
+        }
+      },
+      {
+        "type": "intro",
+        "label": "intro",
+        "duration": 15,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": true,
+          "labelsAlpha": 1,
+          "category": "all",
+          "minValue": 0.1,
+          "fontSize": 24,
+          "animate": true,
+          "displayMode": "collage",
+          "flowDensity": 20,
+          "showContext": false,
+          "speed": 0.8,
+          "contrast": 4,
+          "brightness": 2,
+          "citazioni": {
+            "open": true,
+            "text": "Ogni linea è un capitolo del romanzo, ogni parola un tentativo del protagonista di raggiungere l'isola: per misura, per invenzione, per catalogo, per artificio, per dissimulazione.",
+            "backgroundAlpha": 0.01,
+            "verticalAlign": "bottom",
+            "msPerWord": 120,
+            "fontSize": 78,
+            "lineHeight": 1.0
+          }
+        }
+      },
+      {
+        "type": "category-title",
+        "label": "titolo categoria",
+        "duration": 8,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": true,
+          "labelsAlpha": 1,
+          "category": "__CATEGORY__",
+          "minValue": 0.1,
+          "fontSize": 18,
+          "animate": true,
+          "displayMode": "collage",
+          "flowDensity": 20,
+          "showContext": false,
+          "speed": 1.5,
+          "contrast": 4,
+          "brightness": 2,
+          "citazioni": {
+            "open": true,
+            "text": "__CATEGORY_LABEL__",
+            "backgroundAlpha": 0.01,
+            "verticalAlign": "bottom",
+            "msPerWord": 120,
+            "fontSize": 100,
+            "lineHeight": 1.0
+          }
+        }
+      },
+      {
+        "type": "terms-category",
+        "label": "termini categoria",
+        "duration": 30,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": true,
+          "labelsAlpha": 1,
+          "category": "__CATEGORY__",
+          "minValue": 0.4,
+          "fontSize": 38,
+          "animate": true,
+          "displayMode": "collage",
+          "flowDensity": 20,
+          "showContext": false,
+          "speed": 1.8,
+          "contrast": 4,
+          "brightness": 2
+        }
+      },
+      {
+        "type": "quote",
+        "label": "citazione",
+        "duration": 40,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": true,
+          "labelsAlpha": 1,
+          "category": "__CATEGORY__",
+          "minValue": 0.1,
+          "fontSize": 18,
+          "animate": true,
+          "displayMode": "collage",
+          "flowDensity": 20,
+          "showContext": false,
+          "speed": 0.6,
+          "contrast": 4,
+          "brightness": 2,
+          "citazioni": {
+            "open": true,
+            "category": "__CATEGORY__",
+            "backgroundAlpha": 0.4,
+            "verticalAlign": "top",
+            "msPerWord": 20,
+            "fontSize": 79,
+            "lineHeight": 1.0
+          }
+        }
+      },
+      {
+        "type": "terms-category",
+        "label": "termini categoria",
+        "duration": 10,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": true,
+          "labelsAlpha": 1,
+          "category": "__CATEGORY__",
+          "minValue": 0.1,
+          "fontSize": 18,
+          "animate": true,
+          "displayMode": "collage",
+          "flowDensity": 20,
+          "showContext": false,
+          "speed": 0.6,
+          "contrast": 4,
+          "brightness": 2
+        }
+      },
+      {
+        "type": "lista",
+        "label": "lista",
+        "duration": 80,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": true,
+          "labelsAlpha": 1,
+          "category": "__CATEGORY__",
+          "minValue": 0.1,
+          "fontSize": 18,
+          "animate": true,
+          "displayMode": "collage",
+          "flowDensity": 20,
+          "showContext": false,
+          "speed": 0.6,
+          "contrast": 4,
+          "brightness": 2,
+          "lista": {
+            "open": true,
+            "words": "",
+            "fontSize": 182,
+            "speed": 6,
+            "backgroundAlpha": 0,
+            "showPill": false
+          }
+        }
+      },
+      {
+        "type": "terms-category",
+        "label": "termini categoria",
+        "duration": 40,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": true,
+          "labelsAlpha": 1,
+          "category": "__CATEGORY__",
+          "minValue": 0.1,
+          "fontSize": 22,
+          "animate": true,
+          "displayMode": "collage",
+          "flowDensity": 20,
+          "showContext": false,
+          "speed": 2,
+          "contrast": 4,
+          "brightness": 2
+        }
+      }
+    ]
+  },
+  "presets": [
+    {
+      "id": "misura_infinito",
+      "label": "Misura / Infinito",
+      "category": "misura_infinito"
+    },
+    {
+      "id": "autore_doppio",
+      "label": "Autore / Doppio",
+      "category": "autore_doppio"
+    },
+    {
+      "id": "lista_inventario",
+      "label": "Liste / Inventari",
+      "category": "lista_inventario"
+    },
+    {
+      "id": "invenzione_scoperta",
+      "label": "Invenzione / Scoperta",
+      "category": "invenzione_scoperta"
+    },
+    {
+      "id": "artificiale_naturale",
+      "label": "Naturale / Artificiale",
+      "category": "artificiale_naturale"
+    },
+    {
+      "id": "potere_sapere",
+      "label": "Potere / Sapere",
+      "category": "potere_sapere"
+    }
+  ]
+}
