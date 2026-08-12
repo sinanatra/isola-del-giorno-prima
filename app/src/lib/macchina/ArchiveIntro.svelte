@@ -138,7 +138,7 @@
     width: 100%;
     height: 100%;
     position: relative;
-    z-index: 100;
+    /* z-index: 100; */
   }
   .cell {
     display: flex;
@@ -172,8 +172,10 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    /* background: gainsboro; */
+    background: rgb(240, 239, 239);
     padding: 10px;
-    filter: grayscale(100%) contrast(1.1);
+    filter: grayscale(100%);
+    z-index: 1000;
+    mix-blend-mode: multiply; 
   }
 </style>

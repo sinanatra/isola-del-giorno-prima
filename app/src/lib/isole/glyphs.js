@@ -26,11 +26,13 @@ export function kernedCharWidths(p, fontSize, text) {
 
 const _glyphAtlas = new Map();
 const _GLYPH_PAD = 2.4;
+const _GLYPH_ATLAS_MAX = 500;
 
 export function getGlyph(char, fontSize, pd, color = LABEL_COLOR, withShadow = false) {
   const key = `${color}_${fontSize}_${pd}_${char}_${withShadow ? 's' : ''}`;
   let e = _glyphAtlas.get(key);
   if (!e) {
+    if (_glyphAtlas.size >= _GLYPH_ATLAS_MAX) _glyphAtlas.clear();
     const s = Math.ceil(fontSize * pd * _GLYPH_PAD) || 4;
     const oc = new OffscreenCanvas(s, s);
     const dc = oc.getContext("2d");

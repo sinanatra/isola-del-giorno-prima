@@ -13,6 +13,7 @@
     speed = $bindable(1),
     backgroundAlpha = 0,
     showPill = false,
+    loop = true,
     canvasEl = $bindable(null),
   } = $props();
 
@@ -86,7 +87,9 @@
       p.draw = () => {
         const { lines, totalHeight } = computeLines(p);
         const total = H + fontSize + totalHeight + H;
-        offset = (offset + speed) % total;
+        offset = loop
+          ? (offset + speed) % total
+          : Math.min(offset + speed, total);
 
         p.clear();
         if (backgroundAlpha > 0) p.background(255, 255, 255, backgroundAlpha * 255);

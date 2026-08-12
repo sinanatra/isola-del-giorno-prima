@@ -109,11 +109,18 @@
   );
 
   let automationPresets = $derived(automationConfig?.presets ?? []);
+  // The top category dropdown is the source of truth: it picks which preset
+  // (i.e. which category) preview/automation use.
   let automationPreset = $derived(
-    automationPresets.find((p) => p.id === automationPresetId) ??
+    automationPresets.find((p) => p.category === ui.category) ??
+      automationPresets.find((p) => p.id === automationPresetId) ??
       automationPresets[0] ??
       null,
   );
+
+  $effect(() => {
+    if (automationPreset) automationPresetId = automationPreset.id;
+  });
 
   function deepClone(value) {
     return value == null ? value : JSON.parse(JSON.stringify(value));
@@ -372,11 +379,14 @@
     });
   }
 
+  let previewSnapshot = null;
+
   async function startPreview() {
     const preset = automationPreset;
     if (!preset) return;
     const steps = buildAutomationSteps(preset);
     if (!steps.length) return;
+    previewSnapshot = captureSessionState();
     previewSteps = steps;
     previewStepIndex = 0;
     previewActive = true;
@@ -400,10 +410,14 @@
     legend = normalizeLegend(previewSteps[prevIndex].scene?.legend ?? null);
   }
 
-  function stopPreview() {
+  async function stopPreview() {
     previewActive = false;
     previewSteps = [];
     previewStepIndex = 0;
+    if (previewSnapshot) {
+      await restoreSessionState(previewSnapshot);
+      previewSnapshot = null;
+    }
   }
 
   const sketch = createSketch({
@@ -567,6 +581,7 @@
           bind:speed={lista.speed}
           backgroundAlpha={lista.backgroundAlpha}
           showPill={lista.showPill}
+          loop={!recording}
           bind:canvasEl={listaCanvasEl}
         />
       </div>
