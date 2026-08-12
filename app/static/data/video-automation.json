@@ -167,7 +167,7 @@
       {
         "type": "lista",
         "label": "lista",
-        "duration": 100,
+        "duration": 60,
         "scene": {
           "showImage": true,
           "showContours": true,
