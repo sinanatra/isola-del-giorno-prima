@@ -24,7 +24,7 @@
           "citazioni": {
             "open": true,
             "text": "Plotting The Island of The Day Before",
-            "backgroundAlpha": 0.5,
+            "backgroundAlpha": 0.1,
             "verticalAlign": "top",
             "msPerWord": 120,
             "fontSize": 74,
@@ -167,7 +167,7 @@
       {
         "type": "lista",
         "label": "lista",
-        "duration": 80,
+        "duration": 100,
         "scene": {
           "showImage": true,
           "showContours": true,
@@ -180,7 +180,7 @@
           "displayMode": "collage",
           "flowDensity": 20,
           "showContext": false,
-          "speed": 0.6,
+          "speed": 1.2,
           "contrast": 4,
           "brightness": 2,
           "lista": {
@@ -191,27 +191,6 @@
             "backgroundAlpha": 0,
             "showPill": false
           }
-        }
-      },
-      {
-        "type": "terms-category",
-        "label": "termini categoria",
-        "duration": 40,
-        "scene": {
-          "showImage": true,
-          "showContours": true,
-          "showTitles": true,
-          "labelsAlpha": 1,
-          "category": "__CATEGORY__",
-          "minValue": 0.1,
-          "fontSize": 22,
-          "animate": true,
-          "displayMode": "collage",
-          "flowDensity": 20,
-          "showContext": false,
-          "speed": 2,
-          "contrast": 4,
-          "brightness": 2
         }
       }
     ]
