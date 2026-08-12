@@ -11,8 +11,8 @@ export const CITAZIONI = {
   },
   artificiale_naturale: {
     label: "Teatro del mondo / The Theater of the World",
-    it: "Dal nostro posto noi non vediamo il teatro [della natura] come realmente è: le decorazioni e le macchine sono state predisposte per fare un bell'effetto da lontano, mentre le ruote e i contrappesi che producono i movimenti sono stati nascosti alla nostra vista. Eppure, se in platea ci fosse un uomo dell'arte, sarebbe capace di indovinare come si è ottenuto che un uccello meccanico si levasse improvvisamente a volo. Così dovrebbe fare il filosofo di fronte allo spettacolo dell'universo.",
-    en: "From our seat we do not see the theater [of nature] as it really is: the decorations and the machines have been set up to make a fine effect from a distance, whereas the wheels and the counterweights that produce the transformations have been hidden from our view. And yet if in the stalls there was a man practiced in the art, he could guess how a mechanical bird could suddenly be made to fly up. So should the philosopher think when faced by the spectacle of the universe.",
+    it: "Dal nostro posto noi non vediamo il teatro [della natura] come realmente è [...] Eppure, se in platea ci fosse un uomo dell'arte, sarebbe capace di indovinare come si è ottenuto che un uccello meccanico si levasse improvvisamente a volo.",
+    en: "From our seat we do not see the theater [of nature] as it really is [...] And yet if in the stalls there was a man practiced in the art, he could guess how a mechanical bird could suddenly be made to fly up.",
   },
   autore_doppio: {
     label: "Natura / Artificio // Nature / Artifice",
