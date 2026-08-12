@@ -34,8 +34,8 @@ export const CITAZIONI = {
 export const LISTE = {
   invenzione_scoperta: {
     label: "Scoperta / Discovery",
-    it: "Cannocchiale,Cronometro marino,Ingegno,Rotta,Meridiano,Fondo marino,Officine vitali,Unguentum armarium,Lingue,Congegno,Immagini,Scienza,Storia,Nomi,Torta salata,Inverosimiglianze,Metafore,Terre,Mari",
-    en: "Telescope,Marine chronometer,Genius,Route,Meridian,Seabed,Innards,Weapon salve,Tongues,Device,Images,Science,History,Names,Savory pie,Inverosimilitudes,Metaphors,Lands,Seas",
+    it: "Cannocchiale,Cronometro marino,Ingegno,Rotta,Meridiano,Fondo marino,Officine vitali,Unguentum armarium,Lingue,Congegno,Immagini,Scienza,Storia,Nomi,Torta salata,Metafore,Terre,Mari",
+    en: "Telescope,Marine chronometer,Genius,Route,Meridian,Seabed,Innards,Weapon salve,Tongues,Device,Images,Science,History,Names,Savory pie,Metaphors,Lands,Seas",
   },
   potere_sapere: {
     label: "(Dis)Simulare / (Dis)Simulation",
