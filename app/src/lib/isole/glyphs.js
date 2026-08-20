@@ -63,7 +63,10 @@ export function renderCharsIntoGfx(gfx, chars, fontSize, pd) {
   dc.fillStyle = LABEL_COLOR;
   for (const { char, x, y, cos, sin, alpha = 1 } of chars) {
     dc.globalAlpha = alpha;
-    dc.setTransform(pd * cos, pd * sin, -pd * sin, pd * cos, pd * x, pd * y);
+    const flip = cos < 0;
+    const c = flip ? -cos : cos;
+    const s = flip ? -sin : sin;
+    dc.setTransform(pd * c, pd * s, -pd * s, pd * c, pd * x, pd * y);
     dc.fillText(char, 0, 0);
   }
   dc.globalAlpha = 1;

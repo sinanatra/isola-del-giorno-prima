@@ -29,6 +29,8 @@ export function createSketch(ctx) {
       contoursGfx = null,
       labelsGfx = null,
       titlesGfx = null;
+    let filteredBgCanvas = null,
+      filteredBgKey = "";
     let chapterData = new Map(),
       chapterTitlePills = [];
 
@@ -347,13 +349,32 @@ export function createSketch(ctx) {
       } catch (_) {}
     }
 
+    function buildFilteredBg(contrast, brightness) {
+      if (!bgImage) {
+        filteredBgCanvas = null;
+        filteredBgKey = "";
+        return;
+      }
+      const oc = document.createElement("canvas");
+      oc.width = contentW;
+      oc.height = contentH;
+      const octx = oc.getContext("2d");
+      octx.filter = `grayscale(1) contrast(${contrast}) brightness(${brightness})`;
+      octx.drawImage(bgImage.elt ?? bgImage.canvas, 0, 0, contentW, contentH);
+      filteredBgCanvas = oc;
+    }
+
     function reloadImage() {
       const suffix = ctx.ui.dataset === "default" ? "" : ctx.ui.dataset;
       bgImage = null;
+      filteredBgCanvas = null;
+      filteredBgKey = "";
       p.loadImage(
         `/data/image${suffix}.jpg`,
         (img) => {
           bgImage = img;
+          filteredBgCanvas = null;
+          filteredBgKey = "";
           needsRedraw = true;
         },
         () => {
@@ -476,6 +497,7 @@ export function createSketch(ctx) {
         forceShowPill = false,
         pillShadow = null,
         wrap = false,
+        orientToPath = false,
       } = {},
     ) {
       if (posOnPath < 0 || (!wrap && posOnPath + layout.total > L)) return;
@@ -484,6 +506,23 @@ export function createSketch(ctx) {
       const effectiveShowPill = forceShowPill || (showPill ?? true);
       const glyphShadow = shadowTarget === "letters";
       const effectivePillShadow = pillShadow ?? shadowTarget === "pill";
+
+      // Keep words readable (not upside-down) on stretches where the path
+      // curves back leftward, e.g. the top of the island loop.
+      let chars = layout.chars,
+        widths = layout.widths;
+      let effectiveFlipLeft = flipLeft;
+      if (orientToPath) {
+        const midPos = Math.min(
+          L,
+          Math.max(0, posOnPath + layout.total / 2),
+        );
+        if (lut.point(range.start + midPos).cos < 0) {
+          chars = [...chars].reverse();
+          widths = [...widths].reverse();
+          effectiveFlipLeft = true;
+        }
+      }
 
       // visibleChunk: how many pixels (from leading edge) of the word are shown
       const fadeZone = layout.total * 0.5;
@@ -528,21 +567,21 @@ export function createSketch(ctx) {
       }
 
       let off = 0;
-      for (let ci = 0; ci < layout.chars.length; ci++) {
-        const localPos = posOnPath + off + layout.widths[ci] / 2;
-        if (off + layout.widths[ci] / 2 >= visibleChunk) break;
+      for (let ci = 0; ci < chars.length; ci++) {
+        const localPos = posOnPath + off + widths[ci] / 2;
+        if (off + widths[ci] / 2 >= visibleChunk) break;
         if (localPos >= L) break;
         const pt = lut.point(range.start + localPos);
         const x = pt.x - pt.sin * perpOffset;
         const y = pt.y + pt.cos * perpOffset;
         if (x < -20 || x > W + 20 || y < -20 || y > H + 20) {
-          off += layout.widths[ci];
+          off += widths[ci];
           continue;
         }
-        const flip = flipLeft && pt.cos < 0;
+        const flip = effectiveFlipLeft && pt.cos < 0;
         const cos = flip ? -pt.cos : pt.cos;
         const sin = flip ? -pt.sin : pt.sin;
-        const g = getGlyph(layout.chars[ci], fontSize, pd, color, glyphShadow);
+        const g = getGlyph(chars[ci], fontSize, pd, color, glyphShadow);
         dc.globalAlpha = labA;
         dc.setTransform(
           pd * cos,
@@ -553,7 +592,7 @@ export function createSketch(ctx) {
           pd * y,
         );
         dc.drawImage(g.oc, -g.dw / 2, -g.dh / 2, g.dw, g.dh);
-        off += layout.widths[ci];
+        off += widths[ci];
       }
     }
 
@@ -699,19 +738,20 @@ export function createSketch(ctx) {
       p.background(255);
 
       if (showImage && bgImage) {
-        const dc = p.drawingContext;
-        dc.save();
-        dc.globalAlpha = imgA;
-        dc.filter = `grayscale(1) contrast(${ctx.ui.contrast ?? 1.5}) brightness(${ctx.ui.brightness ?? 1.0})`;
-        dc.drawImage(
-          bgImage.elt ?? bgImage.canvas,
-          contentOffX,
-          contentOffY,
-          contentW,
-          contentH,
-        );
-        dc.restore();
-        dc.filter = "none";
+        const contrast = ctx.ui.contrast ?? 1.5;
+        const brightness = ctx.ui.brightness ?? 1.0;
+        const key = `${contrast}_${brightness}_${contentW}_${contentH}`;
+        if (!filteredBgCanvas || filteredBgKey !== key) {
+          buildFilteredBg(contrast, brightness);
+          filteredBgKey = key;
+        }
+        if (filteredBgCanvas) {
+          const dc = p.drawingContext;
+          dc.save();
+          dc.globalAlpha = imgA;
+          dc.drawImage(filteredBgCanvas, contentOffX, contentOffY);
+          dc.restore();
+        }
       }
 
       if (showContours) {
@@ -785,6 +825,7 @@ export function createSketch(ctx) {
                 (((traversal * 7 + ch * 3 + slot * 3) % N) + N) % N;
               drawWord(dc, pd, labA, layouts[wordIdx], posRaw, range, L, {
                 wrap: true,
+                orientToPath: true,
               });
             }
           }
@@ -802,6 +843,7 @@ export function createSketch(ctx) {
             for (const { relStart, layout } of words) {
               drawWord(dc, pd, labA, layout, (relStart + ao) % L, range, L, {
                 wrap: true,
+                orientToPath: true,
               });
             }
           }
@@ -819,7 +861,9 @@ export function createSketch(ctx) {
           if (!range || range.length <= 0) continue;
           const L = range.length;
           for (const { relStart, layout } of words) {
-            drawWord(dc, pd, labA, layout, relStart, range, L);
+            drawWord(dc, pd, labA, layout, relStart, range, L, {
+              orientToPath: true,
+            });
           }
         }
         dc.globalAlpha = 1;

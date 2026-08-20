@@ -43,6 +43,8 @@
     text: "",
     backgroundAlpha: 0.0,
     verticalAlign: 'top',
+    align: 'left',
+    color: '#000000',
   });
   let citCanvasEl = $state(null);
   let citActions = { replay: () => {}, stop: () => {} };
@@ -54,6 +56,7 @@
     speed: 2,
     backgroundAlpha: 0,
     showPill: false,
+    color: 'blue',
   });
   let listaCanvasEl = $state(null);
 
@@ -226,6 +229,8 @@
       if (s.lineHeight !== undefined) cit.lineHeight = Number(s.lineHeight);
       if (s.showPill !== undefined) cit.showPill = Boolean(s.showPill);
       if (s.verticalAlign !== undefined) cit.verticalAlign = s.verticalAlign;
+      cit.align = s.align !== undefined ? s.align : 'left';
+      cit.color = s.color !== undefined ? s.color : '#000000';
     } else {
       cit.open = false;
       cit.text = "";
@@ -239,6 +244,7 @@
       if (s.speed !== undefined) lista.speed = Number(s.speed);
       if (s.backgroundAlpha !== undefined) lista.backgroundAlpha = Number(s.backgroundAlpha);
       if (s.showPill !== undefined) lista.showPill = Boolean(s.showPill);
+      lista.color = s.color !== undefined ? s.color : 'blue';
     } else {
       lista.open = false;
     }
@@ -254,34 +260,41 @@
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")} rimanenti`;
   }
 
-  function compositeFrame(ctx, p5Canvas) {
-    ctx.drawImage(p5Canvas, 0, 0);
-    if (cit.open && citCanvasEl) ctx.drawImage(citCanvasEl, 0, 0);
-    if (lista.open && listaCanvasEl) ctx.drawImage(listaCanvasEl, 0, 0);
-
-    const W = p5Canvas.width, H = p5Canvas.height;
+  function buildFadeGradients(ctx, W, H) {
     const fadeW = Math.round(W * (80 / 1050));
     const fadeH = Math.round(H * (80 / 1400));
-    // top
-    let g = ctx.createLinearGradient(0, 0, 0, fadeH);
-    g.addColorStop(0, 'rgba(255,255,255,1)');
-    g.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, fadeH);
-    // bottom
-    g = ctx.createLinearGradient(0, H - fadeH, 0, H);
-    g.addColorStop(0, 'rgba(255,255,255,0)');
-    g.addColorStop(1, 'rgba(255,255,255,1)');
-    ctx.fillStyle = g; ctx.fillRect(0, H - fadeH, W, fadeH);
-    // left
-    g = ctx.createLinearGradient(0, 0, fadeW, 0);
-    g.addColorStop(0, 'rgba(255,255,255,1)');
-    g.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, fadeW, H);
-    // right
-    g = ctx.createLinearGradient(W - fadeW, 0, W, 0);
-    g.addColorStop(0, 'rgba(255,255,255,0)');
-    g.addColorStop(1, 'rgba(255,255,255,1)');
-    ctx.fillStyle = g; ctx.fillRect(W - fadeW, 0, fadeW, H);
+
+    const top = ctx.createLinearGradient(0, 0, 0, fadeH);
+    top.addColorStop(0, 'rgba(255,255,255,1)');
+    top.addColorStop(1, 'rgba(255,255,255,0)');
+
+    const bottom = ctx.createLinearGradient(0, H - fadeH, 0, H);
+    bottom.addColorStop(0, 'rgba(255,255,255,0)');
+    bottom.addColorStop(1, 'rgba(255,255,255,1)');
+
+    const left = ctx.createLinearGradient(0, 0, fadeW, 0);
+    left.addColorStop(0, 'rgba(255,255,255,1)');
+    left.addColorStop(1, 'rgba(255,255,255,0)');
+
+    const right = ctx.createLinearGradient(W - fadeW, 0, W, 0);
+    right.addColorStop(0, 'rgba(255,255,255,0)');
+    right.addColorStop(1, 'rgba(255,255,255,1)');
+
+    return { fadeW, fadeH, top, bottom, left, right };
+  }
+
+  function compositeFrame(ctx, p5Canvas, fades) {
+    ctx.drawImage(p5Canvas, 0, 0);
+
+    const W = p5Canvas.width, H = p5Canvas.height;
+    const { fadeW, fadeH, top, bottom, left, right } = fades ?? buildFadeGradients(ctx, W, H);
+    ctx.fillStyle = top; ctx.fillRect(0, 0, W, fadeH);
+    ctx.fillStyle = bottom; ctx.fillRect(0, H - fadeH, W, fadeH);
+    ctx.fillStyle = left; ctx.fillRect(0, 0, fadeW, H);
+    ctx.fillStyle = right; ctx.fillRect(W - fadeW, 0, fadeW, H);
+
+    if (cit.open && citCanvasEl) ctx.drawImage(citCanvasEl, 0, 0);
+    if (lista.open && listaCanvasEl) ctx.drawImage(listaCanvasEl, 0, 0);
   }
 
   async function recordSession({ prepare = async () => {}, run = async () => {} } = {}) {
@@ -308,10 +321,11 @@
       const comp = document.createElement("canvas");
       comp.width = p5Canvas.width;
       comp.height = p5Canvas.height;
-      const compCtx = comp.getContext("2d");
+      const compCtx = comp.getContext("2d", { alpha: false });
+      const fades = buildFadeGradients(compCtx, comp.width, comp.height);
       function composite() {
-        compositeFrame(compCtx, p5Canvas);
-        compRafId = setTimeout(composite, 1000 / 60);
+        compositeFrame(compCtx, p5Canvas, fades);
+        compRafId = requestAnimationFrame(composite);
       }
       composite();
 
@@ -319,7 +333,7 @@
         ["video/webm;codecs=vp9", "video/webm", "video/mp4"].find((t) =>
           MediaRecorder.isTypeSupported(t),
         ) ?? "video/webm";
-      mr = new MediaRecorder(comp.captureStream(60), { mimeType, videoBitsPerSecond: 40_000_000 });
+      mr = new MediaRecorder(comp.captureStream(30), { mimeType, videoBitsPerSecond: 12_000_000 });
       const chunks = [];
       mr.ondataavailable = (e) => e.data.size && chunks.push(e.data);
       mr.onstop = () => {
@@ -336,7 +350,7 @@
     } catch (e) {
       if (e?.message !== "aborted") console.error("recording error:", e);
     } finally {
-      if (compRafId) clearTimeout(compRafId);
+      if (compRafId) cancelAnimationFrame(compRafId);
       if (mr && mr.state !== "inactive") mr.stop();
       await restoreSessionState(snapshot);
       recording = false;
@@ -536,6 +550,7 @@
   citPlaying={cit.playing}
   bind:citShowPill={cit.showPill}
   bind:citVerticalAlign={cit.verticalAlign}
+  bind:citAlign={cit.align}
   bind:listaOpen={lista.open}
   bind:listaFontSize={lista.fontSize}
   bind:listaSpeed={lista.speed}
@@ -568,6 +583,8 @@
           bind:citPlaying={cit.playing}
           onregister={(a) => (citActions = a)}
           verticalAlign={cit.verticalAlign}
+          align={cit.align}
+          color={cit.color}
         />
       </div>
     {/if}
@@ -583,6 +600,7 @@
           showPill={lista.showPill}
           loop={!recording}
           bind:canvasEl={listaCanvasEl}
+          color={lista.color}
         />
       </div>
     {/if}

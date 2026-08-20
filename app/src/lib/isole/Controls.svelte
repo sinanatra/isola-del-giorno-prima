@@ -32,6 +32,7 @@
     citLineHeight = $bindable(1.2),
     citShowPill = $bindable(true),
     citVerticalAlign = $bindable('top'),
+    citAlign = $bindable('left'),
     listaOpen = $bindable(false),
     listaFontSize = $bindable(120),
     listaSpeed = $bindable(6),
@@ -297,6 +298,10 @@
         <button class={btn(citVerticalAlign === 'top')} onclick={() => (citVerticalAlign = 'top')}>↑</button>
         <button class={btn(citVerticalAlign === 'center')} onclick={() => (citVerticalAlign = 'center')}>⊕</button>
         <button class={btn(citVerticalAlign === 'bottom')} onclick={() => (citVerticalAlign = 'bottom')}>↓</button>
+      </div>
+      <div class="flex gap-px">
+        <button class={btn(citAlign === 'left')} onclick={() => (citAlign = 'left')}>⇤</button>
+        <button class={btn(citAlign === 'center')} onclick={() => (citAlign = 'center')}>⊟</button>
       </div>
       <button class={btn(false)} onclick={citPlaying ? citStop : citReplay}>
         {citPlaying ? 'stop' : 'replay'}
