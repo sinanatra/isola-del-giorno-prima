@@ -50,10 +50,15 @@
   const svgVelToPx = v => v * (svg?.getBoundingClientRect().width ?? 800) / 1220;
 
   // ── Cord visual & interaction ────────────────────────────────────
-  function updateCord() {
+  function updateCord(shakeX = 0) {
     cordPolyline?.setAttribute('points',
-      `${CORD_REST_END.x} ${CORD_REST_END.y + cordPullOff} ${CORD_REST_END.x} ${PVT.y} ${PVT.x} ${PVT.y}`);
-    handleGrp?.setAttribute('transform', `translate(0,${cordPullOff})`);
+      `${CORD_REST_END.x + shakeX} ${CORD_REST_END.y + cordPullOff} ${CORD_REST_END.x} ${PVT.y} ${PVT.x} ${PVT.y}`);
+    handleGrp?.setAttribute('transform', `translate(${shakeX},${cordPullOff})`);
+  }
+
+  function idleShakeX(ts) {
+    const t = ts / 1000;
+    return Math.sin(t * 1.4) * 8 + Math.sin(t * 3.3 + 2) * 3;
   }
 
   function cordSpringBack(ts) {
@@ -111,6 +116,8 @@
   // ── Called every rAF frame from the parent ──────────────────────
   export function update({ knobAng, wheelAng, scrollOff, machineState, activeSnap }) {
     if (!ready) return;
+
+    if (!cordDragging) updateCord(idleShakeX(performance.now()));
 
     knobGrp?.setAttribute('transform',
       `rotate(${(knobAng * 180 / Math.PI) % 360},${PVT.x},${PVT.y})`);

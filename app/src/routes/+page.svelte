@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
   import Machine from "$lib/macchina/Machine.svelte";
   import PhysicsCanvas from "$lib/macchina/PhysicsCanvas.svelte";
   import RevealPanel from "$lib/macchina/RevealPanel.svelte";
@@ -16,15 +17,18 @@
 
   let quotes = $state(null);
   let showHint = $state(true);
+
+  const HINT_PATH = "M 1200 190 C 1230 250, 1180 340, 1160 430";
+  const HINT_TEXT_PATH = "M 1216 193 C 1246 253, 1196 343, 1176 433";
+  const HINT_FONT_SIZE = 36;
+
   let machineElevated = $state(false);
   let panelHidden = $state(false);
   let revealReady = $state(false);
   let revealTimer = 0;
 
-  // Roughly how long the drawers take to slide open and stack their cards.
   const REVEAL_DELAY_MS = 1400;
 
-  // Show the reveal panel fresh each time a new combination opens; scrolling dismisses it.
   $effect(() => {
     quotes;
     panelHidden = false;
@@ -72,8 +76,6 @@
   const WHEEL_RATIOS = [1.0, 0.7, 0.4];
   const SCROLL_RATE = 22;
 
-  // Advances all three wheels, the text scroll and the knob by a shared
-  // angular delta, keeping their relative speeds in sync.
   function advanceWheels(delta) {
     wheelAng[0] += delta * WHEEL_RATIOS[0];
     wheelAng[1] += delta * WHEEL_RATIOS[1];
@@ -93,7 +95,6 @@
     [s[2], s[0]],
   ];
 
-  // Picks a phrase not yet used in this session, recycling the pool once exhausted.
   function pickPhrase() {
     let pool = phrases.filter((p) => !usedOggetti.has(p.oggetto));
     if (!pool.length) {
@@ -131,7 +132,6 @@
       };
     });
 
-    // Delay the reveal panel until the drawers have finished sliding open.
     clearTimeout(revealTimer);
     revealReady = false;
     revealTimer = setTimeout(() => {
@@ -190,7 +190,6 @@
     startSnapAnimation();
   }
 
-  // While the cord is held past release, keep spinning proportionally to how far it's pulled.
   function stepHoldPull(dt) {
     if (!(isDrag && holdPull > 0)) return;
     const spinRate = holdPull * HOLD_RATE;
@@ -198,7 +197,6 @@
     omega = Math.max(omega, holdPull * 0.003);
   }
 
-  // Friction slows the wheels until they're slow enough to snap to a letter.
   function stepDeceleration(dt) {
     if (machineState !== "decelerating" || isDrag) return;
     omega *= Math.exp(-3.5 * dt);
@@ -210,7 +208,6 @@
     }
   }
 
-  // Eases the wheels onto their target letters, then opens the drawers.
   function stepSnapping(ts) {
     if (machineState !== "snapping" || !snapTargets) return;
     if (!snapStartTs) snapStartTs = ts;
@@ -225,7 +222,6 @@
     }
   }
 
-  // While spinning, occasionally spawn a falling word and keep the read-out in sync.
   function stepSpin(dt) {
     const spinning =
       machineState === "spinning" ||
@@ -250,7 +246,6 @@
     }
   }
 
-  // Pushes the current drawer state to the Machine component, only when it changed.
   function syncDrawers() {
     if (drawerGen === prevDrawerGen) return;
     prevDrawerGen = drawerGen;
@@ -317,22 +312,12 @@
   console.log("Thanks to Max Bittker for the inspiration :) ");
 </script>
 
-<!-- Title: fixed, never scrolls -->
-<!-- <div class="fixed top-0 left-0 right-0 z-30 bg-black text-white px-3 py-1">
-  <h1 class="text-base font-normal m-0" style="font-family: Freight, serif">
-    La macchina delle metafore
-  </h1>
-</div> -->
-
-<!-- Archive: fixed, fills below header to bottom of viewport -->
 <div class="fixed inset-x-0 bottom-0 z-10" style="top: 0rem">
   <ArchiveIntro />
 </div>
 
-<!-- Spacer: shorter than viewport so machine already peeks from below -->
 <div style="height: 80vh"></div>
 
-<!-- Text: own sticky, slides up before machine -->
 <div class="sticky z-25 px-4 py-4" style="top: 1.75rem">
   <p
     class="text-center text-2xl leading-none text-black max-w-[750px] mx-auto m-0 bg-white px-4 py-4 shadow"
@@ -344,18 +329,56 @@
   </p>
 </div>
 
-<!-- Machine: own sticky -->
-<div class="sticky z-24 " style="top: 1.75rem">
+<div class="sticky z-24" style="top: 1.75rem">
   <div class="max-w-[1060px] mx-auto bg-white shadow">
     <div
       class="relative aspect-[1220/900] w-[min(100%,calc((100dvh-120px)*1220/900))] mx-auto shrink-0 overflow-visible"
     >
-      <div
-        class="absolute top-[30%] italic -translate-y-1/2 rotate-90 z-5 text-black text-2xl whitespace-nowrap pointer-events-none"
-        style="font-family: Freight, serif; right: 1.3%"
-      >
-        Tira la corda
-      </div>
+      {#if showHint}
+        <svg
+          viewBox="0 50 1220 950"
+          preserveAspectRatio="xMidYMid meet"
+          class="absolute inset-0 w-full h-full z-5 pointer-events-none"
+          transition:fade={{ duration: 400 }}
+        >
+          <defs>
+            <marker
+              id="cordHintArrow"
+              markerWidth="8"
+              markerHeight="8"
+              refX="5"
+              refY="4"
+              orient="auto"
+            >
+              <path d="M0,0 L8,4 L0,8 Z" fill="blue" />
+            </marker>
+          </defs>
+          <path
+            id="cordHintPath"
+            d={HINT_PATH}
+            fill="none"
+            stroke="blue"
+            stroke-width="4"
+            marker-end="url(#cordHintArrow)"
+          />
+          <path
+            id="cordHintTextPath"
+            d={HINT_TEXT_PATH}
+            fill="none"
+            stroke="none"
+          />
+          <text
+            font-family="Freight, serif"
+            font-style="italic"
+            font-size={HINT_FONT_SIZE}
+            fill="blue"
+          >
+            <textPath href="#cordHintTextPath" startOffset="10%"
+              >Tira la corda</textPath
+            >
+          </text>
+        </svg>
+      {/if}
       <PhysicsCanvas bind:this={physicsRef} />
       <Machine
         svgContent={data.svgContent ?? ""}
@@ -368,7 +391,6 @@
   </div>
 </div>
 
-<!-- RevealPanel: fixed overlay, slides in from the bottom once quotes are ready -->
 <div class="fixed inset-x-0 bottom-0 z-30 pointer-events-none">
   <div class="pointer-events-auto max-w-360 mx-auto">
     <RevealPanel quotes={revealReady ? quotes : null} hidden={panelHidden} />
