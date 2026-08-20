@@ -1,1 +1,0 @@
-import{a as t,f as o}from"../chunks/kiDJGTJf.js";import"../chunks/BVhyWIcw.js";var s=o('<main class="flex flex-col items-center justify-center min-h-[60vh]"><a href="/" class="text-3xl">Macchina</a> <a href="/isole" class="text-3xl">Isole</a></main>');function i(a){var e=s();t(a,e)}export{i as component};
