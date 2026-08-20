@@ -18,6 +18,30 @@
   let quotes = $state(null);
   let showHint = $state(true);
 
+  let lang = $state(
+    typeof localStorage !== "undefined" ? localStorage.getItem("lang") || "it" : "it",
+  );
+  const STRINGS = {
+    it: {
+      intro:
+        "Ispirata alla macchina metaforica di Padre Emanuele de L'isola del giorno prima, questa interfaccia traduce la logica dei cassetti e dei rulli di Eco in un sistema di filtri sul testo del romanzo: ogni combinazione produce una lettura diversa.",
+      hint: "Tira la corda",
+      langButton: "EN",
+    },
+    en: {
+      intro:
+        "Inspired by Father Emanuele's metaphorical machine from The Island of the Day Before, this interface turns Eco's logic of drawers and rollers into a filtering system for the novel's text: every combination produces a different reading.",
+      hint: "Pull the cord",
+      langButton: "IT",
+    },
+  };
+  let t = $derived(STRINGS[lang]);
+
+  function toggleLang() {
+    lang = lang === "it" ? "en" : "it";
+    if (typeof localStorage !== "undefined") localStorage.setItem("lang", lang);
+  }
+
   const HINT_PATH = "M 1200 190 C 1230 250, 1180 340, 1160 430";
   const HINT_TEXT_PATH = "M 1216 193 C 1246 253, 1196 343, 1176 433";
   const HINT_FONT_SIZE = 36;
@@ -318,14 +342,18 @@
 
 <div style="height: 80vh"></div>
 
+<button
+  class="fixed top-4 right-4 z-40 text-sm border border-black px-2 py-1 bg-white text-black hover:bg-black hover:text-white transition-colors"
+  onclick={toggleLang}
+>
+  {t.langButton}
+</button>
+
 <div class="sticky z-25 px-4 py-4" style="top: 1.75rem">
   <p
     class="text-center text-2xl leading-none text-black max-w-[750px] mx-auto m-0 bg-white px-4 py-4 shadow"
   >
-    Ispirata alla macchina metaforica di Padre Emanuele de L'isola del giorno
-    prima, questa interfaccia traduce la logica dei cassetti e dei rulli di Eco
-    in un sistema di filtri sul testo del romanzo: ogni combinazione produce una
-    lettura diversa.
+    {t.intro}
   </p>
 </div>
 
@@ -374,7 +402,7 @@
             fill="blue"
           >
             <textPath href="#cordHintTextPath" startOffset="10%"
-              >Tira la corda</textPath
+              >{t.hint}</textPath
             >
           </text>
         </svg>
@@ -393,6 +421,6 @@
 
 <div class="fixed inset-x-0 bottom-0 z-30 pointer-events-none">
   <div class="pointer-events-auto max-w-360 mx-auto">
-    <RevealPanel quotes={revealReady ? quotes : null} hidden={panelHidden} />
+    <RevealPanel quotes={revealReady ? quotes : null} hidden={panelHidden} {lang} />
   </div>
 </div>
