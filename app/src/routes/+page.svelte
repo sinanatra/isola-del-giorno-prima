@@ -1,10 +1,11 @@
 <script>
   import { onMount } from "svelte";
-  import { fade } from "svelte/transition";
   import Machine from "$lib/macchina/Machine.svelte";
   import PhysicsCanvas from "$lib/macchina/PhysicsCanvas.svelte";
   import RevealPanel from "$lib/macchina/RevealPanel.svelte";
   import ArchiveIntro from "$lib/macchina/ArchiveIntro.svelte";
+  import CordHint from "$lib/macchina/CordHint.svelte";
+  import { i18n, toggleLang, t } from "$lib/macchina/i18n.svelte.js";
   import { LETTERS, FALLBACK, N_LET } from "$lib/macchina/constants.js";
 
   let { data } = $props();
@@ -17,34 +18,6 @@
 
   let quotes = $state(null);
   let showHint = $state(true);
-
-  let lang = $state(
-    typeof localStorage !== "undefined" ? localStorage.getItem("lang") || "it" : "it",
-  );
-  const STRINGS = {
-    it: {
-      intro:
-        "Ispirata alla macchina metaforica di Padre Emanuele de L'isola del giorno prima, questa interfaccia traduce la logica dei cassetti e dei rulli di Eco in un sistema di filtri sul testo del romanzo: ogni combinazione produce una lettura diversa.",
-      hint: "Tira la corda",
-      langButton: "EN",
-    },
-    en: {
-      intro:
-        "Inspired by Father Emanuele's metaphorical machine from The Island of the Day Before, this interface turns Eco's logic of drawers and rollers into a filtering system for the novel's text: every combination produces a different reading.",
-      hint: "Pull the cord",
-      langButton: "IT",
-    },
-  };
-  let t = $derived(STRINGS[lang]);
-
-  function toggleLang() {
-    lang = lang === "it" ? "en" : "it";
-    if (typeof localStorage !== "undefined") localStorage.setItem("lang", lang);
-  }
-
-  const HINT_PATH = "M 1200 190 C 1230 250, 1180 340, 1160 430";
-  const HINT_TEXT_PATH = "M 1216 193 C 1246 253, 1196 343, 1176 433";
-  const HINT_FONT_SIZE = 36;
 
   let machineElevated = $state(false);
   let panelHidden = $state(false);
@@ -346,14 +319,14 @@
   class="fixed top-4 right-4 z-40 text-sm border border-black px-2 py-1 bg-white text-black hover:bg-black hover:text-white transition-colors"
   onclick={toggleLang}
 >
-  {t.langButton}
+  {t().langButton}
 </button>
 
 <div class="sticky z-25 px-4 py-4" style="top: 1.75rem">
   <p
     class="text-center text-2xl leading-none text-black max-w-[750px] mx-auto m-0 bg-white px-4 py-4 shadow"
   >
-    {t.intro}
+    {t().intro}
   </p>
 </div>
 
@@ -362,51 +335,7 @@
     <div
       class="relative aspect-[1220/900] w-[min(100%,calc((100dvh-120px)*1220/900))] mx-auto shrink-0 overflow-visible"
     >
-      {#if showHint}
-        <svg
-          viewBox="0 50 1220 950"
-          preserveAspectRatio="xMidYMid meet"
-          class="absolute inset-0 w-full h-full z-5 pointer-events-none"
-          transition:fade={{ duration: 400 }}
-        >
-          <defs>
-            <marker
-              id="cordHintArrow"
-              markerWidth="8"
-              markerHeight="8"
-              refX="5"
-              refY="4"
-              orient="auto"
-            >
-              <path d="M0,0 L8,4 L0,8 Z" fill="blue" />
-            </marker>
-          </defs>
-          <path
-            id="cordHintPath"
-            d={HINT_PATH}
-            fill="none"
-            stroke="blue"
-            stroke-width="4"
-            marker-end="url(#cordHintArrow)"
-          />
-          <path
-            id="cordHintTextPath"
-            d={HINT_TEXT_PATH}
-            fill="none"
-            stroke="none"
-          />
-          <text
-            font-family="Freight, serif"
-            font-style="italic"
-            font-size={HINT_FONT_SIZE}
-            fill="blue"
-          >
-            <textPath href="#cordHintTextPath" startOffset="10%"
-              >{t.hint}</textPath
-            >
-          </text>
-        </svg>
-      {/if}
+      <CordHint show={showHint} text={t().hint} />
       <PhysicsCanvas bind:this={physicsRef} />
       <Machine
         svgContent={data.svgContent ?? ""}
@@ -421,6 +350,6 @@
 
 <div class="fixed inset-x-0 bottom-0 z-30 pointer-events-none">
   <div class="pointer-events-auto max-w-360 mx-auto">
-    <RevealPanel quotes={revealReady ? quotes : null} hidden={panelHidden} {lang} />
+    <RevealPanel quotes={revealReady ? quotes : null} hidden={panelHidden} lang={i18n.lang} />
   </div>
 </div>
