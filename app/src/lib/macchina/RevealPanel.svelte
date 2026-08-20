@@ -53,11 +53,15 @@
           <div class="text-base text-black">
             {#if q.phrase}
               {#if lang === "en"}
-                {#await translate(stripCitation(q.phrase.testo))}
-                  {stripCitation(q.phrase.testo)}
-                {:then translated}
-                  {translated}
-                {/await}
+                {#if q.phrase.testo_en}
+                  {q.phrase.testo_en}
+                {:else}
+                  {#await translate(stripCitation(q.phrase.testo))}
+                    {stripCitation(q.phrase.testo)}
+                  {:then translated}
+                    {translated}
+                  {/await}
+                {/if}
               {:else}
                 {#each highlightSegments(stripCitation(q.phrase.testo), q.oggetto) as seg}
                   {#if seg.hl}<mark class="bg-yellow-100">{seg.text}</mark>{:else}{seg.text}{/if}
