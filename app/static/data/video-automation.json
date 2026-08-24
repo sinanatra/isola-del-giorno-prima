@@ -88,13 +88,15 @@
           "citazioni": {
             "open": true,
             "text": "__CATEGORY_LABEL__",
+            "textEn": "__CATEGORY_LABEL_EN__",
             "backgroundAlpha": 0.6,
             "verticalAlign": "center",
-            "color": "blue",
+            "color": "black",
+            "colorEn": "blue",
             "align": "center",
             "msPerWord": 120,
             "fontSize": 100,
-            "lineHeight": 1.0
+            "lineHeight": 0.6
           }
         }
       },
@@ -208,31 +210,37 @@
     {
       "id": "misura_infinito",
       "label": "Misura / Infinito",
+      "labelEn": "Measure / Infinity",
       "category": "misura_infinito"
     },
     {
       "id": "autore_doppio",
       "label": "Autore / Doppio",
+      "labelEn": "Author / Double",
       "category": "autore_doppio"
     },
     {
       "id": "lista_inventario",
       "label": "Liste / Inventari",
+      "labelEn": "Lists / Inventories",
       "category": "lista_inventario"
     },
     {
       "id": "invenzione_scoperta",
       "label": "Invenzione / Scoperta",
+      "labelEn": "Invention / Discovery",
       "category": "invenzione_scoperta"
     },
     {
       "id": "artificiale_naturale",
       "label": "Naturale / Artificiale",
+      "labelEn": "Natural / Artificial",
       "category": "artificiale_naturale"
     },
     {
       "id": "potere_sapere",
       "label": "Potere / Sapere",
+      "labelEn": "Power / Knowledge",
       "category": "potere_sapere"
     }
   ]

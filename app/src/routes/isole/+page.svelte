@@ -148,6 +148,7 @@
     if (typeof input === "string") {
       return input
         .replaceAll("__CATEGORY_LABEL__", preset.label)
+        .replaceAll("__CATEGORY_LABEL_EN__", preset.labelEn ?? preset.label)
         .replaceAll("__CATEGORY__", preset.category)
         .replaceAll("__CATEGORY_PHRASES__", buildCategoryPhraseText(preset.category));
     }
