@@ -146,8 +146,8 @@
             "backgroundAlpha": 0.8,
             "verticalAlign": "top",
             "msPerWord": 20,
-            "fontSize": 70,
-            "lineHeight": 1.0,
+            "fontSize": 110,
+            "lineHeight": 0.9,
             "colorEn": "blue"
           }
         }
