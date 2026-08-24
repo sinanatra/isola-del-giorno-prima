@@ -1,33 +1,33 @@
 export const CITAZIONI = {
   invenzione_scoperta: {
     label: "Scoperta / Discovery",
-    it: "Ahimè, questa distesa d'acque [...] è vuota perché noi sappiamo troppo poco della sua generosità. Eppure, dopo la scoperta di una rotta occidentale per le Molucche, è in gioco proprio questa vasta zona inesplorata […]",
-    en: "This expanse of waters [...] is empty because we know all too little of Nature's generosity. And yet, after the discovery of a western passage to the Moluccas, this whole vast unexplored zone is at hazard [...]",
+    it: "Tornò a guardare l'Isola, di cui il cannocchiale gli svelava solo pallidi e circoscritti accenni.",
+    en: "He looked once more at the Island, of which the spyglass revealed to him only wan and circumscribed hints.",
   },
   potere_sapere: {
     label: "(Dis)Simulare / (Dis)Simulation",
-    it: "Vedete, caro Roberto, il signor di Salazar non dice che il saggio deve simulare. Vi suggerisce che deve imparare a dissimulare. [...] È virtù sovra la virtù dissimulare la virtù.",
-    en: "Come, my dear Roberto, Senor de Salazar is not saying the wise man must simulate. He is suggesting that the wise man must learn to dissimulate. [...] It is a virtue above virtue to dissimulate virtue.",
+    it: "Forse la Daphne nascondeva altri segreti che Colui non voleva svelare a nessuno.",
+    en: "Perhaps the Daphne concealed other secrets that He did not want to reveal to anyone.",
   },
   artificiale_naturale: {
     label: "Teatro del mondo / The Theater of the World",
-    it: "Dal nostro posto noi non vediamo il teatro [della natura] come realmente è [...] Eppure, se in platea ci fosse un uomo dell'arte, sarebbe capace di indovinare come si è ottenuto che un uccello meccanico si levasse improvvisamente a volo.",
-    en: "From our seat we do not see the theater [of nature] as it really is [...] And yet if in the stalls there was a man practiced in the art, he could guess how a mechanical bird could suddenly be made to fly up.",
+    it: "A quel punto artificio e natura si stavano confondendo a tal segno che possiamo giustificare la confusione del nostro eroe.",
+    en: "At that point artifice and nature were becoming so confused that we can justify our hero's confusion.",
   },
   autore_doppio: {
     label: "Natura / Artificio // Nature / Artifice",
-    it: "C'è qualcosa di più certo del Romanzo, dove alla fine ogni Enigma trova la sua spiegazione secondo le leggi del Verisimile? Il Romanzo racconta cose che forse non sono veramente accadute, ma che avrebbero potuto benissimo accadere.",
-    en: "Is there anything more certain than a work of fiction, where at the end every Enigma finds its explanation according to the laws of the Realistic? The Romance perhaps tells of things that did not really happen, but they could very well have happened.",
+    it: "Ferrante, favorito dalla sua cancellazione, agiva alle sue spalle, e lui si copriva dietro Ferrante.",
+    en: "Ferrante, favored by his own erasure, acted behind his back, and he in turn hid behind Ferrante.",
   },
   lista_inventario: {
     label: "Inventari / Inventories",
-    it: "Quelli dunque erano i coralli! La sua prima impressione fu [...] di trovarsi nella bottega di un mercante di stoffe che gli drappeggiava davanti agli occhi zendadi e taffettà, broccati, rasi, damaschi, velluti, e fiocchi, frange e cincischi, e poi stole, piviali, pianete, dalmatiche.",
-    en: "So this was coral! His first impression [...] was an impression of being in the shop of a merchant of stuffs who draped before his eyes sendals and taffetas, brocades, satins, damasks, velvets, and bows, fringes and furbelows, and then stoles, pluvials, chasubles, dalmatics.",
+    it: "Era penetrato nel pagliolo (o dispensa, credo), dove erano state ammassate derrate per una lunga navigazione.",
+    en: "He descended into the larder, where provisions for a long voyage had been stored.",
   },
   misura_infinito: {
     label: "Misura / Measurement",
-    it: "Per la soluzione di questo problema del Punto Fijo [...] lo stato che scoprisse il segreto delle longitudini, e impedisse che la fama se ne appropriasse, otterrebbe un gran vantaggio su tutti gli altri.",
-    en: "For the solution of this problem of the Punto Fijo [...] the State that discovers the secret of longitude, and manages to prevent word of it from spreading, will obtain a great advantage over the others.",
+    it: "L'invenzione del cronometro marino di Harrison pone fine alla frenetica ricerca del punto fijo.",
+    en: "The invention of the marine chronometer of Harrison puts an end to the frenetic search for the punto fijo.",
   },
 };
 
