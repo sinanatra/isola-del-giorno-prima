@@ -33,10 +33,14 @@
     citShowPill = $bindable(true),
     citVerticalAlign = $bindable('top'),
     citAlign = $bindable('left'),
+    citColor = $bindable('#000000'),
+    citColorEn = $bindable(null),
     listaOpen = $bindable(false),
     listaFontSize = $bindable(120),
     listaSpeed = $bindable(6),
     listaShowPill = $bindable(false),
+    listaColor = $bindable('blue'),
+    listaColorEn = $bindable(null),
   } = $props();
 
   const btn = (active) =>
@@ -303,6 +307,22 @@
         <button class={btn(citAlign === 'left')} onclick={() => (citAlign = 'left')}>⇤</button>
         <button class={btn(citAlign === 'center')} onclick={() => (citAlign = 'center')}>⊟</button>
       </div>
+      <label class={lbl} title="colore IT">
+        it
+        <input type="color" class="w-6 h-5 cursor-pointer border border-gray-300 p-0" bind:value={citColor} />
+      </label>
+      <label class={lbl} title="colore EN">
+        en
+        <input
+          type="color"
+          class="w-6 h-5 cursor-pointer border border-gray-300 p-0"
+          value={citColorEn ?? citColor}
+          oninput={(e) => (citColorEn = e.currentTarget.value)}
+        />
+      </label>
+      {#if citColorEn}
+        <button class={btn(false)} onclick={() => (citColorEn = null)}>= it</button>
+      {/if}
       <button class={btn(false)} onclick={citPlaying ? citStop : citReplay}>
         {citPlaying ? 'stop' : 'replay'}
       </button>
@@ -322,6 +342,22 @@
         <input type="range" class={rng} min="0.5" max="20" step="0.5" bind:value={listaSpeed} />
       </label>
       <button class={btn(listaShowPill)} onclick={() => (listaShowPill = !listaShowPill)}>pill</button>
+      <label class={lbl} title="colore IT">
+        it
+        <input type="color" class="w-6 h-5 cursor-pointer border border-gray-300 p-0" bind:value={listaColor} />
+      </label>
+      <label class={lbl} title="colore EN">
+        en
+        <input
+          type="color"
+          class="w-6 h-5 cursor-pointer border border-gray-300 p-0"
+          value={listaColorEn ?? listaColor}
+          oninput={(e) => (listaColorEn = e.currentTarget.value)}
+        />
+      </label>
+      {#if listaColorEn}
+        <button class={btn(false)} onclick={() => (listaColorEn = null)}>= it</button>
+      {/if}
     </div>
     {/if}
 

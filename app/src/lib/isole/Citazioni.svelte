@@ -9,6 +9,7 @@
     open = $bindable(false),
     category = 'all',
     text = null,
+    textEn = null,
     msPerWord = $bindable(120),
     fontSize = $bindable(56),
     lineHeight = $bindable(1.1),
@@ -21,9 +22,10 @@
     align = 'left',
     padding = null,
     color = '#000000',
+    colorEn = null,
   } = $props();
 
-  // { text, x, y, w }
+  // { text, x, y, w, lang }
   let words = [];
   let revealed = 0;
   let animStart = 0;
@@ -32,18 +34,30 @@
   let container;
   let sketch;
 
-  function getText() {
+  function normalize(s) {
+    return String(s).replace(/\\n/g, '\n').replace(/\r\n?/g, '\n');
+  }
+
+  // Returns an ordered list of { text, lang } blocks to lay out, each
+  // separated visually by a blank line. Explicit text/textEn props take
+  // priority; otherwise falls back to the it/en pair for the category.
+  function getBlocks() {
     if (text && String(text).trim()) {
-      return String(text).replace(/\\n/g, '\n').replace(/\r\n?/g, '\n');
+      const blocks = [{ text: normalize(text), lang: 'it' }];
+      if (textEn && String(textEn).trim()) blocks.push({ text: normalize(textEn), lang: 'en' });
+      return blocks;
     }
     const entry = CITAZIONI[category] ?? null;
-    if (!entry) return null;
-    return [entry.it, entry.en].filter(Boolean).join('\n\n');
+    if (!entry) return [];
+    const blocks = [];
+    if (entry.it) blocks.push({ text: entry.it, lang: 'it' });
+    if (entry.en) blocks.push({ text: entry.en, lang: 'en' });
+    return blocks;
   }
 
   function computeLayout(p) {
-    const testo = getText();
-    if (!testo) { words = []; return; }
+    const blocks = getBlocks();
+    if (!blocks.length) { words = []; return; }
 
     p.textFont('Freight');
     p.textSize(fontSize);
@@ -64,21 +78,24 @@
       currentRow = [];
     };
 
-    for (const row of testo.split('\n')) {
-      const trimmed = row.trim();
-      if (!trimmed) { endRow(); y += lineH; continue; }
-      for (const word of trimmed.split(/\s+/).filter(Boolean)) {
-        const w = p.textWidth(word);
-        if (x + w > contentW && x > 0) { endRow(); x = 0; y += lineH; }
-        const item = { text: word, x, y, w };
-        currentRow.push(item);
-        words.push(item);
-        x += w + spaceW;
+    blocks.forEach((block, bi) => {
+      if (bi > 0) y += lineH;
+      for (const row of block.text.split('\n')) {
+        const trimmed = row.trim();
+        if (!trimmed) { endRow(); y += lineH; continue; }
+        for (const word of trimmed.split(/\s+/).filter(Boolean)) {
+          const w = p.textWidth(word);
+          if (x + w > contentW && x > 0) { endRow(); x = 0; y += lineH; }
+          const item = { text: word, x, y, w, lang: block.lang };
+          currentRow.push(item);
+          words.push(item);
+          x += w + spaceW;
+        }
+        endRow();
+        x = 0;
+        y += lineH;
       }
-      endRow();
-      x = 0;
-      y += lineH;
-    }
+    });
 
     if (align === 'center') {
       for (const r of rows) {
@@ -102,7 +119,6 @@
   }
 
   function clear(p) {
-    // use drawingContext to guarantee a clean frame
     p.drawingContext.clearRect(0, 0, p.width, p.height);
     if (backgroundAlpha > 0) p.background(255, 255, 255, backgroundAlpha * 255);
   }
@@ -131,14 +147,16 @@
     }
 
     p.noStroke();
-    p.fill(color);
+    let currentFill = null;
     for (let i = 0; i < count; i++) {
+      const fill = words[i].lang === 'en' && colorEn ? colorEn : color;
+      if (fill !== currentFill) { p.fill(fill); currentFill = fill; }
       p.text(words[i].text, words[i].x, words[i].y);
     }
   }
 
   $effect(() => {
-    void category; void text; void fontSize; void lineHeight; void verticalAlign; void align; void padding;
+    void category; void text; void textEn; void fontSize; void lineHeight; void verticalAlign; void align; void padding;
     needsRelayout = true;
     pInst?.loop();
   });

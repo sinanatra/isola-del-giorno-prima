@@ -55,7 +55,9 @@
           "brightness": 2,
           "citazioni": {
             "open": true,
-            "text": "Ogni linea è un capitolo del romanzo, ogni parola un tentativo del protagonista di raggiungere l'isola: per misura, per invenzione, per catalogo, per artificio, per dissimulazione.\n\nEvery line is a chapter of the novel, every word an attempt by the protagonist to reach the island: through measurement, through invention, through cataloguing, through artifice, through dissimulation.",
+            "text": "Ogni linea è un capitolo del romanzo, ogni parola un tentativo del protagonista di raggiungere l'isola: per misura, per invenzione, per catalogo, per artificio, per dissimulazione.",
+            "textEn": "Every line is a chapter of the novel, every word an attempt by the protagonist to reach the island: through measurement, through invention, through cataloguing, through artifice, through dissimulation.",
+            "colorEn": "#727272",
             "backgroundAlpha": 0.8,
             "verticalAlign": "bottom",
             "msPerWord": 120,
@@ -89,7 +91,6 @@
             "backgroundAlpha": 0.6,
             "verticalAlign": "center",
             "color": "blue",
-
             "align": "center",
             "msPerWord": 120,
             "fontSize": 100,
@@ -144,7 +145,8 @@
             "verticalAlign": "top",
             "msPerWord": 20,
             "fontSize": 70,
-            "lineHeight": 1.0
+            "lineHeight": 1.0,
+            "colorEn": "#727272"
           }
         }
       },
@@ -195,7 +197,8 @@
             "speed": 6,
             "backgroundAlpha": 0,
             "showPill": false,
-            "color": "blue"
+            "color": "blue",
+            "colorEn": "#727272"
           }
         }
       }

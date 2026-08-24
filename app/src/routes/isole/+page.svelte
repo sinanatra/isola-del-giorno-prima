@@ -41,10 +41,12 @@
     lineHeight: 1.0,
     showPill: false,
     text: "",
+    textEn: "",
     backgroundAlpha: 0.0,
     verticalAlign: 'top',
     align: 'left',
     color: '#000000',
+    colorEn: null,
   });
   let citCanvasEl = $state(null);
   let citActions = { replay: () => {}, stop: () => {} };
@@ -57,6 +59,7 @@
     backgroundAlpha: 0,
     showPill: false,
     color: 'blue',
+    colorEn: null,
   });
   let listaCanvasEl = $state(null);
 
@@ -223,6 +226,7 @@
       if (s.open !== undefined) cit.open = Boolean(s.open);
       if (s.category !== undefined) ui.category = s.category;
       if (s.text !== undefined) cit.text = s.text ? String(s.text) : "";
+      cit.textEn = s.textEn !== undefined && s.textEn ? String(s.textEn) : "";
       cit.backgroundAlpha = s.backgroundAlpha !== undefined ? Number(s.backgroundAlpha) : 0.82;
       if (s.msPerWord !== undefined) cit.msPerWord = Number(s.msPerWord);
       if (s.fontSize !== undefined) cit.fontSize = Number(s.fontSize);
@@ -231,9 +235,11 @@
       if (s.verticalAlign !== undefined) cit.verticalAlign = s.verticalAlign;
       cit.align = s.align !== undefined ? s.align : 'left';
       cit.color = s.color !== undefined ? s.color : '#000000';
+      cit.colorEn = s.colorEn !== undefined ? s.colorEn : null;
     } else {
       cit.open = false;
       cit.text = "";
+      cit.textEn = "";
     }
 
     if (scene.lista !== undefined) {
@@ -245,6 +251,7 @@
       if (s.backgroundAlpha !== undefined) lista.backgroundAlpha = Number(s.backgroundAlpha);
       if (s.showPill !== undefined) lista.showPill = Boolean(s.showPill);
       lista.color = s.color !== undefined ? s.color : 'blue';
+      lista.colorEn = s.colorEn !== undefined ? s.colorEn : null;
     } else {
       lista.open = false;
     }
@@ -551,10 +558,14 @@
   bind:citShowPill={cit.showPill}
   bind:citVerticalAlign={cit.verticalAlign}
   bind:citAlign={cit.align}
+  bind:citColor={cit.color}
+  bind:citColorEn={cit.colorEn}
   bind:listaOpen={lista.open}
   bind:listaFontSize={lista.fontSize}
   bind:listaSpeed={lista.speed}
   bind:listaShowPill={lista.showPill}
+  bind:listaColor={lista.color}
+  bind:listaColorEn={lista.colorEn}
   citReplay={() => citActions.replay()}
   citStop={() => citActions.stop()}
 />
@@ -574,6 +585,7 @@
           bind:open={cit.open}
           category={ui.category}
           text={cit.text}
+          textEn={cit.textEn}
           bind:msPerWord={cit.msPerWord}
           bind:fontSize={cit.fontSize}
           bind:lineHeight={cit.lineHeight}
@@ -585,6 +597,7 @@
           verticalAlign={cit.verticalAlign}
           align={cit.align}
           color={cit.color}
+          colorEn={cit.colorEn}
         />
       </div>
     {/if}
@@ -601,6 +614,7 @@
           loop={!recording}
           bind:canvasEl={listaCanvasEl}
           color={lista.color}
+          colorEn={lista.colorEn}
         />
       </div>
     {/if}
