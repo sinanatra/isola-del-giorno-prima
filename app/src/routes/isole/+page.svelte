@@ -1,6 +1,7 @@
 <script>
   import P5 from "p5-svelte";
   import { onMount, tick } from "svelte";
+  import CCapture from "ccapture.js";
   import { createSketch } from "./sketch.js";
   import Controls from "$lib/isole/Controls.svelte";
   import Citazioni from "$lib/isole/Citazioni.svelte";
@@ -307,13 +308,13 @@
 
   async function recordSession({ prepare = async () => {}, run = async () => {} } = {}) {
     if (recording) { recAbortFn?.(); recAborted = true; return; }
-    if (!window.MediaRecorder) {
-      alert("Il tuo browser non supporta la registrazione video.");
+    if (typeof VideoEncoder === "undefined") {
+      alert("Il tuo browser non supporta la registrazione video (serve WebCodecs).");
       return;
     }
 
     const snapshot = captureSessionState();
-    let mr = null;
+    let capturer = null;
     let compRafId = null;
     recAborted = false;
     recording = true;
@@ -331,35 +332,29 @@
       comp.height = p5Canvas.height;
       const compCtx = comp.getContext("2d", { alpha: false });
       const fades = buildFadeGradients(compCtx, comp.width, comp.height);
+
+      const view = cit.open ? "testo" : lista.open ? "lista" : "mappa";
+      capturer = new CCapture({ format: "mp4", framerate: 30, name: `isola_${view}_${ui.category}_${Date.now()}` });
+
       function composite() {
         compositeFrame(compCtx, p5Canvas, fades);
+        capturer.capture(comp);
         compRafId = requestAnimationFrame(composite);
       }
+
+      await capturer.start();
       composite();
 
-      const mimeType =
-        ["video/webm;codecs=vp9", "video/webm", "video/mp4"].find((t) =>
-          MediaRecorder.isTypeSupported(t),
-        ) ?? "video/webm";
-      mr = new MediaRecorder(comp.captureStream(30), { mimeType, videoBitsPerSecond: 12_000_000 });
-      const chunks = [];
-      mr.ondataavailable = (e) => e.data.size && chunks.push(e.data);
-      mr.onstop = () => {
-        if (!chunks.length) return;
-        const blob = new Blob(chunks, { type: mimeType });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        const view = cit.open ? "testo" : lista.open ? "lista" : "mappa";
-        a.download = `isola_${view}_${ui.category}_${Date.now()}.webm`;
-        a.click();
-      };
-      mr.start(1000);
       await run({ sleep: abortableSleep });
     } catch (e) {
       if (e?.message !== "aborted") console.error("recording error:", e);
     } finally {
       if (compRafId) cancelAnimationFrame(compRafId);
-      if (mr && mr.state !== "inactive") mr.stop();
+      if (capturer) {
+        await capturer.stop();
+        await capturer.save();
+        await capturer.dispose();
+      }
       await restoreSessionState(snapshot);
       recording = false;
       recPhase = "";
