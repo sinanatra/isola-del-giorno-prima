@@ -124,7 +124,7 @@
       {
         "type": "quote",
         "label": "citazione",
-        "duration": 40,
+        "duration": 20,
         "scene": {
           "showImage": true,
           "showContours": true,
@@ -147,7 +147,7 @@
             "verticalAlign": "top",
             "msPerWord": 20,
             "fontSize": 110,
-            "lineHeight": 0.9,
+            "lineHeight": 0.95,
             "colorEn": "blue"
           }
         }
