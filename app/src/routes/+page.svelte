@@ -309,11 +309,21 @@
   console.log("Thanks to Max Bittker for the inspiration :) ");
 </script>
 
-<div class="fixed inset-x-0 bottom-0 z-10" style="top: 0rem">
+<header class="bg-[gainsboro] sticky top-0 shadow">
+  <div class="max-w-350 grid grid-cols-2 gap-2 px-2 py-1">
+    {#each t().introLead as paragraph}
+      <p class="max-w-170 text-xl leading-tight m-0 p-2 text-[#282828]">
+        {#each paragraph.split("\n") as line, i}
+          <span class="block {i > 0 ? 'indent-6' : ''}">{line}</span>
+        {/each}
+      </p>
+    {/each}
+  </div>
+</header>
+
+<div class="sticky z-10 shadow" style="top: 0; height: 100vh">
   <ArchiveIntro />
 </div>
-
-<div style="height: 80vh"></div>
 
 <button
   class="fixed top-4 right-4 z-40 text-sm border border-black px-2 py-1 bg-white text-black hover:bg-black hover:text-white transition-colors"
@@ -324,9 +334,9 @@
 
 <div class="sticky z-25 px-4 py-4" style="top: 1.75rem">
   <p
-    class="text-center text-2xl leading-none text-black max-w-[750px] mx-auto m-0 bg-white px-4 py-4 shadow"
+    class="text-center text-2xl leading-tight text-black max-w-[750px] mx-auto m-0 bg-white px-4 py-4 shadow"
   >
-    {t().intro}
+    {t().introSticky}
   </p>
 </div>
 
@@ -350,6 +360,10 @@
 
 <div class="fixed inset-x-0 bottom-0 z-30 pointer-events-none">
   <div class="pointer-events-auto max-w-360 mx-auto">
-    <RevealPanel quotes={revealReady ? quotes : null} hidden={panelHidden} lang={i18n.lang} />
+    <RevealPanel
+      quotes={revealReady ? quotes : null}
+      hidden={panelHidden}
+      lang={i18n.lang}
+    />
   </div>
 </div>

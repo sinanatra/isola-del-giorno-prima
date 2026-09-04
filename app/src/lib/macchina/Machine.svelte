@@ -20,20 +20,56 @@
   let prevGen = -1;
   let ready   = false;
 
-  // Cord
+  // Cord — hangs from a fixed guide point and can be dragged sideways as
+  // well as down, like a pendulum, instead of only straight down.
   let cordPolyline, handleGrp;
   const CORD_REST_END = { x: 1161.36, y: 485.7 };
   const CORD_MAX_PULL = 360;
-  let cordPullOff    = 0;
+  const CORD_GUIDE = { x: CORD_REST_END.x, y: PVT.y };
+  const CORD_REST_LEN = CORD_REST_END.y - CORD_GUIDE.y;
+  const CORD_REST_ANGLE = Math.PI / 2; // straight down from the guide
+  const CORD_MAX_SWING = Math.PI / 3; // ±60° either side of straight down
+  // Keep the handle inside the SVG viewBox ('30 60 1220 950') with a margin.
+  const CORD_BOUNDS = { xMin: 30, xMax: 1250, yMin: 60, yMax: 1010 };
+  const CORD_HANDLE_MARGIN = 40;
+
+  function maxPullForAngle(angle) {
+    const cosA = Math.cos(angle), sinA = Math.sin(angle);
+    let maxR = Infinity;
+    if (cosA > 1e-6) maxR = Math.min(maxR, (CORD_BOUNDS.xMax - CORD_HANDLE_MARGIN - CORD_GUIDE.x) / cosA);
+    else if (cosA < -1e-6) maxR = Math.min(maxR, (CORD_BOUNDS.xMin + CORD_HANDLE_MARGIN - CORD_GUIDE.x) / cosA);
+    if (sinA > 1e-6) maxR = Math.min(maxR, (CORD_BOUNDS.yMax - CORD_HANDLE_MARGIN - CORD_GUIDE.y) / sinA);
+    else if (sinA < -1e-6) maxR = Math.min(maxR, (CORD_BOUNDS.yMin + CORD_HANDLE_MARGIN - CORD_GUIDE.y) / sinA);
+    return Math.max(0, maxR - CORD_REST_LEN);
+  }
+
+  // The swing angle itself must keep the *rest length* (pull = 0) inside the
+  // viewBox too — otherwise clamping only the pull still leaves the handle
+  // stranded outside the SVG on the side where the guide sits close to the edge.
+  const CORD_ANGLE_MIN = Math.max(
+    CORD_REST_ANGLE - CORD_MAX_SWING,
+    Math.acos(Math.min(1, Math.max(-1, (CORD_BOUNDS.xMax - CORD_HANDLE_MARGIN - CORD_GUIDE.x) / CORD_REST_LEN))),
+  );
+  const CORD_ANGLE_MAX = Math.min(
+    CORD_REST_ANGLE + CORD_MAX_SWING,
+    Math.acos(Math.min(1, Math.max(-1, (CORD_BOUNDS.xMin + CORD_HANDLE_MARGIN - CORD_GUIDE.x) / CORD_REST_LEN))),
+  );
+  let cordAngle      = CORD_REST_ANGLE; // current swing angle (rad) around CORD_GUIDE
+  let cordPullOff    = 0;               // extension beyond CORD_REST_LEN, 0..CORD_MAX_PULL
   let cordSpringRaf  = 0;
   let cordDragging   = false;
-  let cordDragStart  = 0;
-  let cordPullStart  = 0;
+  let cordLastSvgX   = 0;
   let cordLastSvgY   = 0;
   let cordLastTs     = 0;
   let cordVelSvg     = 0;
-  let springFrom     = 0;
+  let springAngleFrom = CORD_REST_ANGLE;
+  let springPullFrom  = 0;
   let springStartTs  = 0;
+
+  const cordHandlePos = () => ({
+    x: CORD_GUIDE.x + (CORD_REST_LEN + cordPullOff) * Math.cos(cordAngle),
+    y: CORD_GUIDE.y + (CORD_REST_LEN + cordPullOff) * Math.sin(cordAngle),
+  });
 
   const mk = (tag, attrs = {}, txt) => {
     const n = document.createElementNS(NS, tag);
@@ -51,9 +87,11 @@
 
   // ── Cord visual & interaction ────────────────────────────────────
   function updateCord(shakeX = 0) {
+    const { x: hx, y: hy } = cordHandlePos();
     cordPolyline?.setAttribute('points',
-      `${CORD_REST_END.x + shakeX} ${CORD_REST_END.y + cordPullOff} ${CORD_REST_END.x} ${PVT.y} ${PVT.x} ${PVT.y}`);
-    handleGrp?.setAttribute('transform', `translate(${shakeX},${cordPullOff})`);
+      `${hx + shakeX} ${hy} ${CORD_GUIDE.x} ${CORD_GUIDE.y} ${PVT.x} ${PVT.y}`);
+    handleGrp?.setAttribute('transform',
+      `translate(${hx - CORD_REST_END.x + shakeX},${hy - CORD_REST_END.y})`);
   }
 
   function idleShakeX(ts) {
@@ -62,13 +100,18 @@
   }
 
   function cordSpringBack(ts) {
-    const t = Math.min((ts - springStartTs) / 220, 1);
-    cordPullOff = springFrom * Math.pow(1 - t, 3);
+    if (!springStartTs) springStartTs = ts;
+    const t = Math.min((ts - springStartTs) / 260, 1);
+    const e = 1 - Math.pow(1 - t, 3);
+    // slight overshoot past rest for a natural pendulum settle
+    const overshoot = Math.sin(t * Math.PI) * 0.08 * (springAngleFrom - CORD_REST_ANGLE);
+    cordAngle   = springAngleFrom + (CORD_REST_ANGLE - springAngleFrom) * e - overshoot;
+    cordPullOff = springPullFrom * (1 - e);
     updateCord();
     if (t < 1) {
       cordSpringRaf = requestAnimationFrame(cordSpringBack);
     } else {
-      cordPullOff = 0; updateCord();
+      cordAngle = CORD_REST_ANGLE; cordPullOff = 0; updateCord();
     }
   }
 
@@ -78,11 +121,11 @@
     cancelAnimationFrame(cordSpringRaf);
     springStartTs = 0;
     cordDragging  = true;
-    cordPullStart = cordPullOff;
-    cordDragStart = svgPt(e.clientX, e.clientY).y;
-    cordLastSvgY  = cordDragStart;
-    cordLastTs    = e.timeStamp;
-    cordVelSvg    = 0;
+    const p = svgPt(e.clientX, e.clientY);
+    cordLastSvgX = p.x;
+    cordLastSvgY = p.y;
+    cordLastTs   = e.timeStamp;
+    cordVelSvg   = 0;
     svg.style.cursor = 'grabbing';
     onCordPull?.({ velocity: 0, deltaSvg: 0, pullOff: cordPullOff });
   }
@@ -91,14 +134,25 @@
     if (!cordDragging) return;
     const p  = svgPt(e.clientX, e.clientY);
     const dt = Math.max((e.timeStamp - cordLastTs) / 1000, 0.001);
-    cordVelSvg   = (p.y - cordLastSvgY) / dt;
+    const moveSvg = Math.hypot(p.x - cordLastSvgX, p.y - cordLastSvgY);
+    cordVelSvg   = moveSvg / dt;
+    cordLastSvgX = p.x;
     cordLastSvgY = p.y;
     cordLastTs   = e.timeStamp;
+
+    const dx = p.x - CORD_GUIDE.x;
+    const dy = p.y - CORD_GUIDE.y;
+    const angle = Math.max(CORD_ANGLE_MIN, Math.min(CORD_ANGLE_MAX, Math.atan2(dy, dx)));
+    const dist = Math.hypot(dx, dy);
+    const maxPull = Math.min(CORD_MAX_PULL, maxPullForAngle(angle));
+    const pull = Math.max(0, Math.min(maxPull, dist - CORD_REST_LEN));
+
     const prevPull = cordPullOff;
-    cordPullOff    = Math.max(0, Math.min(CORD_MAX_PULL, cordPullStart + p.y - cordDragStart));
+    cordAngle   = angle;
+    cordPullOff = pull;
     const deltaSvg = cordPullOff - prevPull;
     updateCord();
-    onCordPull?.({ deltaSvg, velocity: Math.max(0, svgVelToPx(cordVelSvg)), pullOff: cordPullOff });
+    onCordPull?.({ deltaSvg, velocity: Math.max(0, svgVelToPx(cordVelSvg)), pullOff: cordPullOff, angle: cordAngle });
   }
 
   function onCordUp() {
@@ -108,9 +162,10 @@
     if (handleGrp) handleGrp.style.cursor = 'grab';
     onCordRelease?.({ velocity: Math.max(0, svgVelToPx(cordVelSvg)) });
     cancelAnimationFrame(cordSpringRaf);
-    springStartTs = 0;
-    cordPullOff = 0;
-    updateCord();
+    springStartTs   = 0;
+    springAngleFrom = cordAngle;
+    springPullFrom  = cordPullOff;
+    cordSpringRaf   = requestAnimationFrame(cordSpringBack);
   }
 
   // ── Called every rAF frame from the parent ──────────────────────
