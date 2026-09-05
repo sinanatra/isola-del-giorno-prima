@@ -15,7 +15,21 @@
   let spawnTimer   = 0;
 
   const TARGET_BODIES = 40;
-  const VB = { x: 30, y: 60, w: 1220, h: 950 };
+  const VB = { x: 30, y: 60, w: 1220, h: 790 };
+  const FONT_SVG_SIZE = 10; 
+
+  
+  const WORD_W_MIN = 45, WORD_W_RANGE = 20;
+  const WORD_H_MIN = 15, WORD_H_RANGE = 7;
+
+  function vbScale() {
+    return canvas && canvas.width ? canvas.width / VB.w : 1;
+  }
+
+  function centeredX(left, right, w, margin) {
+    const avail = Math.max(0, (right - left) - w - 2 * margin);
+    return left + margin + w / 2 + Math.random() * avail;
+  }
 
   const FUNNEL = [
     { x: 78.54,  y: 65.49  },
@@ -103,9 +117,10 @@
       const pl  = svgToCanvas(lx, sy);
       const pr  = svgToCanvas(rx, sy);
       if (!pl || !pr) continue;
-      const w  = 34 + Math.random() * 22;
-      const h  = 13 + Math.random() * 5;
-      const cx = pl.x + 5 + Math.random() * Math.max(0, pr.x - pl.x - 10);
+      const s  = vbScale();
+      const w  = (WORD_W_MIN + Math.random() * WORD_W_RANGE) * s;
+      const h  = (WORD_H_MIN + Math.random() * WORD_H_RANGE) * s;
+      const cx = centeredX(pl.x, pr.x, w, 5 * s);
       _addBody(cx, pl.y, w, h, txt, (Math.random() - 0.5) * 0.4, 0);
     }
   }
@@ -116,8 +131,9 @@
     const edge = funnelTopEdge();
     if (!edge) return;
     const { tl, tr } = edge;
-    const w = 34 + Math.random() * 22;
-    const h = 13 + Math.random() * 5;
+    const s = vbScale();
+    const w = (WORD_W_MIN + Math.random() * WORD_W_RANGE) * s;
+    const h = (WORD_H_MIN + Math.random() * WORD_H_RANGE) * s;
     const cx = tl.x + 8 + Math.random() * (tr.x - tl.x - 16);
     const cy = tl.y - h - Math.random() * 20;
     _addBody(cx, cy, w, h, txt, (Math.random() - 0.5) * 1.2, 0.5);
@@ -129,8 +145,9 @@
     const edge = funnelTopEdge();
     if (!edge) return;
     const { tl, tr } = edge;
-    const w = 36 + Math.random() * 26;
-    const h = 13 + Math.random() * 6;
+    const s = vbScale();
+    const w = (WORD_W_MIN + 8 + Math.random() * (WORD_W_RANGE + 6)) * s;
+    const h = (WORD_H_MIN + Math.random() * (WORD_H_RANGE + 1)) * s;
     _addBody(
       tl.x + 8 + Math.random() * (tr.x - tl.x - 16),
       tl.y - h - Math.random() * h,
@@ -171,7 +188,6 @@
 
     const neckY = funnelNeckY();
 
-    // Continuously refill from the top to keep TARGET_BODIES words in funnel
     spawnTimer -= dt;
     if (spawnTimer <= 0) {
       const count = Matter.Composite.allBodies(world).filter(b => !b.isStatic && b._w != null).length;
@@ -183,10 +199,9 @@
     }
 
     Matter.Engine.update(engine, Math.min(dt * 1000, 32));
-    // Only drain bodies through the neck while spinning; floor holds them when stopped
     if (drainOpen) {
       for (const b of Matter.Composite.allBodies(world)) {
-        if (!b.isStatic && b._w != null && b.position.y > neckY) {
+        if (!b.isStatic && b._w != null && b.position.y + b._h / 2 > neckY) {
           Matter.Composite.remove(world, b);
         }
       }
@@ -229,7 +244,7 @@
       ctx.strokeRect(-w / 2, -h / 2, w, h);
       if (txt) {
         ctx.fillStyle    = COLOR;
-        ctx.font         = '10px Rubik, sans-serif';
+        ctx.font         = `${FONT_SVG_SIZE * vbScale()}px Rubik, sans-serif`;
         ctx.textAlign    = 'center';
         ctx.textBaseline = 'middle';
         ctx.save();

@@ -20,8 +20,6 @@
   let prevGen = -1;
   let ready   = false;
 
-  // Cord — hangs from a fixed guide point and can be dragged sideways as
-  // well as down, like a pendulum, instead of only straight down.
   let cordPolyline, handleGrp;
   const CORD_REST_END = { x: 1161.36, y: 485.7 };
   const CORD_MAX_PULL = 360;
@@ -29,7 +27,6 @@
   const CORD_REST_LEN = CORD_REST_END.y - CORD_GUIDE.y;
   const CORD_REST_ANGLE = Math.PI / 2; // straight down from the guide
   const CORD_MAX_SWING = Math.PI / 3; // ±60° either side of straight down
-  // Keep the handle inside the SVG viewBox ('30 60 1220 950') with a margin.
   const CORD_BOUNDS = { xMin: 30, xMax: 1250, yMin: 60, yMax: 1010 };
   const CORD_HANDLE_MARGIN = 40;
 
@@ -43,9 +40,6 @@
     return Math.max(0, maxR - CORD_REST_LEN);
   }
 
-  // The swing angle itself must keep the *rest length* (pull = 0) inside the
-  // viewBox too — otherwise clamping only the pull still leaves the handle
-  // stranded outside the SVG on the side where the guide sits close to the edge.
   const CORD_ANGLE_MIN = Math.max(
     CORD_REST_ANGLE - CORD_MAX_SWING,
     Math.acos(Math.min(1, Math.max(-1, (CORD_BOUNDS.xMax - CORD_HANDLE_MARGIN - CORD_GUIDE.x) / CORD_REST_LEN))),
@@ -54,8 +48,8 @@
     CORD_REST_ANGLE + CORD_MAX_SWING,
     Math.acos(Math.min(1, Math.max(-1, (CORD_BOUNDS.xMin + CORD_HANDLE_MARGIN - CORD_GUIDE.x) / CORD_REST_LEN))),
   );
-  let cordAngle      = CORD_REST_ANGLE; // current swing angle (rad) around CORD_GUIDE
-  let cordPullOff    = 0;               // extension beyond CORD_REST_LEN, 0..CORD_MAX_PULL
+  let cordAngle      = CORD_REST_ANGLE; 
+  let cordPullOff    = 0;               
   let cordSpringRaf  = 0;
   let cordDragging   = false;
   let cordLastSvgX   = 0;
@@ -459,11 +453,16 @@
 
   export function getSvg() { return svg; }
 
+
+  const VIEWBOX_TOP = 60;
+  const VIEWBOX_BOTTOM_PAD = -100;
+  const VIEWBOX_H = ROW0_Y + (N_LET - 1) * ROW_STP + BOX_H + D + VIEWBOX_BOTTOM_PAD - VIEWBOX_TOP;
+
   onMount(() => {
     svg = host.querySelector('svg');
     if (!svg) return;
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    svg.setAttribute('viewBox', '30 60 1220 950');
+    svg.setAttribute('viewBox', `30 ${VIEWBOX_TOP} 1220 ${VIEWBOX_H}`);
     buildOverlays();
     ready = true;
     return () => {

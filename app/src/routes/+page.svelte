@@ -16,6 +16,23 @@
   let machineRef;
   let physicsRef;
 
+  // Layout and scaling: the machine is designed for a 50x70" screen, but should scale to fit
+  const DESIGN_WIDTH = 1512;
+  let pageScale = $state(1);
+  let headerH = $state(0);
+  let machineBoxH = $state(0);
+
+  function updatePageScale() {
+    pageScale = window.innerWidth / DESIGN_WIDTH;
+  }
+
+  // Big fixed installs (e.g. a 50x70" vertical panel) shouldn't require
+  let isLargeScreen = $derived(pageScale > 1.2);
+
+  $effect(() => {
+    document.documentElement.style.overflow = isLargeScreen ? "hidden" : "";
+  });
+
   let quotes = $state(null);
   let showHint = $state(true);
 
@@ -264,6 +281,9 @@
   }
 
   onMount(() => {
+    updatePageScale();
+    window.addEventListener("resize", updatePageScale);
+
     requestAnimationFrame(() => {
       physicsRef?.setSvg(machineRef?.getSvg());
       physicsRef?.prepopulate(phrases);
@@ -303,45 +323,75 @@
       clearTimeout(revealTimer);
       cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", updatePageScale);
     };
   });
 
   console.log("Thanks to Max Bittker for the inspiration :) ");
 </script>
 
-<header class="bg-[gainsboro] sticky top-0 shadow">
-  <div class="max-w-350 grid grid-cols-2 gap-2 px-2 py-1">
-    {#each t().introLead as paragraph}
-      <p class="max-w-170 text-xl leading-tight m-0 p-2 text-[#282828]">
-        {#each paragraph.split("\n") as line, i}
-          <span class="block {i > 0 ? 'indent-6' : ''}">{line}</span>
-        {/each}
-      </p>
-    {/each}
-  </div>
-</header>
+<div style="zoom: {pageScale}">
+  <header
+    class="bg-[gainsboro] shadow {isLargeScreen ? '' : 'sticky top-0'}"
+    style={isLargeScreen
+      ? "position: fixed; top: 0; left: 0; right: 0; z-index: 20"
+      : ""}
+    bind:clientHeight={headerH}
+  >
+    <div class="max-w-350 grid grid-cols-2 gap-2 px-2 py-1">
+      {#each t().introLead as paragraph}
+        <p class="max-w-170 text-xl leading-tight m-0 p-2 text-[#282828]">
+          {#each paragraph.split("\n") as line, i}
+            <span class="block {i > 0 ? 'indent-6' : ''}">{@html line}</span>
+          {/each}
+        </p>
+      {/each}
+    </div>
+  </header>
+</div>
 
-<div class="sticky z-10 shadow" style="top: 0; height: 100vh">
+<div
+  class="shadow"
+  style={isLargeScreen
+    ? `position: fixed; top: ${headerH}px; left: 0; right: 0; bottom: 0; z-index: 10`
+    : "position: sticky; top: 0; height: 100vh"}
+>
   <ArchiveIntro />
 </div>
 
-<button
-  class="fixed top-4 right-4 z-40 text-sm border border-black px-2 py-1 bg-white text-black hover:bg-black hover:text-white transition-colors"
-  onclick={toggleLang}
->
-  {t().langButton}
-</button>
-
-<div class="sticky z-25 px-4 py-4" style="top: 1.75rem">
-  <p
-    class="text-center text-2xl leading-tight text-black max-w-[750px] mx-auto m-0 bg-white px-4 py-4 shadow"
+<div style="zoom: {pageScale}">
+  <button
+    class="fixed top-4 right-4 z-40 text-sm border border-black px-2 py-1 bg-white text-black hover:bg-black hover:text-white transition-colors"
+    onclick={toggleLang}
   >
-    {t().introSticky}
-  </p>
+    {t().langButton}
+  </button>
+
+  <div
+    class="px-8 py-8"
+    style={isLargeScreen
+      ? `position: fixed; bottom: calc(0.75rem + ${machineBoxH / pageScale}px + .2rem); left: 0; right: 0; z-index: 25`
+      : "position: sticky; top: 1.75rem; margin-top: -18vh"}
+  >
+    <p
+      class="text-center text-2xl leading-tight text-black max-w-[850px] mx-auto m-0 bg-white px-4 py-4 shadow"
+    >
+      {@html t().introSticky}
+    </p>
+  </div>
 </div>
 
-<div class="sticky z-24" style="top: 1.75rem">
-  <div class="max-w-[1060px] mx-auto bg-white shadow">
+<div
+  class="z-24"
+  style={isLargeScreen
+    ? "position: fixed; bottom: 0; left: 0; right: 0"
+    : "position: sticky; top: 1.75rem"}
+>
+  <div
+    class="mx-auto"
+    style="max-width: {1060 * pageScale}px"
+    bind:clientHeight={machineBoxH}
+  >
     <div
       class="relative aspect-[1220/900] w-[min(100%,calc((100dvh-120px)*1220/900))] mx-auto shrink-0 overflow-visible"
     >
@@ -358,12 +408,14 @@
   </div>
 </div>
 
-<div class="fixed inset-x-0 bottom-0 z-30 pointer-events-none">
-  <div class="pointer-events-auto max-w-360 mx-auto">
-    <RevealPanel
-      quotes={revealReady ? quotes : null}
-      hidden={panelHidden}
-      lang={i18n.lang}
-    />
+<div style="zoom: {pageScale}">
+  <div class="fixed inset-x-0 bottom-0 z-30 pointer-events-none">
+    <div class="pointer-events-auto max-w-360 mx-auto">
+      <RevealPanel
+        quotes={revealReady ? quotes : null}
+        hidden={panelHidden}
+        lang={i18n.lang}
+      />
+    </div>
   </div>
 </div>

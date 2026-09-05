@@ -12,9 +12,9 @@
 
 {#if show}
   <svg
-    viewBox="0 50 1220 950"
+    viewBox="0 150 1220 750"
     preserveAspectRatio="xMidYMid meet"
-    class="absolute inset-0 w-full h-full z-5 pointer-events-none"
+    class="absolute inset-0 w-full h-full z-5 pointer-events-none overflow-visible"
     transition:fade={{ duration: 400 }}
   >
     <defs>
@@ -38,7 +38,16 @@
       marker-end="url(#cordHintArrow)"
     />
     <path id="cordHintTextPath" d={textPath} fill="none" stroke="none" />
-    <text font-family="Freight, serif" font-style="italic" font-size={fontSize} fill="blue">
+    <text
+      font-family="Freight, serif"
+      font-style="italic"
+      font-size={fontSize}
+      fill="blue"
+      stroke="white"
+      stroke-width="5"
+      stroke-linejoin="round"
+      paint-order="stroke fill"
+    >
       <textPath href="#cordHintTextPath" startOffset="10%">{text}</textPath>
     </text>
   </svg>
