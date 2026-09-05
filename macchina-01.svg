@@ -24,6 +24,10 @@
       .st2, .st3 {
         fill: none;
       }
+
+      .dashed {
+        stroke-dasharray: 6 4;
+      }
     </style>
   </defs>
   <g id="drawer">
@@ -36,6 +40,7 @@
   <g id="bottleneck">
     <line class="st3" x1="410.4" y1="366.6" x2="160.4" y2="366.6"/>
     <polyline class="st1" points="78.5 65.5 178.5 366.6 390.7 366.6 490.7 65.5"/>
+    <line class="st1 dashed" x1="78.5" y1="65.5" x2="490.7" y2="65.5"/>
   </g>
   <g id="boxes">
     <g>
