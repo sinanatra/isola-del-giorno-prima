@@ -18,16 +18,17 @@
 
   // Layout and scaling: the machine is designed for a 50x70" screen, but should scale to fit
   const DESIGN_WIDTH = 1512;
+  const MIN_PAGE_SCALE = 0.55;
   let pageScale = $state(1);
   let headerH = $state(0);
   let machineBoxH = $state(0);
 
   function updatePageScale() {
-    pageScale = window.innerWidth / DESIGN_WIDTH;
+    pageScale = Math.max(window.innerWidth / DESIGN_WIDTH, MIN_PAGE_SCALE);
   }
 
   // Big fixed installs (e.g. a 50x70" vertical panel) shouldn't require
-  let isLargeScreen = $derived(pageScale > 1.2);
+  let isLargeScreen = $derived(pageScale > 2.2); // 1.2
 
   $effect(() => {
     document.documentElement.style.overflow = isLargeScreen ? "hidden" : "";
