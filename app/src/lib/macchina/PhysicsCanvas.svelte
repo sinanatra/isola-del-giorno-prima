@@ -11,24 +11,22 @@
   let drainOpen    = false;
   let svgEl        = null;
   let phrasePool = [];
-  let pendingPhrases = null;
   let spawnTimer   = 0;
+  let leakTimer    = 0;
+  let lastFunnelTopY = null;
 
-  const TARGET_BODIES = 40;
+  const TARGET_BODIES = 300; // hard cap on words alive at once
+  const LEAK_BATCH = 3;      // words recycled per idle-leak tick
   const VB = { x: 30, y: 60, w: 1220, h: 790 };
-  const FONT_SVG_SIZE = 10; 
+  const FONT_SVG_SIZE = 10;
 
-  
+
   const WORD_W_MIN = 45, WORD_W_RANGE = 20;
   const WORD_H_MIN = 15, WORD_H_RANGE = 7;
 
   function vbScale() {
-    return canvas && canvas.width ? canvas.width / VB.w : 1;
-  }
-
-  function centeredX(left, right, w, margin) {
-    const avail = Math.max(0, (right - left) - w - 2 * margin);
-    return left + margin + w / 2 + Math.random() * avail;
+    const r = svgRect();
+    return r ? r.width / VB.w : 1;
   }
 
   const FUNNEL = [
@@ -38,14 +36,16 @@
     { x: 490.69, y: 65.49  },
   ];
 
-  // ── coordinate mapping ──────────────────────────────────────────
-  // Canvas fills the scene exactly (inset:0), SVG fills scene too (100%×100%).
-  // Viewbox maps directly to canvas buffer dimensions — no DOM layout lookup needed.
+  function svgRect() {
+    return svgEl ? svgEl.getBoundingClientRect() : null;
+  }
+
   function svgToCanvas(sx, sy) {
-    if (!canvas || !canvas.width) return null;
+    const r = svgRect();
+    if (!r) return null;
     return {
-      x: (sx - VB.x) / VB.w * canvas.width,
-      y: (sy - VB.y) / VB.h * canvas.height,
+      x: r.left + (sx - VB.x) / VB.w * r.width,
+      y: r.top  + (sy - VB.y) / VB.h * r.height,
     };
   }
 
@@ -71,11 +71,52 @@
     });
   }
 
+  function poseWallSeg(body, x1, y1, x2, y2) {
+    Matter.Body.setPosition(body, { x: (x1 + x2) / 2, y: (y1 + y2) / 2 });
+    Matter.Body.setAngle(body, Math.atan2(y2 - y1, x2 - x1));
+  }
+
+  const FUNNEL_WALL_PAIRS = [[0, 1], [3, 2]];
+  const FUNNEL_FLOOR_PAIR = [1, 2];
+
+  // The SVG scrolls with the page while the canvas stays fixed to the
+  // viewport, so re-glue the static funnel bodies to the SVG every tick.
+  function syncFunnelPose() {
+    if (!svgEl) return;
+    FUNNEL_WALL_PAIRS.forEach(([i, j], idx) => {
+      const body = funnelWalls[idx];
+      const p1 = svgToCanvas(FUNNEL[i].x, FUNNEL[i].y);
+      const p2 = svgToCanvas(FUNNEL[j].x, FUNNEL[j].y);
+      if (body && p1 && p2) poseWallSeg(body, p1.x, p1.y, p2.x, p2.y);
+    });
+    if (funnelFloor) {
+      const [i, j] = FUNNEL_FLOOR_PAIR;
+      const p1 = svgToCanvas(FUNNEL[i].x, FUNNEL[i].y);
+      const p2 = svgToCanvas(FUNNEL[j].x, FUNNEL[j].y);
+      if (p1 && p2) poseWallSeg(funnelFloor, p1.x, p1.y, p2.x, p2.y);
+    }
+  }
+
+  function scrollAllBodies() {
+    const top = svgToCanvas(FUNNEL[0].x, FUNNEL[0].y);
+    if (!top) return;
+    if (lastFunnelTopY != null) {
+      const dy = top.y - lastFunnelTopY;
+      if (dy) {
+        for (const b of Matter.Composite.allBodies(world)) {
+          if (!b.isStatic) Matter.Body.translate(b, { x: 0, y: dy });
+        }
+      }
+    }
+    lastFunnelTopY = top.y;
+  }
+
   function rebuildFunnel() {
     [...funnelWalls, funnelFloor].forEach(w => w && Matter.Composite.remove(world, w));
     funnelWalls = []; funnelFloor = null; drainOpen = false;
+    lastFunnelTopY = null; // don't scroll-shift bodies off a resize-caused jump
     if (!svgEl || !engine) return;
-    for (const [i, j] of [[0, 1], [3, 2]]) {
+    for (const [i, j] of FUNNEL_WALL_PAIRS) {
       const p1 = svgToCanvas(FUNNEL[i].x, FUNNEL[i].y);
       const p2 = svgToCanvas(FUNNEL[j].x, FUNNEL[j].y);
       if (!p1 || !p2) continue;
@@ -97,32 +138,10 @@
   export function setSvg(el) {
     svgEl = el;
     rebuildFunnel();
-    if (pendingPhrases) { _fill(pendingPhrases, TARGET_BODIES); pendingPhrases = null; }
   }
 
   export function prepopulate(phrases) {
     phrasePool = phrases;
-    if (!engine || !canvas || canvas.width === 0) { pendingPhrases = phrases; return; }
-    _fill(phrases, TARGET_BODIES);
-  }
-
-  function _fill(phrases, count) {
-    if (!phrases.length) return;
-    for (let i = 0; i < count; i++) {
-      const txt = phrases[Math.floor(Math.random() * phrases.length)]?.oggetto || '·';
-      const t   = i / count;
-      const lx  = FUNNEL[0].x + t * (FUNNEL[1].x - FUNNEL[0].x);
-      const rx  = FUNNEL[3].x + t * (FUNNEL[2].x - FUNNEL[3].x);
-      const sy  = FUNNEL[0].y + t * (FUNNEL[1].y - FUNNEL[0].y);
-      const pl  = svgToCanvas(lx, sy);
-      const pr  = svgToCanvas(rx, sy);
-      if (!pl || !pr) continue;
-      const s  = vbScale();
-      const w  = (WORD_W_MIN + Math.random() * WORD_W_RANGE) * s;
-      const h  = (WORD_H_MIN + Math.random() * WORD_H_RANGE) * s;
-      const cx = centeredX(pl.x, pr.x, w, 5 * s);
-      _addBody(cx, pl.y, w, h, txt, (Math.random() - 0.5) * 0.4, 0);
-    }
   }
 
   function _spawnOne() {
@@ -135,7 +154,7 @@
     const w = (WORD_W_MIN + Math.random() * WORD_W_RANGE) * s;
     const h = (WORD_H_MIN + Math.random() * WORD_H_RANGE) * s;
     const cx = tl.x + 8 + Math.random() * (tr.x - tl.x - 16);
-    const cy = tl.y - h - Math.random() * 20;
+    const cy = 0;
     _addBody(cx, cy, w, h, txt, (Math.random() - 0.5) * 1.2, 0.5);
   }
 
@@ -150,7 +169,7 @@
     const h = (WORD_H_MIN + Math.random() * (WORD_H_RANGE + 1)) * s;
     _addBody(
       tl.x + 8 + Math.random() * (tr.x - tl.x - 16),
-      tl.y - h - Math.random() * h,
+      0,
       w, h, txt, (Math.random() - 0.5) * 1.2, 0.5
     );
   }
@@ -170,6 +189,8 @@
   export function tick(dt, omega) {
     if (!engine || !ctx) return;
 
+    scrollAllBodies();
+    syncFunnelPose();
     engine.gravity.y = 1.6;
 
     const spinning = Math.abs(omega) > 0.06;
@@ -186,16 +207,29 @@
       drainOpen = false;
     }
 
+    leakTimer -= dt;
+    if (!drainOpen && leakTimer <= 0) {
+      const resting = Matter.Composite.allBodies(world).filter(b => !b.isStatic && b._w != null);
+      if (resting.length >= TARGET_BODIES) {
+        for (let i = 0; i < LEAK_BATCH && resting.length; i++) {
+          const idx = Math.floor(Math.random() * resting.length);
+          Matter.Composite.remove(world, resting[idx]);
+          resting.splice(idx, 1);
+        }
+      }
+      leakTimer = 0.35 + Math.random() * 0.2;
+    }
+
     const neckY = funnelNeckY();
 
     spawnTimer -= dt;
     if (spawnTimer <= 0) {
       const count = Matter.Composite.allBodies(world).filter(b => !b.isStatic && b._w != null).length;
       if (count < TARGET_BODIES) {
-        const need = Math.min(TARGET_BODIES - count, 3);
+        const need = Math.min(TARGET_BODIES - count, 2);
         for (let i = 0; i < need; i++) _spawnOne();
       }
-      spawnTimer = 0.18 + Math.random() * 0.12;
+      spawnTimer = 0.22 + Math.random() * 0.15;
     }
 
     Matter.Engine.update(engine, Math.min(dt * 1000, 32));
@@ -213,24 +247,6 @@
   function draw() {
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
-    ctx.save();
-    const c = [
-      svgToCanvas(FUNNEL[0].x, FUNNEL[0].y),
-      svgToCanvas(FUNNEL[3].x, FUNNEL[3].y),
-      svgToCanvas(FUNNEL[2].x, FUNNEL[2].y),
-      svgToCanvas(FUNNEL[1].x, FUNNEL[1].y),
-    ];
-    if (c.every(Boolean)) {
-      ctx.beginPath();
-      ctx.moveTo(c[0].x, 0);
-      ctx.lineTo(c[1].x, 0);
-      ctx.lineTo(c[1].x, c[1].y);
-      ctx.lineTo(c[2].x, c[2].y);
-      ctx.lineTo(c[3].x, c[3].y);
-      ctx.lineTo(c[0].x, c[0].y);
-      ctx.closePath();
-      ctx.clip();
-    }
     for (const b of Matter.Composite.allBodies(world)) {
       if (b.isStatic || b._w == null) continue;
       const { _w: w, _h: h, _txt: txt } = b;
@@ -256,7 +272,6 @@
       }
       ctx.restore();
     }
-    ctx.restore();
   }
 
   function createWorld(W, H) {
@@ -267,7 +282,6 @@
     wallR = Matter.Bodies.rectangle(W + 30, H / 2, 60, H * 3, { isStatic: true });
     Matter.Composite.add(world, [wallL, wallR]);
     rebuildFunnel();
-    if (pendingPhrases) { _fill(pendingPhrases, TARGET_BODIES); pendingPhrases = null; }
   }
 
   function repositionWalls(W, H) {
@@ -297,10 +311,10 @@
 
 <style>
 canvas {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
   z-index: 5;
 }
