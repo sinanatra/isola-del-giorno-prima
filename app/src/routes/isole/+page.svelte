@@ -47,7 +47,7 @@
     verticalAlign: 'top',
     align: 'left',
     color: '#000000',
-    colorEn: null,
+    colorEn: 'blue',
   });
   let citCanvasEl = $state(null);
   let citActions = { replay: () => {}, stop: () => {} };
@@ -59,8 +59,8 @@
     speed: 2,
     backgroundAlpha: 0,
     showPill: false,
-    color: 'blue',
-    colorEn: null,
+    color: '#000000',
+    colorEn: 'blue',
   });
   let listaCanvasEl = $state(null);
 
@@ -237,7 +237,7 @@
       if (s.verticalAlign !== undefined) cit.verticalAlign = s.verticalAlign;
       cit.align = s.align !== undefined ? s.align : 'left';
       cit.color = s.color !== undefined ? s.color : '#000000';
-      cit.colorEn = s.colorEn !== undefined ? s.colorEn : null;
+      cit.colorEn = s.colorEn !== undefined ? s.colorEn : 'blue';
     } else {
       cit.open = false;
       cit.text = "";
@@ -252,8 +252,8 @@
       if (s.speed !== undefined) lista.speed = Number(s.speed);
       if (s.backgroundAlpha !== undefined) lista.backgroundAlpha = Number(s.backgroundAlpha);
       if (s.showPill !== undefined) lista.showPill = Boolean(s.showPill);
-      lista.color = s.color !== undefined ? s.color : 'blue';
-      lista.colorEn = s.colorEn !== undefined ? s.colorEn : null;
+      lista.color = s.color !== undefined ? s.color : '#000000';
+      lista.colorEn = s.colorEn !== undefined ? s.colorEn : 'blue';
     } else {
       lista.open = false;
     }

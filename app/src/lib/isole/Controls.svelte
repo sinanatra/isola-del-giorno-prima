@@ -34,13 +34,13 @@
     citVerticalAlign = $bindable('top'),
     citAlign = $bindable('left'),
     citColor = $bindable('#000000'),
-    citColorEn = $bindable(null),
+    citColorEn = $bindable('blue'),
     listaOpen = $bindable(false),
     listaFontSize = $bindable(120),
     listaSpeed = $bindable(6),
     listaShowPill = $bindable(false),
-    listaColor = $bindable('blue'),
-    listaColorEn = $bindable(null),
+    listaColor = $bindable('#000000'),
+    listaColorEn = $bindable('blue'),
   } = $props();
 
   const btn = (active) =>
@@ -60,7 +60,7 @@
 
   function fmtCat(cat) {
     if (cat === 'all') return 'tutte';
-    return cat.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' / ');
+    return cat.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' – ');
   }
 
 

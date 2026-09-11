@@ -96,7 +96,7 @@
             "align": "center",
             "msPerWord": 120,
             "fontSize": 100,
-            "lineHeight": 0.6
+            "lineHeight": 0.4
           }
         }
       },
@@ -146,8 +146,9 @@
             "backgroundAlpha": 0.8,
             "verticalAlign": "top",
             "msPerWord": 20,
-            "fontSize": 110,
+            "fontSize": 105,
             "lineHeight": 0.95,
+            "color": "black",
             "colorEn": "blue"
           }
         }
@@ -197,9 +198,9 @@
             "words": "",
             "fontSize": 182,
             "speed": 6,
-            "backgroundAlpha": 0,
+            "backgroundAlpha": 0.4,
             "showPill": false,
-            "color": "blue",
+            "color": "black",
             "colorEn": "blue"
           }
         }
@@ -209,38 +210,38 @@
   "presets": [
     {
       "id": "misura_infinito",
-      "label": "Misura / Infinito",
-      "labelEn": "Measure / Infinity",
+      "label": "Misura – Infinito",
+      "labelEn": "Measure – Infinity",
       "category": "misura_infinito"
     },
     {
       "id": "autore_doppio",
-      "label": "Autore / Doppio",
-      "labelEn": "Author / Double",
+      "label": "Autore – Doppio",
+      "labelEn": "Author – Double",
       "category": "autore_doppio"
     },
     {
       "id": "lista_inventario",
-      "label": "Liste / Inventari",
-      "labelEn": "Lists / Inventories",
+      "label": "Liste – Inventari",
+      "labelEn": "Lists – Inventories",
       "category": "lista_inventario"
     },
     {
       "id": "invenzione_scoperta",
-      "label": "Invenzione / Scoperta",
-      "labelEn": "Invention / Discovery",
+      "label": "Invenzione – Scoperta",
+      "labelEn": "Invention – Discovery",
       "category": "invenzione_scoperta"
     },
     {
       "id": "artificiale_naturale",
-      "label": "Naturale / Artificiale",
-      "labelEn": "Natural / Artificial",
+      "label": "Naturale – Artificiale",
+      "labelEn": "Natural – Artificial",
       "category": "artificiale_naturale"
     },
     {
       "id": "potere_sapere",
-      "label": "Potere / Sapere",
-      "labelEn": "Power / Knowledge",
+      "label": "Potere – Sapere",
+      "labelEn": "Power – Knowledge",
       "category": "potere_sapere"
     }
   ]

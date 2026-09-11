@@ -22,7 +22,7 @@
     align = 'left',
     padding = null,
     color = '#000000',
-    colorEn = null,
+    colorEn = 'blue',
   } = $props();
 
   // { text, x, y, w, lang }
@@ -50,8 +50,8 @@
     const entry = CITAZIONI[category] ?? null;
     if (!entry) return [];
     const blocks = [];
-    if (entry.it) blocks.push({ text: entry.it, lang: 'it' });
-    if (entry.en) blocks.push({ text: entry.en, lang: 'en' });
+    if (entry.it) blocks.push({ text: `“${entry.it}”`, lang: 'it' });
+    if (entry.en) blocks.push({ text: `“${entry.en}”`, lang: 'en' });
     return blocks;
   }
 

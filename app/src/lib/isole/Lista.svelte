@@ -15,8 +15,8 @@
     showPill = false,
     loop = true,
     canvasEl = $bindable(null),
-    color = 'blue',
-    colorEn = null,
+    color = '#000000',
+    colorEn = 'blue',
   } = $props();
 
   let offset = 0;
@@ -114,13 +114,7 @@
           }
 
           p.fill(lang === 'en' && colorEn ? colorEn : color);
-          if (lang === 'en') {
-            p.textStyle(p.ITALIC);
-            p.text(text, W / 2, y);
-            p.textStyle(p.NORMAL);
-          } else {
-            p.text(text, W / 2, y);
-          }
+          p.text(text, W / 2, y);
         }
       };
     }, container);
