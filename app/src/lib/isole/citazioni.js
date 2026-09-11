@@ -6,8 +6,8 @@ export const CITAZIONI = {
   },
   potere_sapere: {
     label: "(Dis)Simulare / (Dis)Simulation",
-    it: "Forse la Daphne nascondeva altri segreti che Colui non voleva svelare a nessuno.",
-    en: "Perhaps the Daphne concealed other secrets that He did not want to reveal to anyone.",
+    it: "Padre Caspar rappresentava ai suoi occhi il Potere, e Roberto aveva appreso abbastanza per sapere che alla forza si deve assentire, almeno in apparenza.",
+    en: "Father Caspar represented to Roberto’s eyes Authority, and Roberto had learned enough of the ideas of his century to know that to authority you must bend, at least in appearance.",
   },
   artificiale_naturale: {
     label: "Teatro del mondo / The Theater of the World",
@@ -21,13 +21,13 @@ export const CITAZIONI = {
   },
   lista_inventario: {
     label: "Inventari / Inventories",
-    it: "Era penetrato nel pagliolo (o dispensa, credo), dove erano state ammassate derrate per una lunga navigazione.",
-    en: "He descended into the larder, where provisions for a long voyage had been stored.",
+    it: "Roberto individuava cespiti di banane, panieri di micche di pane, corbelli di nespole bronzine sulle quali passavano canarini, ramarri e colibrì.",
+    en: "Roberto could make out bunches of bananas, baskets of bread rolls, corbeilles of bronze loquats over which canaries and geckos and hummingbirds were hovering.",
   },
   misura_infinito: {
     label: "Misura / Measurement",
-    it: "L'invenzione del cronometro marino di Harrison pone fine alla frenetica ricerca del punto fijo.",
-    en: "The invention of the marine chronometer of Harrison puts an end to the frenetic search for the punto fijo.",
+    it: "Non aveva mai saputo di baie così ampie da dar l'impressione di star di fronte a due terre gemelle. Così, per ignoranza di continenti smisurati, aveva colto nel segno.",
+    en: "He had never known bays so broad that a person in their midst could feel he was confronting twin lands. Thus, in his ignorance of boundless continents, Roberto had chanced upon the correct answer.",
   },
 };
 
