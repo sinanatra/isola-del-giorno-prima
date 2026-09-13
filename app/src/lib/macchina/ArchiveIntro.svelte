@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
+  import { LETTERS } from "$lib/macchina/constants.js";
 
   const IMAGES = [
     "/macchine/1889186_orig.jpg",
@@ -21,7 +22,7 @@
   const letters = Array.from({ length: TOTAL }, (_, i) => {
     const row = Math.floor(i / COLS);
     const col = i % COLS;
-    return String.fromCharCode(65 + ((row + col) % 26));
+    return LETTERS[(row + col) % LETTERS.length];
   });
 
   const BLOCK_DEFS = [
