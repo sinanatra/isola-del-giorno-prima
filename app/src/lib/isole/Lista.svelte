@@ -6,7 +6,6 @@
   const W = 1050, H = 1400;
 
   let {
-    open = $bindable(false),
     category = 'all',
     words = '',
     fontSize = $bindable(182),

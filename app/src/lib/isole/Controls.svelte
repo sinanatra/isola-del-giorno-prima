@@ -15,6 +15,7 @@
     selectDataset,
     recording,
     recPhase,
+    recDuration = $bindable(180),
     startRecording,
     startAutomationRecording = () => {},
     automationPresets = [],
@@ -105,7 +106,6 @@
       {#each categories as cat}<option value={cat}>{fmtCat(cat)}</option>{/each}
     </select>
     <span class="text-gray-300">·</span>
-    <!-- <span class="text-gray-500 tabular-nums">{itemCount}</span> -->
 
     <div class={sep}></div>
 
@@ -126,9 +126,15 @@
 
     <div class={sep}></div>
 
-    <button class={btnRed(recording)} onclick={startRecording}>
+    <button class={btnRed(recording)} onclick={startRecording} disabled={recording && recPhase.startsWith('elaborazione')}>
       {recording ? 'stop' : 'rec'}
     </button>
+    {#if !recording}
+      <label class={lbl} title="durata registrazione">
+        {recDuration}s
+        <input type="range" class={rng} min="5" max="300" step="5" bind:value={recDuration} />
+      </label>
+    {/if}
     <button class={btn(false)} onclick={takeScreenshot}>png</button>
 
     {#if recording}
@@ -137,14 +143,7 @@
 
     <div class={sep}></div>
 
-    {#if previewActive}
-      <button class={btn(false)} onclick={previewBack} disabled={previewStepIndex === 0}>← indietro</button>
-      <span class="text-gray-500 tabular-nums">{previewStepIndex + 1}/{previewStepCount} {previewStepLabel}</span>
-      <button class={btn(false)} onclick={previewNext} disabled={previewStepIndex >= previewStepCount - 1}>avanti →</button>
-      <button class={btn(false)} onclick={stopPreview}>✕</button>
-    {:else}
-      <button class={btn(false)} onclick={startPreview}>preview</button>
-    {/if}
+    {@render previewControls()}
   </div>
 
   {#if menuOpen}
@@ -266,14 +265,7 @@
 
       <div class={sep}></div>
 
-      {#if previewActive}
-        <button class={btn(false)} onclick={previewBack} disabled={previewStepIndex === 0}>← indietro</button>
-        <span class="text-gray-500 tabular-nums">{previewStepIndex + 1}/{previewStepCount} {previewStepLabel}</span>
-        <button class={btn(false)} onclick={previewNext} disabled={previewStepIndex >= previewStepCount - 1}>avanti →</button>
-        <button class={btn(false)} onclick={stopPreview}>✕</button>
-      {:else}
-        <button class={btn(false)} onclick={startPreview}>preview</button>
-      {/if}
+      {@render previewControls()}
 
       {#if automationError}
         <span class="ml-auto text-[10px] text-red-600">{automationError}</span>
@@ -363,3 +355,14 @@
 
   {/if}
 </div>
+
+{#snippet previewControls()}
+  {#if previewActive}
+    <button class={btn(false)} onclick={previewBack} disabled={previewStepIndex === 0}>← indietro</button>
+    <span class="text-gray-500 tabular-nums">{previewStepIndex + 1}/{previewStepCount} {previewStepLabel}</span>
+    <button class={btn(false)} onclick={previewNext} disabled={previewStepIndex >= previewStepCount - 1}>avanti →</button>
+    <button class={btn(false)} onclick={stopPreview}>✕</button>
+  {:else}
+    <button class={btn(false)} onclick={startPreview}>preview</button>
+  {/if}
+{/snippet}

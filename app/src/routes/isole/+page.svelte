@@ -259,11 +259,6 @@
     }
   }
 
-  function easeInOutCubic(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
-
-
   function formatRemaining(ms) {
     const s = Math.max(0, Math.round(ms / 1000));
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")} rimanenti`;
@@ -337,9 +332,12 @@
       capturer = new CCapture({ format: "mp4", framerate: 30, name: `isola_${view}_${ui.category}_${Date.now()}` });
 
       function composite() {
+        // Schedule the next frame before drawing/capturing: CCapture hooks
+        // requestAnimationFrame while recording and only flushes it once
+        // capture() paces the virtual clock forward (see ccapture.js docs).
+        compRafId = requestAnimationFrame(composite);
         compositeFrame(compCtx, p5Canvas, fades);
         capturer.capture(comp);
-        compRafId = requestAnimationFrame(composite);
       }
 
       await capturer.start();
@@ -351,6 +349,7 @@
     } finally {
       if (compRafId) cancelAnimationFrame(compRafId);
       if (capturer) {
+        recPhase = "…";
         await capturer.stop();
         await capturer.save();
         await capturer.dispose();
@@ -536,6 +535,7 @@
   {selectDataset}
   {recording}
   {recPhase}
+  bind:recDuration
   {automationPresets}
   bind:automationPresetId
   {automationError}
@@ -578,7 +578,6 @@
     {#if cit.open}
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <Citazioni
-          bind:open={cit.open}
           category={ui.category}
           text={cit.text}
           textEn={cit.textEn}
@@ -600,7 +599,6 @@
     {#if lista.open}
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <Lista
-          bind:open={lista.open}
           category={ui.category}
           words={lista.words}
           bind:fontSize={lista.fontSize}

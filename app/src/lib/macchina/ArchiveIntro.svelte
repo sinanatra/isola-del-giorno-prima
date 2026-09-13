@@ -24,7 +24,6 @@
     return String.fromCharCode(65 + ((row + col) % 26));
   });
 
-  // Non-overlapping mosaic blocks covering the 7×6 grid
   const BLOCK_DEFS = [
     { col: 1, row: 1, colSpan: 2, rowSpan: 2 },
     { col: 3, row: 1, colSpan: 1, rowSpan: 1 },
