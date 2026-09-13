@@ -34,32 +34,32 @@ export const CITAZIONI = {
 export const LISTE = {
   invenzione_scoperta: {
     label: "Scoperta / Discovery",
-    it: "Cannocchiale,Cronometro marino,Ingegno,Rotta,Meridiano,Fondo marino,Officine vitali,Unguentum armarium,Lingue,Congegno,Immagini,Scienza,Storia,Nomi,Torta salata,Metafore,Terre,Mari",
-    en: "Telescope,Marine chronometer,Genius,Route,Meridian,Seabed,Innards,Weapon salve,Tongues,Device,Images,Science,History,Names,Savory pie,Metaphors,Lands,Seas",
+    it: "Cannocchiale,Cronometro marino,Ingegno,Rotta,Longitudine,Punto Fijo,Meridiano,Fondo marino,Officine vitali,Unguentum armarium,Lingue,Terra incognita,Congegno,Oceano pacifico,Scienza,Storia,Nomi,Inverosomiglianze,Metafore,Terre,Mari,Navi",
+    en: "Telescope,Marine chronometer,Genius,Route,Longitude,Punto Fijo,Meridian,Seabed,Innards,Weapon salve,Tongues,Terra incognita,Device,Pacific ocean,Science,History,Names,Inverosimilitudes,Metaphors,Lands,Seas,Ships",
   },
   potere_sapere: {
     label: "(Dis)Simulare / (Dis)Simulation",
-    it: "Mostro,Spionaggio,Mistero,Pestilenza,Ricchezza,Polveri,Unguenti,Vita e morte,Potere d'una stella,Eloquenza,Spugna,Autorità,Idee,Strumento,Metodo,Patrimonio,Esattezza,Senso,Penetrazione,Arte",
-    en: "Monster,Espionnage,Mystery,Pestilence,Riches,Powders,Ointments,Life and death,Stellar influence,Eloquence,Sponge,Authority,Ideas,Instrument,Method,Patrimony,Exactitude,Meaning,Penetration,Art",
+    it: "Mostro,Longitudine,Punto Fijo,Peste,Pestilenza,Ricchezza,Simpatia occulta,Somiglianza,Polveri,Unguenti,Vita e morte,Potere d'una stella,Eloquenza,Dissimulazione,Salotto,Cardinale,Autorità,Idee,Strumento,Metodo,Esattezza,Senso,Arte",
+    en: "Monster,Longitude,Punto Fijo,Bubonic plague,Pestilence,Riches,Occult sympathy,Similarity,Powders,Ointments,Life and death,Stellar influence,Eloquence,Dissimulation,Salon,Cardinal,Authority,Ideas,Instrument,Method,Exactitude,Meaning,Art",
   },
   artificiale_naturale: {
     label: "Teatro del mondo / The Theater of the World",
-    it: "Innaturale,Filosofia,Forma,Scienza,Amore,Magia,Artificio,Baleno,Logica,Legge,Moto,Alfabeto,Soprannaturale,Ragione,Luogo,Felicità,Fuoco,Isola",
-    en: "Unnatural,Philosophy,Form,Science,Love,Magic,Artifice,Lightning bolt,Logic,Law,Movement,Alphabet,Supernatural,Reason,Place,Happiness,Fire,Island",
+    it: "Colomba,Flauto,Filosofia,Forma,Fontana,Spugna,Scienza,Passioni dell'anima,Amore,Macchine artificiose,Magia,Artificio,Baleno,Logica,Retorica,Legge,Moto,Poetica,Soprannaturale,Ragione,Luogo,Felicità,Fuoco,Isola",
+    en: "Dove,Fluyt,Philosophy,Form,Fountain,Sponge,Science,Passions of the soul,Love,Artful machines,Magic,Artifice,Lightning bolt,Logic,Rhetoric,Law,Movement,Poetics,Supernatural,Reason,Place,Happiness,Fire,Island",
   },
   autore_doppio: {
     label: "Natura / Artificio // Nature / Artifice",
-    it: "Creatore,Lettore,Romanzo,Storia,Nome,Sognatore,Origine,Regista,Inventore,Ignoto,Rivelazione,Lingua,Parola,Sapere,Arte,Libro",
-    en: "Creator,Reader,Novel,Story,Name,Dreamer,Origin,Director,Inventor,Unknown,Revelation,Language,Word,Knowledge,Craft,Book",
+    it: "Creatore,Lettore,Romanzo,Storia,Nome,Spettro,Sognatore,Origine,Ignoto,Gemello,Alter ego,Rivelazione,Lingua,Parola,Fratello perduto,Sapere,Arte,Libro,Ferrante",
+    en: "Creator,Reader,Novel,Story,Name,Spectre,Dreamer,Origin,Unknown,Long lost twin,Alter ego,Revelation,Language,Word,Lost brother,Knowledge,Craft,Book,Ferrante",
   },
   lista_inventario: {
     label: "Inventari / Inventories",
-    it: "Delitti,Categoria,Enciclopedia,Metodi,Strumenti di osservazione,Erbario,Mappe,Libri,Miscelanee,Materiali,Collezioni,Osservazione,Scienza,Nomi,Dispositivi,Classifica,Raccolta,Fossili,Definizione",
-    en: "Crimes,Category,Encyclopedia,Methods,Observation Instruments,Herbarium,Maps,Books,Miscellanies,Materials,Collections,Observation,Science,Names,Devices,Classification,Gathering,Fossils,Definition",
+    it: "Categoria,Enciclopedia,Pietre,Uccelli,Piante,Metodi,Strumenti di osservazione,Erbario,Mappe,Libri,Miscelanee,Materiali,Collezioni,Osservazione,Scienza,Nomi,Dispositivi,Tassonomie,Classifica,Raccolta,Fossili,Definizione",
+    en: "Category,Encyclopedia,Stones,Birds,Plants,Methods,Observation Instruments,Herbarium,Maps,Books,Miscellanies,Materials,Collections,Observation,Science,Names,Devices,Taxonomies,Classification,Gathering,Fossils,Definition",
   },
   misura_infinito: {
     label: "Misura / Measurement",
-    it: "Sopramisura,Orizzonte temporale,Angolazione,Calcolo,Miglia,Senza misura,Quantità,Limite,Dimensione,Distanza,Proporzione,Unità di tempo,Limite,Dio,Uomo,Soglia",
-    en: "Oversized,Timescale,Angle of View,Calculation,Miles,Without Measure,Quantity,Limit,Size,Distance,Proportion,Time Units,Limit,God,Man,Threshold",
+    it: "Misura,Sopramisura,Orizzonte temporale,Angolazione,Calcolo,Miglia,Spazio,Infinito,Smisurata,Quantità,Limite,Punto,Estensione,Atomo,Movimento,Superficie,Dimensione,Distanza,Proporzione,Unità di tempo,Dio,Soglia",
+    en: "Measure,Oversized,Timescale,Angle of View,Calculation,Miles,Space,Infinity,Without Measure,Quantity,Limit,Point,Extension,Atom,Motion,Plane,Size,Distance,Proportion,Time Units,God,Threshold",
   },
 };
