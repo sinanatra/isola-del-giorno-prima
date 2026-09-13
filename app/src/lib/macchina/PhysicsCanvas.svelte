@@ -4,6 +4,8 @@
   import { COLOR } from '$lib/macchina/constants.js';
 
   let canvas, ctx;
+  let dpr = 1;
+  let cssW = 0, cssH = 0;
   let engine, world;
   let wallL, wallR;
   let funnelWalls  = [];
@@ -245,8 +247,7 @@
   }
 
   function draw() {
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, cssW, cssH);
     for (const b of Matter.Composite.allBodies(world)) {
       if (b.isStatic || b._w == null) continue;
       const { _w: w, _h: h, _txt: txt } = b;
@@ -297,8 +298,11 @@
       const { width, height } = entries[0].contentRect;
       const W = Math.round(width), H = Math.round(height);
       if (!W || !H) return;
-      canvas.width  = W;
-      canvas.height = H;
+      dpr = window.devicePixelRatio || 1;
+      cssW = W; cssH = H;
+      canvas.width  = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (!engine) createWorld(W, H);
       else         repositionWalls(W, H);
     });
