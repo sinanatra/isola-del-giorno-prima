@@ -78,7 +78,7 @@
     titlePerp: 0,
     showImage: true,
     showContours: true,
-    showTitles: true,
+    showTitles: false,
     animate: true,
     speed: 0.6,
     showContext: false,
