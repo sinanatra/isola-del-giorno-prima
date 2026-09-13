@@ -17,8 +17,8 @@
   let leakTimer    = 0;
   let lastFunnelTopY = null;
 
-  const TARGET_BODIES = 300; // hard cap on words alive at once
-  const LEAK_BATCH = 3;      // words recycled per idle-leak tick
+  const TARGET_BODIES = 300; 
+  const LEAK_BATCH = 3;      
   const VB = { x: 30, y: 60, w: 1220, h: 790 };
   const FONT_SVG_SIZE = 10;
 
@@ -56,7 +56,6 @@
     return p ? p.y : (canvas ? canvas.height : 9999);
   }
 
-  // Top-left/top-right canvas points of the funnel mouth, where new words spawn.
   function funnelTopEdge() {
     const tl = svgToCanvas(FUNNEL[0].x, FUNNEL[0].y);
     const tr = svgToCanvas(FUNNEL[3].x, FUNNEL[3].y);
@@ -81,8 +80,6 @@
   const FUNNEL_WALL_PAIRS = [[0, 1], [3, 2]];
   const FUNNEL_FLOOR_PAIR = [1, 2];
 
-  // The SVG scrolls with the page while the canvas stays fixed to the
-  // viewport, so re-glue the static funnel bodies to the SVG every tick.
   function syncFunnelPose() {
     if (!svgEl) return;
     FUNNEL_WALL_PAIRS.forEach(([i, j], idx) => {
@@ -136,7 +133,6 @@
     Matter.Composite.add(world, funnelFloor);
   }
 
-  // ── public API ───────────────────────────────────────────────────
   export function setSvg(el) {
     svgEl = el;
     rebuildFunnel();
@@ -160,7 +156,6 @@
     _addBody(cx, cy, w, h, txt, (Math.random() - 0.5) * 1.2, 0.5);
   }
 
-  // called from page loop while spinning
   export function spawn(txt) {
     if (!engine || !canvas) return;
     const edge = funnelTopEdge();
@@ -178,7 +173,7 @@
 
   function _addBody(cx, cy, w, h, txt, vx, vy) {
     const body = Matter.Bodies.rectangle(cx, cy, w, h, {
-      restitution: 0.05, friction: 0.85, frictionAir: 0.04,
+      restitution: 0, friction: 0.85, frictionStatic: 2.9, frictionAir: 0.04,
       density: 0.002, sleepThreshold: 20,
     });
     body._w = w; body._h = h; body._txt = txt;
@@ -277,6 +272,10 @@
 
   function createWorld(W, H) {
     engine = Matter.Engine.create({ enableSleeping: true });
+    // More solver iterations = stiffer stacks: default (6/4) lets resting
+    // words visibly jitter/sink into each other while settling.
+    engine.positionIterations = 16;
+    engine.velocityIterations = 10;
     world  = engine.world;
     engine.gravity.y = 1.6;
     wallL = Matter.Bodies.rectangle(-30,    H / 2, 60, H * 3, { isStatic: true });
