@@ -42,35 +42,44 @@
     BLOCK_DEFS.map((b) => ({ ...b, img: null, visible: false })),
   );
 
-  function rndImg() {
-    return IMAGES[Math.floor(Math.random() * IMAGES.length)];
+  const TARGET_VISIBLE = 4;
+
+  function rndImg(exclude) {
+    const pool = IMAGES.filter((img) => !exclude.has(img));
+    const from = pool.length ? pool : IMAGES;
+    return from[Math.floor(Math.random() * from.length)];
   }
 
   function tick() {
-    const order = [...Array(imageBlocks.length).keys()].sort(
-      () => Math.random() - 0.5,
-    );
-    const show = 1 + Math.floor(Math.random() * 3);
-    for (let i = 0; i < show; i++) {
-      imageBlocks[order[i]].img = rndImg();
-      imageBlocks[order[i]].visible = true;
+    const visible = [];
+    const idle = [];
+    for (let i = 0; i < imageBlocks.length; i++) {
+      (imageBlocks[i].visible ? visible : idle).push(i);
     }
-    for (let i = show; i < show + 1 && i < order.length; i++) {
-      imageBlocks[order[i]].visible = false;
+
+    const wantsMore = visible.length < TARGET_VISIBLE;
+    const addNew = idle.length && (wantsMore ? Math.random() < 0.85 : Math.random() < 0.3);
+
+    if (addNew) {
+      const i = idle[Math.floor(Math.random() * idle.length)];
+      const used = new Set(visible.map((j) => imageBlocks[j].img));
+      imageBlocks[i].img = rndImg(used);
+      imageBlocks[i].visible = true;
+    } else if (visible.length) {
+      const i = visible[Math.floor(Math.random() * visible.length)];
+      imageBlocks[i].visible = false;
     }
   }
 
   const PACES = [
-    [60, 140],
-    [250, 450],
-    [100, 800],
+    [300, 700],
+    [1200, 2000],
+    [600, 3500],
   ];
 
   let paceRange = PACES[0];
   let ticksUntilPaceChange = 0;
 
-  // Every so often, switch to a different rhythm so the mosaic never settles
-  // into one predictable cadence.
   function nextDelay() {
     if (ticksUntilPaceChange <= 0) {
       paceRange = PACES[Math.floor(Math.random() * PACES.length)];
