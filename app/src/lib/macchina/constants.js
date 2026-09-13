@@ -1,5 +1,5 @@
 export const NS    = 'http://www.w3.org/2000/svg';
-export const COLOR = 'black'; // single source of truth — change here to retheme everything
+export const COLOR = 'black';
 export const LETTERS = ['B','C','D','E','F','G','H','I','K'];
 export const CATS    = ['scrittura','memoria','sguardo','fede','calcolo','corpo'];
 export const N_LET   = 9;
