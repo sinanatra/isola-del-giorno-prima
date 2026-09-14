@@ -28,7 +28,7 @@
   }
 
   // Big fixed installs (e.g. a 50x70" vertical panel) shouldn't require
-  let isLargeScreen = $derived(pageScale > 2.2); // 1.2
+  let isLargeScreen = $derived(pageScale > 2.2); // i1.2
 
   $effect(() => {
     document.documentElement.style.overflow = isLargeScreen ? "hidden" : "";
