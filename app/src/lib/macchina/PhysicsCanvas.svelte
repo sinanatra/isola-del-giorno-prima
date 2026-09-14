@@ -17,8 +17,9 @@
   let leakTimer    = 0;
   let lastFunnelTopY = null;
 
-  const TARGET_BODIES = 300; 
-  const LEAK_BATCH = 3;      
+  const TARGET_BODIES = 300;
+  const LEAK_BATCH = 3;
+  const PHYSICS_SUBSTEPS = 2;
   const VB = { x: 30, y: 60, w: 1220, h: 790 };
   const FONT_SVG_SIZE = 10;
 
@@ -142,6 +143,14 @@
     phrasePool = phrases;
   }
 
+  function spawnIsClear(cx, cy, w, h) {
+    const bounds = {
+      min: { x: cx - w / 2, y: cy - h / 2 },
+      max: { x: cx + w / 2, y: cy + h / 2 },
+    };
+    return Matter.Query.region(Matter.Composite.allBodies(world), bounds).length === 0;
+  }
+
   function _spawnOne() {
     if (!engine || !canvas || !phrasePool.length) return;
     const txt = phrasePool[Math.floor(Math.random() * phrasePool.length)]?.oggetto || '·';
@@ -153,6 +162,7 @@
     const h = (WORD_H_MIN + Math.random() * WORD_H_RANGE) * s;
     const cx = tl.x + 8 + Math.random() * (tr.x - tl.x - 16);
     const cy = 0;
+    if (!spawnIsClear(cx, cy, w, h)) return;
     _addBody(cx, cy, w, h, txt, (Math.random() - 0.5) * 1.2, 0.5);
   }
 
@@ -164,11 +174,10 @@
     const s = vbScale();
     const w = (WORD_W_MIN + 8 + Math.random() * (WORD_W_RANGE + 6)) * s;
     const h = (WORD_H_MIN + Math.random() * (WORD_H_RANGE + 1)) * s;
-    _addBody(
-      tl.x + 8 + Math.random() * (tr.x - tl.x - 16),
-      0,
-      w, h, txt, (Math.random() - 0.5) * 1.2, 0.5
-    );
+    const cx = tl.x + 8 + Math.random() * (tr.x - tl.x - 16);
+    const cy = 0;
+    if (!spawnIsClear(cx, cy, w, h)) return;
+    _addBody(cx, cy, w, h, txt, (Math.random() - 0.5) * 1.2, 0.5);
   }
 
   function _addBody(cx, cy, w, h, txt, vx, vy) {
@@ -229,7 +238,8 @@
       spawnTimer = 0.22 + Math.random() * 0.15;
     }
 
-    Matter.Engine.update(engine, Math.min(dt * 1000, 32));
+    const stepMs = Math.min(dt * 1000, 32) / PHYSICS_SUBSTEPS;
+    for (let i = 0; i < PHYSICS_SUBSTEPS; i++) Matter.Engine.update(engine, stepMs);
     if (drainOpen) {
       for (const b of Matter.Composite.allBodies(world)) {
         if (!b.isStatic && b._w != null && b.position.y + b._h / 2 > neckY) {
@@ -274,7 +284,7 @@
     engine = Matter.Engine.create({ enableSleeping: true });
     // More solver iterations = stiffer stacks: default (6/4) lets resting
     // words visibly jitter/sink into each other while settling.
-    engine.positionIterations = 16;
+    engine.positionIterations = 30;
     engine.velocityIterations = 10;
     world  = engine.world;
     engine.gravity.y = 1.6;
