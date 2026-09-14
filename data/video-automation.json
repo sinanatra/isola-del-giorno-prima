@@ -55,8 +55,8 @@
           "brightness": 2,
           "citazioni": {
             "open": true,
-            "text": "Ogni linea è un capitolo del romanzo, ogni parola un tentativo del protagonista di raggiungere l'isola: per misura, per invenzione, per catalogo, per artificio, per dissimulazione.",
-            "textEn": "Every line is a chapter of the novel, every word an attempt by the protagonist to reach the island: through measurement, through invention, through cataloguing, through artifice, through dissimulation.",
+            "text": "Queste linee sono segni per giungere all'isola. Ogni parola svela una via: assedi, potere; viaggi e scoperte; giochi e duelli; macchine e liste; passione e artificio. Ogni traccia è una rotta per un'Isola che è sempre un giorno prima.",
+            "textEn": "These lines are signs toward the island. Every word reveals a way: sieges, power; voyages and discoveries; games and duels; machines and lists; passion and artifice. Every trace is a route to an Island that is always a day before.",
             "colorEn": "blue",
             "backgroundAlpha": 0.8,
             "verticalAlign": "bottom",
