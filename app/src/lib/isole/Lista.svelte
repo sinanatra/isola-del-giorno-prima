@@ -2,6 +2,7 @@
   import p5 from 'p5';
   import { onMount, onDestroy } from 'svelte';
   import { LISTE } from './citazioni.js';
+  import { BLUE } from './palette.js';
 
   const W = 1050, H = 1400;
 
@@ -15,7 +16,7 @@
     loop = true,
     canvasEl = $bindable(null),
     color = '#000000',
-    colorEn = 'blue',
+    colorEn = BLUE,
   } = $props();
 
   let offset = 0;
@@ -106,7 +107,7 @@
             const tw = p.textWidth(text);
             p.push();
             p.strokeCap(p.ROUND);
-            p.stroke(255);
+            p.stroke(255, 255, 255);
             p.strokeWeight(fontSize * 1.1);
             p.line(W / 2 - tw / 2, y - fontSize * 0.35, W / 2 + tw / 2, y - fontSize * 0.35);
             p.pop();

@@ -1,4 +1,6 @@
 <script>
+  import { BLUE } from './palette.js';
+
   let {
     ui = $bindable(),
     menuOpen = $bindable(),
@@ -35,13 +37,13 @@
     citVerticalAlign = $bindable('top'),
     citAlign = $bindable('left'),
     citColor = $bindable('#000000'),
-    citColorEn = $bindable('blue'),
+    citColorEn = $bindable(BLUE),
     listaOpen = $bindable(false),
     listaFontSize = $bindable(120),
     listaSpeed = $bindable(6),
     listaShowPill = $bindable(false),
     listaColor = $bindable('#000000'),
-    listaColorEn = $bindable('blue'),
+    listaColorEn = $bindable(BLUE),
   } = $props();
 
   const btn = (active) =>

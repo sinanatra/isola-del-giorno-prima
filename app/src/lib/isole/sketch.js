@@ -6,6 +6,7 @@ import {
   getGlyph,
   renderCharsIntoGfx,
 } from "./glyphs.js";
+import { CREAM } from "./palette.js";
 
 const TARGET_LONG = 1400;
 
@@ -560,7 +561,7 @@ export function createSketch(ctx) {
             dc.lineWidth = fontSize * 0.9 + 2;
             dc.stroke();
           }
-          dc.strokeStyle = "white";
+          dc.strokeStyle = CREAM;
           dc.lineWidth = fontSize * 0.9;
           dc.stroke();
         }
@@ -599,6 +600,14 @@ export function createSketch(ctx) {
     // ── draw loop ─────────────────────────────────────────────────────────
 
     p.draw = () => {
+      try {
+        drawFrame();
+      } catch (e) {
+        console.error("sketch draw error:", e);
+      }
+    };
+
+    function drawFrame() {
       const geo = ctx.geoVersion;
       if (geo !== prev.geoVersion) {
         prev.geoVersion = geo;
@@ -735,7 +744,7 @@ export function createSketch(ctx) {
       if (!needsRedraw) return;
       needsRedraw = false;
 
-      p.background(255);
+      p.background(CREAM);
 
       if (showImage && bgImage) {
         const contrast = ctx.ui.contrast ?? 1.5;
@@ -934,6 +943,6 @@ export function createSketch(ctx) {
         }
         p.pop();
       }
-    };
+    }
   };
 }

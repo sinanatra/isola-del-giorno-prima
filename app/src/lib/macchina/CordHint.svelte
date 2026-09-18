@@ -27,14 +27,14 @@
         refY="4"
         orient="auto"
       >
-        <path d="M0,0 L8,4 L0,8 Z" fill="blue" />
+        <path d="M0,0 L8,4 L0,8 Z" style="fill: var(--color-blue)" />
       </marker>
     </defs>
     <path
       id="cordHintPath"
       d={path}
       fill="none"
-      stroke="blue"
+      style="stroke: var(--color-blue)"
       stroke-width="4"
       marker-end="url(#cordHintArrow)"
     />
@@ -44,7 +44,7 @@
       font-style="italic"
       font-size={fontSize}
       letter-spacing={letterSpacing}
-      fill="blue"
+      style="fill: var(--color-blue)"
       stroke="#EFEFEF"
       stroke-width="10"
       stroke-linejoin="round"

@@ -2,6 +2,7 @@
   import p5 from 'p5';
   import { onMount, onDestroy } from 'svelte';
   import { CITAZIONI } from './citazioni.js';
+  import { BLUE } from './palette.js';
 
   const W = 1050, H = 1400;
 
@@ -21,7 +22,7 @@
     align = 'left',
     padding = null,
     color = '#000000',
-    colorEn = 'blue',
+    colorEn = BLUE,
   } = $props();
 
   // { text, x, y, w, lang }
@@ -135,7 +136,7 @@
     if (showPill && count > 0) {
       p.push();
       p.strokeCap(p.ROUND);
-      p.stroke(255);
+      p.stroke(255, 255, 255);
       p.strokeWeight(fontSize * 1.1);
       p.noFill();
       for (let i = 0; i < count; i++) {

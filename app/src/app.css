@@ -13,6 +13,9 @@
 
 :root {
   overscroll-behavior: none;
+
+  --color-blue: hsl(245, 60%, 54%);
+  --color-cream: #fff9ed;
 }
 
 @layer base {

@@ -1,4 +1,6 @@
-export const LABEL_COLOR = 'blue';
+import { BLUE } from './palette.js';
+
+export const LABEL_COLOR = BLUE;
 const SPEED_VARIATION = 0.22;
 
 export function chapterSpeedMultiplier(chapter) {

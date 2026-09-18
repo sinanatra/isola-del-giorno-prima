@@ -6,6 +6,10 @@
   import Controls from "$lib/isole/Controls.svelte";
   import Citazioni from "$lib/isole/Citazioni.svelte";
   import Lista from "$lib/isole/Lista.svelte";
+  import { BLUE, CREAM } from "$lib/isole/palette.js";
+
+  const COLOR_TOKENS = { blue: BLUE, black: "#000000" };
+  const resolveColor = (v, fallback) => (v === undefined ? fallback : (COLOR_TOKENS[v] ?? v));
 
   let { data } = $props();
 
@@ -47,7 +51,7 @@
     verticalAlign: 'top',
     align: 'left',
     color: '#000000',
-    colorEn: 'blue',
+    colorEn: BLUE,
   });
   let citCanvasEl = $state(null);
   let citActions = { replay: () => {}, stop: () => {} };
@@ -60,7 +64,7 @@
     backgroundAlpha: 0,
     showPill: false,
     color: '#000000',
-    colorEn: 'blue',
+    colorEn: BLUE,
   });
   let listaCanvasEl = $state(null);
 
@@ -236,8 +240,8 @@
       if (s.showPill !== undefined) cit.showPill = Boolean(s.showPill);
       if (s.verticalAlign !== undefined) cit.verticalAlign = s.verticalAlign;
       cit.align = s.align !== undefined ? s.align : 'left';
-      cit.color = s.color !== undefined ? s.color : '#000000';
-      cit.colorEn = s.colorEn !== undefined ? s.colorEn : 'blue';
+      cit.color = resolveColor(s.color, '#000000');
+      cit.colorEn = resolveColor(s.colorEn, BLUE);
     } else {
       cit.open = false;
       cit.text = "";
@@ -252,8 +256,8 @@
       if (s.speed !== undefined) lista.speed = Number(s.speed);
       if (s.backgroundAlpha !== undefined) lista.backgroundAlpha = Number(s.backgroundAlpha);
       if (s.showPill !== undefined) lista.showPill = Boolean(s.showPill);
-      lista.color = s.color !== undefined ? s.color : '#000000';
-      lista.colorEn = s.colorEn !== undefined ? s.colorEn : 'blue';
+      lista.color = resolveColor(s.color, '#000000');
+      lista.colorEn = resolveColor(s.colorEn, BLUE);
     } else {
       lista.open = false;
     }
@@ -350,9 +354,14 @@
       if (compRafId) cancelAnimationFrame(compRafId);
       if (capturer) {
         recPhase = "…";
-        await capturer.stop();
-        await capturer.save();
-        await capturer.dispose();
+        try {
+          await capturer.stop();
+          await capturer.save();
+          await capturer.dispose();
+        } catch (e) {
+          console.error("recording save error:", e);
+          automationError = "Errore durante il salvataggio del video.";
+        }
       }
       await restoreSessionState(snapshot);
       recording = false;
@@ -571,10 +580,10 @@
     <p class="p-4 text-red-600">{loadError}</p>
   {:else if isReady}
     <P5 {sketch} />
-    <div class="absolute inset-x-0 top-0 h-20 pointer-events-none" style="background: linear-gradient(to bottom, white, transparent)"></div>
-    <div class="absolute inset-x-0 bottom-0 h-20 pointer-events-none" style="background: linear-gradient(to top, white, transparent)"></div>
-    <div class="absolute inset-y-0 left-0 w-20 pointer-events-none" style="background: linear-gradient(to right, white, transparent)"></div>
-    <div class="absolute inset-y-0 right-0 w-20 pointer-events-none" style="background: linear-gradient(to left, white, transparent)"></div>
+    <div class="absolute inset-x-0 top-0 h-20 pointer-events-none" style="background: linear-gradient(to bottom, {CREAM}, transparent)"></div>
+    <div class="absolute inset-x-0 bottom-0 h-20 pointer-events-none" style="background: linear-gradient(to top, {CREAM}, transparent)"></div>
+    <div class="absolute inset-y-0 left-0 w-20 pointer-events-none" style="background: linear-gradient(to right, {CREAM}, transparent)"></div>
+    <div class="absolute inset-y-0 right-0 w-20 pointer-events-none" style="background: linear-gradient(to left, {CREAM}, transparent)"></div>
     {#if cit.open}
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <Citazioni
