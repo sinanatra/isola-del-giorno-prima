@@ -21,6 +21,8 @@
   const TARGET_BODIES = 300;
   const LEAK_BATCH = 3;
   const PHYSICS_SUBSTEPS = 2;
+  const STUCK_SECONDS = 0.6;
+  const STUCK_SPEED = 0.05;
   const VB = { x: 30, y: 60, w: 1220, h: 790 };
   const FONT_SVG_SIZE = 18;
   const WORD_PAD_X = 10;
@@ -219,6 +221,9 @@
       frictionAir: 0.04,
       density: 0.002,
       sleepThreshold: 20,
+      // Rounded corners keep tiles from interlocking into a stable arch
+      // across the narrowing funnel throat.
+      chamfer: { radius: Math.min(w, h) * 0.25 },
     });
     body._w = w;
     body._h = h;
@@ -226,6 +231,32 @@
     Matter.Body.setVelocity(body, { x: vx, y: vy });
     Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.1);
     Matter.Composite.add(world, body);
+  }
+
+  function antiJam(dt, neckY) {
+    for (const b of Matter.Composite.allBodies(world)) {
+      if (b.isStatic || b._w == null) continue;
+      if (b.position.y + b._h / 2 > neckY) {
+        b._stuckTime = 0;
+        continue;
+      }
+      const speed =
+        Matter.Vector.magnitude(b.velocity) + Math.abs(b.angularVelocity) * 10;
+      if (speed < STUCK_SPEED) {
+        b._stuckTime = (b._stuckTime || 0) + dt;
+        if (b._stuckTime > STUCK_SECONDS) {
+          if (b.isSleeping) Matter.Sleeping.set(b, false);
+          Matter.Body.setVelocity(b, {
+            x: (Math.random() - 0.5) * 2,
+            y: 0.6,
+          });
+          Matter.Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.2);
+          b._stuckTime = 0;
+        }
+      } else {
+        b._stuckTime = 0;
+      }
+    }
   }
 
   // omega is the valve: open when spinning, closed when stopped
@@ -269,6 +300,7 @@
     }
 
     const neckY = funnelNeckY();
+    if (drainOpen) antiJam(dt, neckY);
 
     spawnTimer -= dt;
     if (spawnTimer <= 0) {
