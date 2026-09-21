@@ -103,7 +103,7 @@
       {
         "type": "terms-category",
         "label": "termini categoria",
-        "duration": 30,
+        "duration": 60,
         "scene": {
           "showImage": true,
           "showContours": true,
@@ -156,7 +156,7 @@
       {
         "type": "terms-category",
         "label": "termini categoria",
-        "duration": 10,
+        "duration": 60,
         "scene": {
           "showImage": true,
           "showContours": true,
@@ -198,7 +198,7 @@
             "words": "",
             "fontSize": 182,
             "speed": 6,
-            "backgroundAlpha": 0.4,
+            "backgroundAlpha": 0.2,
             "showPill": false,
             "color": "black",
             "colorEn": "blue"
