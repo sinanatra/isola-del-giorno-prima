@@ -15,8 +15,8 @@
     "/macchine/reference.png",
   ];
 
-  const COLS = 7;
-  const ROWS = 6;
+  const COLS = 9;
+  const ROWS = 9;
   const TOTAL = COLS * ROWS;
 
   const letters = Array.from({ length: TOTAL }, (_, i) => {
@@ -26,16 +26,19 @@
   });
 
   const BLOCK_DEFS = [
-    { col: 1, row: 1, colSpan: 2, rowSpan: 2 },
-    { col: 3, row: 1, colSpan: 1, rowSpan: 1 },
-    { col: 4, row: 1, colSpan: 4, rowSpan: 2 },
-    { col: 3, row: 2, colSpan: 1, rowSpan: 1 },
-    { col: 1, row: 3, colSpan: 3, rowSpan: 2 },
-    { col: 4, row: 3, colSpan: 2, rowSpan: 2 },
-    { col: 6, row: 3, colSpan: 2, rowSpan: 2 },
-    { col: 1, row: 5, colSpan: 2, rowSpan: 2 },
-    { col: 3, row: 5, colSpan: 1, rowSpan: 2 },
-    { col: 4, row: 5, colSpan: 4, rowSpan: 2 },
+    { col: 1, row: 1, colSpan: 3, rowSpan: 3 },
+    { col: 4, row: 1, colSpan: 2, rowSpan: 2 },
+    { col: 6, row: 1, colSpan: 3, rowSpan: 3 },
+    { col: 1, row: 4, colSpan: 2, rowSpan: 2 },
+    { col: 3, row: 4, colSpan: 2, rowSpan: 3 },
+    { col: 5, row: 4, colSpan: 2, rowSpan: 2 },
+    { col: 7, row: 4, colSpan: 2, rowSpan: 3 },
+    { col: 1, row: 6, colSpan: 4, rowSpan: 2 },
+    { col: 5, row: 6, colSpan: 2, rowSpan: 2 },
+    { col: 7, row: 6, colSpan: 3, rowSpan: 3 },
+    { col: 1, row: 8, colSpan: 3, rowSpan: 2 },
+    { col: 4, row: 8, colSpan: 2, rowSpan: 2 },
+    { col: 6, row: 8, colSpan: 3, rowSpan: 2 },
   ];
 
   let imageBlocks = $state(
@@ -108,7 +111,7 @@
 
 <section>
   <!-- Letter grid -->
-  <div class="letters-grid" style="--cols:{COLS}">
+  <div class="letters-grid" style="--cols:{COLS}; --rows:{ROWS}">
     {#each letters as letter}
       <div class="cell">
         <span class="letter">{letter}</span>
@@ -143,7 +146,7 @@
   .letters-grid {
     display: grid;
     grid-template-columns: repeat(var(--cols), 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-rows: repeat(var(--rows), 1fr);
     width: 100%;
     height: 100%;
     position: relative;
@@ -157,7 +160,7 @@
   }
   .letter {
     font-family: "Freight", serif;
-    font-size: min(calc(100vw / var(--cols) * 0.8), calc(80vh / 8 * 0.8));
+    font-size: min(calc(100vw / var(--cols) * 0.2), calc(100vw / var(--rows) * 0.2));
     color: black;
     user-select: none;
     line-height: 1;
