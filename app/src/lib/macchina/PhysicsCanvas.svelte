@@ -25,9 +25,8 @@
   const FONT_SVG_SIZE = 18;
   const WORD_PAD_X = 10;
 
-  const WORD_W_MIN = 55;
-  const WORD_H_MIN = 18,
-    WORD_H_RANGE = 9;
+  const WORD_W_MIN = 25;
+  const WORD_H_MIN = 22;
 
   function vbScale() {
     const r = svgRect();
@@ -188,7 +187,7 @@
   function spawnWordAt(txt, tl, tr) {
     const s = vbScale();
     const w = wordWidth(txt, s);
-    const h = (WORD_H_MIN + Math.random() * WORD_H_RANGE) * s;
+    const h = WORD_H_MIN * s;
     const cx = tl.x + 8 + Math.random() * (tr.x - tl.x - 16);
     const cy = 0;
     if (!spawnIsClear(cx, cy, w, h)) return;
