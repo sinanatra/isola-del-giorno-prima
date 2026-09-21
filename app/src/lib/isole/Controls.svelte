@@ -163,7 +163,7 @@
         </select>
       </label>
 
-      <span class="ml-auto text-gray-300 italic">{itemCount}</span>
+      <span class="ml-auto text-gray-300">{itemCount}</span>
     </div>
 
     <!-- testo + animazione -->

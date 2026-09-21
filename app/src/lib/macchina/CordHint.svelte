@@ -6,8 +6,8 @@
     text = "",
     path = "M 1200 190 C 1230 250, 1180 340, 1160 430",
     textPath = "M 1216 193 C 1246 253, 1196 343, 1176 433",
-    fontSize = 42,
-    letterSpacing = 3,
+    fontSize = 48,
+    letterSpacing = 1,
   } = $props();
 </script>
 
@@ -41,7 +41,6 @@
     <path id="cordHintTextPath" d={textPath} fill="none" stroke="none" />
     <text
       font-family="Freight, serif"
-      font-style="italic"
       font-size={fontSize}
       letter-spacing={letterSpacing}
       style="fill: var(--color-blue)"

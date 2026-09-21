@@ -5,11 +5,6 @@
   src: url("/font/FreightBigProBook-Regular.otf") format("opentype");
   font-weight: 400;
 }
-@font-face {
-  font-family: "Freight";
-  src: url("/font/FreightBigProMedium-Regular.otf") format("opentype");
-  font-weight: 500;
-}
 
 :root {
   overscroll-behavior: none;
@@ -34,6 +29,9 @@
   canvas {
     display: block;
     max-width: none !important;
+  }
+  em {
+    font-style: normal;
   }
 }
 
