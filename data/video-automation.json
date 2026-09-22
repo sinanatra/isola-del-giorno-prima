@@ -9,7 +9,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "all",
           "minValue": 0.1,
@@ -41,7 +41,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "all",
           "minValue": 0.15,
@@ -73,7 +73,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.1,
@@ -103,11 +103,11 @@
       {
         "type": "terms-category",
         "label": "termini categoria",
-        "duration": 30,
+        "duration": 60,
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.3,
@@ -128,7 +128,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.1,
@@ -156,11 +156,11 @@
       {
         "type": "terms-category",
         "label": "termini categoria",
-        "duration": 10,
+        "duration": 60,
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.15,
@@ -181,7 +181,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.1,
@@ -198,7 +198,7 @@
             "words": "",
             "fontSize": 182,
             "speed": 6,
-            "backgroundAlpha": 0.4,
+            "backgroundAlpha": 0.2,
             "showPill": false,
             "color": "black",
             "colorEn": "blue"
