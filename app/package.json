@@ -18,12 +18,12 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
-    "ccapture.js": "^2.0.0",
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
     "d3-zoom": "^3.0.0",
     "gh-pages": "^6.3.0",
     "matter-js": "^0.20.0",
+    "mediabunny": "^1.59.0",
     "p5": "^2.2.3",
     "p5-svelte": "^3.1.2",
     "tailwindcss": "^4.3.0"

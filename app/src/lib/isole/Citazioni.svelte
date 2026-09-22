@@ -28,8 +28,11 @@
   // { text, x, y, w, lang }
   let words = [];
   let revealed = 0;
-  let animStart = 0;
+  let drawnCount = 0; 
+  let wordsLayer = null; 
+  let framesDrawn = 0;
   let needsRelayout = true;
+  let externallyDriven = false;
   let pInst;
   let container;
   let sketch;
@@ -123,42 +126,51 @@
     if (backgroundAlpha > 0) p.background(255, 255, 255, backgroundAlpha * 255);
   }
 
+  function drawNewWords(from, to) {
+    if (to <= from) return;
+    const g = wordsLayer;
+    g.textFont('Freight');
+    g.textSize(fontSize);
+    g.textAlign(g.LEFT, g.BASELINE);
+
+    if (showPill) {
+      g.push();
+      g.strokeCap(g.ROUND);
+      g.stroke(255, 255, 255);
+      g.strokeWeight(fontSize * 1.1);
+      g.noFill();
+      for (let i = from; i < to; i++) {
+        const { x, y, w } = words[i];
+        g.line(x, y - fontSize * 0.35, x + w, y - fontSize * 0.35);
+      }
+      g.pop();
+    }
+
+    g.noStroke();
+    let currentFill = null;
+    for (let i = from; i < to; i++) {
+      const fill = words[i].lang === 'en' && colorEn ? colorEn : color;
+      if (fill !== currentFill) { g.fill(fill); currentFill = fill; }
+      g.text(words[i].text, words[i].x, words[i].y);
+    }
+  }
+
   function drawFrame(p) {
     clear(p);
     if (!words.length) return;
 
-    p.textFont('Freight');
-    p.textSize(fontSize);
-    p.textAlign(p.LEFT, p.BASELINE);
-
     const count = Math.min(revealed, words.length);
-
-    if (showPill && count > 0) {
-      p.push();
-      p.strokeCap(p.ROUND);
-      p.stroke(255, 255, 255);
-      p.strokeWeight(fontSize * 1.1);
-      p.noFill();
-      for (let i = 0; i < count; i++) {
-        const { x, y, w } = words[i];
-        p.line(x, y - fontSize * 0.35, x + w, y - fontSize * 0.35);
-      }
-      p.pop();
+    if (count > drawnCount) {
+      drawNewWords(drawnCount, count);
+      drawnCount = count;
     }
-
-    p.noStroke();
-    let currentFill = null;
-    for (let i = 0; i < count; i++) {
-      const fill = words[i].lang === 'en' && colorEn ? colorEn : color;
-      if (fill !== currentFill) { p.fill(fill); currentFill = fill; }
-      p.text(words[i].text, words[i].x, words[i].y);
-    }
+    p.image(wordsLayer, 0, 0);
   }
 
   $effect(() => {
     void category; void text; void textEn; void fontSize; void lineHeight; void verticalAlign; void align; void padding;
     needsRelayout = true;
-    pInst?.loop();
+    if (!externallyDriven) pInst?.loop();
   });
 
   onMount(() => {
@@ -169,6 +181,8 @@
         p.pixelDensity(window.devicePixelRatio || 1);
         const c = p.createCanvas(W, H);
         c.elt.style.cssText = `display:block;width:${W}px;height:${H}px;pointer-events:none`;
+        p.frameRate(30);
+        wordsLayer = p.createGraphics(W, H);
         canvasEl = c.elt;
       };
 
@@ -176,16 +190,19 @@
         if (needsRelayout) {
           computeLayout(p);
           revealed = 0;
-          animStart = p.millis();
+          drawnCount = 0;
+          wordsLayer.clear();
+          framesDrawn = 0;
           citPlaying = true;
           needsRelayout = false;
         }
 
         if (citPlaying) {
           revealed = Math.min(
-            Math.floor((p.millis() - animStart) / msPerWord),
+            Math.floor((framesDrawn * (1000 / 30)) / msPerWord),
             words.length,
           );
+          framesDrawn++;
           if (revealed >= words.length) {
             citPlaying = false;
             drawFrame(p);
@@ -199,12 +216,21 @@
     }, container);
 
     onregister?.({
-      replay: () => { needsRelayout = true; pInst?.loop(); },
+      replay: () => { needsRelayout = true; if (!externallyDriven) pInst?.loop(); },
       stop: () => {
         citPlaying = false;
         revealed = words.length;
         if (pInst) { drawFrame(pInst); pInst.noLoop(); }
       },
+      pause: () => {
+        externallyDriven = true;
+        pInst?.noLoop();
+      },
+      resume: () => {
+        externallyDriven = false;
+        pInst?.loop();
+      },
+      advance: () => pInst?.redraw(),
     });
   });
 

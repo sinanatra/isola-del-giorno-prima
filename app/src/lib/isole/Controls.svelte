@@ -20,6 +20,10 @@
     recDuration = $bindable(180),
     startRecording,
     startAutomationRecording = () => {},
+    startBatchRecording = () => {},
+    batchActive = false,
+    batchIndex = 0,
+    batchTotal = 0,
     automationPresets = [],
     automationError = "",
     takeScreenshot = () => {},
@@ -261,8 +265,12 @@
         </select>
       </label>
 
-      <button class={btnRed(recording)} onclick={startAutomationRecording}>
+      <button class={btnRed(recording)} onclick={startAutomationRecording} disabled={batchActive}>
         {recording ? 'stop' : 'auto rec'}
+      </button>
+
+      <button class={btnRed(batchActive)} onclick={startBatchRecording} title="registra in sequenza tutte le mappe elencate in batch-record.json">
+        {batchActive ? `stop batch (${batchIndex}/${batchTotal})` : 'batch rec'}
       </button>
 
       <div class={sep}></div>

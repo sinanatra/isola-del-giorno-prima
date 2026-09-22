@@ -17,11 +17,13 @@
     canvasEl = $bindable(null),
     color = '#000000',
     colorEn = BLUE,
+    onregister = null,
   } = $props();
 
   let offset = 0;
   let container;
   let sketch;
+  let pInst;
 
   function getWords() {
     if (words && words.trim()) {
@@ -76,6 +78,8 @@
 
   onMount(() => {
     sketch = new p5((p) => {
+      pInst = p;
+
       p.setup = () => {
         p.pixelDensity(window.devicePixelRatio || 1);
         const c = p.createCanvas(W, H);
@@ -118,6 +122,16 @@
         }
       };
     }, container);
+
+    onregister?.({
+      // Recording-only controls: pause the sketch's own real-time loop and
+      // drive it one frame at a time from the parent instead. offset already
+      // advances by a fixed amount per draw() call, so this alone keeps the
+      // scroll in lockstep with captured video frames.
+      pause: () => pInst?.noLoop(),
+      resume: () => pInst?.loop(),
+      advance: () => pInst?.redraw(),
+    });
   });
 
   onDestroy(() => sketch?.remove());

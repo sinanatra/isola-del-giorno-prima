@@ -9,7 +9,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "all",
           "minValue": 0.1,
@@ -41,7 +41,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "all",
           "minValue": 0.15,
@@ -73,7 +73,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.1,
@@ -107,7 +107,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.3,
@@ -128,7 +128,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.1,
@@ -160,7 +160,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.15,
@@ -181,7 +181,7 @@
         "scene": {
           "showImage": true,
           "showContours": true,
-          "showTitles": true,
+          "showTitles": false,
           "labelsAlpha": 1,
           "category": "__CATEGORY__",
           "minValue": 0.1,

@@ -1,0 +1,10 @@
+{
+  "queue": [
+    { "preset": "lista_inventario", "dataset": "default" },
+    { "preset": "invenzione_scoperta", "dataset": "1" },
+    { "preset": "artificiale_naturale", "dataset": "2" },
+    { "preset": "misura_infinito", "dataset": "3" },
+    { "preset": "potere_sapere", "dataset": "4" },
+    { "preset": "potere_sapere", "dataset": "5" }
+  ]
+}
