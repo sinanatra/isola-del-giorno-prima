@@ -355,7 +355,7 @@
   class="shadow"
   style={isLargeScreen
     ? `position: fixed; top: ${headerH}px; left: 0; right: 0; bottom: 0; z-index: 10`
-    : "position: sticky; top: 0; height: 100vh"}
+    : "position: sticky; top: 0; height: 100dvh"}
 >
   <ArchiveIntro />
 </div>
