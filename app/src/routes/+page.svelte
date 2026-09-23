@@ -17,26 +17,23 @@
   let physicsRef;
 
   // Layout and scaling: the machine is designed for a 50x70" screen, but should scale to fit
-  const DESIGN_WIDTH = 2160;
-  const LARGE_DESIGN_WIDTH = 4000;
+  const DESIGN_WIDTH = 1512;
   const MIN_PAGE_SCALE = 0.55;
+  const LARGE_SCREEN_HEADER_H = 240; // fix for kios :D
+
   let pageScale = $state(1);
   let headerH = $state(0);
   let machineBoxH = $state(0);
 
   function updatePageScale() {
-    const isVertical = window.innerHeight / window.innerWidth > 1.5;
-    const designW = isVertical ? LARGE_DESIGN_WIDTH : DESIGN_WIDTH;
-    pageScale = Math.max(window.innerWidth / designW, MIN_PAGE_SCALE);
+    pageScale = Math.max(window.innerWidth / DESIGN_WIDTH, MIN_PAGE_SCALE);
   }
 
   // Big fixed installs (e.g. a 50x70" vertical panel) or vertical monitors
-  let isLargeScreen = $derived(
-    pageScale > 2.2 || window.innerHeight / window.innerWidth > 1.5
-  );
+  let isVertical = $derived(window.innerHeight > window.innerWidth);
 
   $effect(() => {
-    document.documentElement.style.overflow = isLargeScreen ? "hidden" : "";
+    document.documentElement.style.overflow = isVertical ? "hidden" : "";
   });
 
   let quotes = $state(null);
@@ -338,8 +335,8 @@
 
 <div style="zoom: {pageScale}">
   <header
-    class="bg-[gainsboro] shadow {isLargeScreen ? '' : 'sticky top-0'}"
-    style={isLargeScreen
+    class="bg-[gainsboro] shadow {isVertical ? '' : 'sticky top-0'}"
+    style={isVertical
       ? "position: fixed; top: 0; left: 0; right: 0; z-index: 20"
       : ""}
     bind:clientHeight={headerH}
@@ -358,8 +355,8 @@
 
 <div
   class="shadow"
-  style={isLargeScreen
-    ? `position: fixed; top: ${headerH}px; left: 0; right: 0; bottom: 0; z-index: 10`
+  style={isVertical
+    ? `position: fixed; top: ${LARGE_SCREEN_HEADER_H}px; left: 0; right: 0; bottom: 0; z-index: 10; height: calc(100vh - ${LARGE_SCREEN_HEADER_H}px); overflow: hidden`
     : "position: sticky; top: 0; height: 100dvh"}
 >
   <ArchiveIntro />
@@ -375,7 +372,7 @@
 
   <div
     class="px-8 py-8"
-    style={isLargeScreen
+    style={isVertical
       ? `position: fixed; bottom: calc(0.75rem + ${machineBoxH / pageScale}px + .2rem); left: 0; right: 0; z-index: 25`
       : "position: sticky; top: 1.75rem; margin-top: -18vh"}
   >
@@ -389,8 +386,8 @@
 
 <div
   class="z-24"
-  style={isLargeScreen
-    ? "position: fixed; bottom: 0; left: 0; right: 0"
+  style={isVertical
+    ? `position: fixed; bottom: 0; left: 0; right: 0; z-index: 15`
     : "position: sticky; top: 1.75rem"}
 >
   <div
