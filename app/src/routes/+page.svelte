@@ -19,7 +19,6 @@
   // Layout and scaling: the machine is designed for a 50x70" screen, but should scale to fit
   const DESIGN_WIDTH = 1512;
   const MIN_PAGE_SCALE = 0.55;
-  const LARGE_SCREEN_HEADER_H = 240; // fix for kios :D
 
   let pageScale = $state(1);
   let headerH = $state(0);
@@ -333,30 +332,28 @@
   console.log("Thanks to Max Bittker for the inspiration :) ");
 </script>
 
-<div style="zoom: {pageScale}">
-  <header
-    class="bg-[gainsboro] shadow {isVertical ? '' : 'sticky top-0'}"
-    style={isVertical
-      ? "position: fixed; top: 0; left: 0; right: 0; z-index: 20"
-      : ""}
-    bind:clientHeight={headerH}
-  >
-    <div class="max-w-350 grid grid-cols-2 gap-2 px-2 py-1">
-      {#each t().introLead as paragraph}
-        <p class="max-w-170 text-xl leading-tight m-0 p-2 text-[#282828]">
-          {#each paragraph.split("\n") as line, i}
-            <span class="block {i > 0 ? 'indent-6' : ''}">{@html line}</span>
-          {/each}
-        </p>
-      {/each}
-    </div>
-  </header>
-</div>
+<header
+  class="bg-[gainsboro] shadow {isVertical ? '' : 'sticky top-0'}"
+  style={isVertical
+    ? "position: fixed; top: 0; left: 0; right: 0; z-index: 20"
+    : ""}
+  bind:clientHeight={headerH}
+>
+  <div class="max-w-350 grid grid-cols-2 gap-2 px-2 py-1">
+    {#each t().introLead as paragraph}
+      <p class="max-w-170 text-xl leading-tight m-0 p-2 text-[#282828]">
+        {#each paragraph.split("\n") as line, i}
+          <span class="block {i > 0 ? 'indent-6' : ''}">{@html line}</span>
+        {/each}
+      </p>
+    {/each}
+  </div>
+</header>
 
 <div
   class="shadow"
   style={isVertical
-    ? `position: fixed; top: ${LARGE_SCREEN_HEADER_H}px; left: 0; right: 0; bottom: 0; z-index: 10; height: calc(100vh - ${LARGE_SCREEN_HEADER_H}px); overflow: hidden`
+    ? `position: fixed; top: ${headerH}px; left: 0; right: 0; bottom: 0; z-index: 10; height: calc(100vh - ${headerH}px); overflow: hidden`
     : "position: sticky; top: 0; height: 100dvh"}
 >
   <ArchiveIntro />
