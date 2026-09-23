@@ -17,18 +17,23 @@
   let physicsRef;
 
   // Layout and scaling: the machine is designed for a 50x70" screen, but should scale to fit
-  const DESIGN_WIDTH = 1080;
+  const DESIGN_WIDTH = 2160;
+  const LARGE_DESIGN_WIDTH = 4000;
   const MIN_PAGE_SCALE = 0.55;
   let pageScale = $state(1);
   let headerH = $state(0);
   let machineBoxH = $state(0);
 
   function updatePageScale() {
-    pageScale = Math.max(window.innerWidth / DESIGN_WIDTH, MIN_PAGE_SCALE);
+    const isVertical = window.innerHeight / window.innerWidth > 1.5;
+    const designW = isVertical ? LARGE_DESIGN_WIDTH : DESIGN_WIDTH;
+    pageScale = Math.max(window.innerWidth / designW, MIN_PAGE_SCALE);
   }
 
-  // Big fixed installs (e.g. a 50x70" vertical panel) shouldn't require
-  let isLargeScreen = $derived(pageScale > 2.2); // i1.2
+  // Big fixed installs (e.g. a 50x70" vertical panel) or vertical monitors
+  let isLargeScreen = $derived(
+    pageScale > 2.2 || window.innerHeight / window.innerWidth > 1.5
+  );
 
   $effect(() => {
     document.documentElement.style.overflow = isLargeScreen ? "hidden" : "";
