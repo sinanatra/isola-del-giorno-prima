@@ -17,7 +17,7 @@
   let physicsRef;
 
   // Layout and scaling: the machine is designed for a 50x70" screen, but should scale to fit
-  const DESIGN_WIDTH = 1512;
+  const DESIGN_WIDTH = 1080;
   const MIN_PAGE_SCALE = 0.55;
   let pageScale = $state(1);
   let headerH = $state(0);
