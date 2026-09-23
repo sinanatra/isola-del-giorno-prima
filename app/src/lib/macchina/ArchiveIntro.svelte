@@ -13,6 +13,9 @@
     "/macchine/e1304e49-5307-401b-8efa-8f4cc8643532.png",
     "/macchine/e647bdfb1391845efc7db3ece00a7f12.png",
     "/macchine/reference.png",
+    "/macchine/leibniz.png",
+    "/macchine/pascalina.png",
+    "/macchine/turing.png",
   ];
 
   const COLS = 9;
