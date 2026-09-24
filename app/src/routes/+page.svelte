@@ -342,7 +342,7 @@
   <div class="max-w-350 grid grid-cols-2 gap-2 px-2 py-1">
     {#each t().introLead as paragraph}
       <p class="max-w-170 text-xl leading-tight m-0 p-2 text-[#282828]">
-        {#each paragraph.split("\n") as line, i}
+      {#each paragraph.split("\n") as line, i}
           <span class="block {i > 0 ? 'indent-6' : ''}">{@html line}</span>
         {/each}
       </p>
