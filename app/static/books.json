@@ -128,54 +128,7 @@
         "/books/ramelli/82.png"
       ]
     },
-    {
-      "id": "schott",
-      "title": "Technica curiosa",
-      "author": "Gaspar Schott",
-      "year": 1664,
-      "description": "",
-      "cover": "/books/schott/83.png",
-      "pages": [
-        "/books/schott/83.png",
-        "/books/schott/84.png",
-        "/books/schott/85.png",
-        "/books/schott/86.png",
-        "/books/schott/87.png",
-        "/books/schott/88.png",
-        "/books/schott/89.png",
-        "/books/schott/90.png",
-        "/books/schott/91.png",
-        "/books/schott/92.png",
-        "/books/schott/93.png",
-        "/books/schott/94.png",
-        "/books/schott/95.png",
-        "/books/schott/96.png"
-      ]
-    },
-    {
-      "id": "kircher-ars-magna",
-      "title": "Ars magna lucis et umbrae",
-      "author": "Athanasius Kircher",
-      "year": 1671,
-      "description": "",
-      "cover": "/books/kircher-ars-magna/97.png",
-      "pages": [
-        "/books/kircher-ars-magna/97.png",
-        "/books/kircher-ars-magna/98.png",
-        "/books/kircher-ars-magna/99.png",
-        "/books/kircher-ars-magna/100.png",
-        "/books/kircher-ars-magna/101.png",
-        "/books/kircher-ars-magna/102.png",
-        "/books/kircher-ars-magna/103.png",
-        "/books/kircher-ars-magna/104.png",
-        "/books/kircher-ars-magna/105.png",
-        "/books/kircher-ars-magna/106.png",
-        "/books/kircher-ars-magna/107.png",
-        "/books/kircher-ars-magna/108.png",
-        "/books/kircher-ars-magna/109.png",
-        "/books/kircher-ars-magna/110.png"
-      ]
-    },
+
     {
       "id": "kircher-musaeum",
       "title": "Musæum celeberrimum",
