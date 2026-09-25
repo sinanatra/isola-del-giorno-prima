@@ -13,7 +13,7 @@
     let destroyed = false;
     let observer;
     const root = document.createElement("div");
-    root.className = "w-full h-full";
+    root.className = "w-full h-full m-auto";
     container.appendChild(root);
 
     book.pages.forEach((src, i) => {
@@ -99,7 +99,7 @@
     aria-label="Pagina precedente">‹</button
   >
 
-  <div bind:this={container} class="w-full h-full px-10"></div>
+  <div bind:this={container} class="w-full h-full m-auto px-10"></div>
 
   <button
     class="{arrowClass} right-0"

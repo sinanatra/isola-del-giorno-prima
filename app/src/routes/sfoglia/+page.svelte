@@ -28,13 +28,13 @@
 
 <div class="w-full h-dvh overflow-hidden flex flex-col gap-4 p-4 bg-white">
   {#if selectedBook}
-    <header class="text-center shrink-0">
+    <header class="text-center shrink-0 my-2">
       <h1
-        class="m-0 text-xl md:text-2xl font-normal tracking-wide text-[#3a3a3a]"
+        class="m-0 text-xl 2xl:text-[6vw] font-normal leading-none text-[#3a3a3a]"
       >
         {selectedBook.title}
       </h1>
-      <p class="m-0 text-sm text-gray-500">
+      <p class="m-0 text-sm 2xl:text-[4vw] text-gray-500">
         <span class="italic">{selectedBook.author}</span>
       </p>
     </header>
