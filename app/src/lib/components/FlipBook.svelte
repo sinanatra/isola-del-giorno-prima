@@ -5,6 +5,7 @@
 
   let container;
   let pageFlip;
+  let bookBottom = $state(null);
   let pageCount = $derived(book.pages.length);
 
   const showCover = false;
@@ -54,8 +55,12 @@
       pageFlip.loadFromHTML(root.querySelectorAll(".page"));
       pageFlip.getUI().getDistElement().style.height = "100%";
       pageFlip.on("flip", (e) => (currentPage = e.data));
+      syncBottom();
 
-      observer = new ResizeObserver(() => pageFlip?.update());
+      observer = new ResizeObserver(() => {
+        pageFlip?.update();
+        syncBottom();
+      });
       observer.observe(container);
     });
 
@@ -71,6 +76,18 @@
   let lastVisiblePage = $derived(
     showCover && currentPage === 0 ? 0 : currentPage + 1,
   );
+
+  function syncBottom() {
+    if (!pageFlip) return;
+    const rect = pageFlip.getBoundsRect();
+    bookBottom = rect.top + rect.height;
+  }
+
+  let pageLabel = $derived.by(() => {
+    const first = currentPage + 1;
+    const last = Math.min(lastVisiblePage, pageCount - 1) + 1;
+    return first === last ? `${first}` : `${first}–${last}`;
+  });
 
   const next = () => pageFlip?.flipNext();
   const prev = () => pageFlip?.flipPrev();
@@ -99,7 +116,7 @@
     aria-label="Pagina precedente">‹</button
   >
 
-  <div bind:this={container} class="w-full h-full m-auto px-10"></div>
+  <div bind:this={container} class="w-full h-full m-auto px-10 pb-[2vh]"></div>
 
   <button
     class="{arrowClass} right-0"
@@ -107,4 +124,13 @@
     disabled={lastVisiblePage >= pageCount - 1}
     aria-label="Pagina successiva">›</button
   >
+
+  {#if bookBottom !== null}
+    <p
+      class="absolute inset-x-0 m-0 mt-[0.5vh] text-center text-[max(8px,0.6vh)] leading-tight tabular-nums text-gray-500"
+      style="top: {bookBottom}px"
+    >
+      {pageLabel} / {pageCount}
+    </p>
+  {/if}
 </div>
