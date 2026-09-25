@@ -27,8 +27,14 @@
 </svelte:head>
 
 <div class="w-full h-dvh overflow-hidden flex flex-col gap-4 p-4 bg-white">
+  <p
+    class="m-0 shrink-0 text-center text-[max(9px,1.2vh)] leading-tight text-gray-500"
+  >
+    Tocca lo schermo per sfogliare i libri<br />
+    <span class="italic">Tap the screen to browse books</span>
+  </p>
   {#if selectedBook}
-    <header class="text-center shrink-0 my-2">
+    <!-- <header class="text-center shrink-0 my-2">
       <h1
         class="m-0 text-xl 2xl:text-[6vw] font-normal leading-none text-[#3a3a3a]"
       >
@@ -37,7 +43,7 @@
       <p class="m-0 text-sm 2xl:text-[4vw] text-gray-500">
         <span class="italic">{selectedBook.author}</span>
       </p>
-    </header>
+    </header> -->
 
     {#key selectedBook.id}
       <FlipBook book={selectedBook} bind:currentPage />
@@ -46,7 +52,7 @@
     <div class="flex-1"></div>
   {/if}
 
-  <div class="relative z-20 shrink-0 max-w-[80vw] mx-auto">
+  <div class="relative z-20 h-[30%] shrink-0 w-full max-w-[95vw] mx-auto">
     <BookGrid {books} selectedId={selectedBook?.id} onselect={selectBook} />
   </div>
 </div>
