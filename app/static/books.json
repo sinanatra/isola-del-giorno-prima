@@ -136,30 +136,7 @@
         "/books/fludd/68.png"
       ]
     },
-    {
-      "id": "kircher-ars-magna",
-      "title": "Athanasii Kircheri fuldensis e Soc. Iesu presbyteri Musurgia universalis sive Ars magna consoni et dissoni in 10. libros digesta…",
-      "author": "Athanasius Kircher",
-      "year": 1650,
-      "description": "",
-      "cover": "/books/kircher-ars-magna/97.png",
-      "pages": [
-        "/books/kircher-ars-magna/97.png",
-        "/books/kircher-ars-magna/98.png",
-        "/books/kircher-ars-magna/99.png",
-        "/books/kircher-ars-magna/100.png",
-        "/books/kircher-ars-magna/101.png",
-        "/books/kircher-ars-magna/102.png",
-        "/books/kircher-ars-magna/103.png",
-        "/books/kircher-ars-magna/104.png",
-        "/books/kircher-ars-magna/105.png",
-        "/books/kircher-ars-magna/106.png",
-        "/books/kircher-ars-magna/107.png",
-        "/books/kircher-ars-magna/108.png",
-        "/books/kircher-ars-magna/109.png",
-        "/books/kircher-ars-magna/110.png"
-      ]
-    },
+
     {
       "id": "kircher-musaeum",
       "title": "Romani Collegii Societatus Jesu Musæum celeberrimum, cujus magnum antiquariæ rei, statuarum, imaginum, picturarumque partem ex legato Alphonsi Donini,… munifica liberalitate relictum. P. Athanasius Kircherus…",
@@ -324,30 +301,7 @@
         "/books/rosselli/140.png"
       ]
     },
-    {
-      "id": "schott",
-      "title": "Technica curiosa, sive Mirabilia artis…",
-      "author": "Gaspar Schott",
-      "year": 1664,
-      "description": "",
-      "cover": "/books/schott/83.png",
-      "pages": [
-        "/books/schott/83.png",
-        "/books/schott/84.png",
-        "/books/schott/85.png",
-        "/books/schott/86.png",
-        "/books/schott/87.png",
-        "/books/schott/88.png",
-        "/books/schott/89.png",
-        "/books/schott/90.png",
-        "/books/schott/91.png",
-        "/books/schott/92.png",
-        "/books/schott/93.png",
-        "/books/schott/94.png",
-        "/books/schott/95.png",
-        "/books/schott/96.png"
-      ]
-    },
+
     {
       "id": "worm",
       "title": "Museum Wormianum. Seu, Historia rerum rariorum, tam naturalium, quam artificialium; tam domesticarum, quam exoticarum, quae Hafniae Danorum in aedibus authoris servantur. Adornata ab Olao Worm…",
