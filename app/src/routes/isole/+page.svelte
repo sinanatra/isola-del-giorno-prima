@@ -13,6 +13,7 @@
   import Citazioni from "$lib/isole/Citazioni.svelte";
   import Lista from "$lib/isole/Lista.svelte";
   import { BLUE, CREAM } from "$lib/isole/palette.js";
+  import { DEFAULT_FORMAT, canvasSize, fileSuffix } from "$lib/isole/format.js";
 
   const COLOR_TOKENS = { blue: BLUE, black: "#000000" };
   const resolveColor = (v, fallback) => (v === undefined ? fallback : (COLOR_TOKENS[v] ?? v));
@@ -39,6 +40,8 @@
   let geoVersion = 0;
 
   let targetLong = $state(1400);
+  let format = $state(DEFAULT_FORMAT);
+  let size = $derived(canvasSize(format, targetLong));
   let imageAlpha = $state(1);
   let contoursAlpha = $state(1);
   let revealUpTo = $state(null);
@@ -194,16 +197,36 @@
     return deepClone(baseSteps).map((step) => replaceAutomationTokens(step, preset));
   }
 
+  // Loads a dataset's contours for a format, preferring the format's variant
+  // (contours1_916.json) and falling back to the plain file. Bumping
+  // geoVersion also makes the sketch reload the matching image.
+  async function loadGeo(dataset, fmt) {
+    const ds = dataset === "default" ? "" : dataset;
+    const urls = [...new Set([
+      `/data/contours${ds}${fileSuffix(fmt)}.json`,
+      `/data/contours${ds}.json`,
+    ])];
+    try {
+      for (const url of urls) {
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        contoursData = await res.json();
+        ui.dataset = dataset;
+        format = fmt;
+        geoVersion++;
+        return;
+      }
+    } catch (_) {}
+  }
+
   async function selectDataset(name) {
     if (name === ui.dataset) return;
-    const suffix = name === "default" ? "" : name;
-    try {
-      const res = await fetch(`/data/contours${suffix}.json`);
-      if (!res.ok) return;
-      contoursData = await res.json();
-      ui.dataset = name;
-      geoVersion++;
-    } catch (_) {}
+    await loadGeo(name, format);
+  }
+
+  async function selectFormat(fmt) {
+    if (fmt === format) return;
+    await loadGeo(ui.dataset, fmt);
   }
 
   function normalizeLegend(input, baseAlpha = 1) {
@@ -216,24 +239,25 @@
   function captureSessionState() {
     return {
       ui: { ...ui },
-      targetLong, imageAlpha, contoursAlpha, revealUpTo, labelsAlpha, legend,
+      targetLong, format, imageAlpha, contoursAlpha, revealUpTo, labelsAlpha, legend,
       cit: { ...cit },
       lista: { ...lista },
     };
   }
 
   async function restoreSessionState(snapshot) {
-    const datasetChanged = snapshot.ui.dataset !== ui.dataset;
+    const geoChanged = snapshot.ui.dataset !== ui.dataset || snapshot.format !== format;
     Object.assign(ui, snapshot.ui);
     ({ targetLong, imageAlpha, contoursAlpha, revealUpTo, labelsAlpha, legend } = snapshot);
     Object.assign(cit, snapshot.cit ?? {});
     Object.assign(lista, snapshot.lista ?? {});
-    if (datasetChanged) await selectDataset(snapshot.ui.dataset);
+    if (geoChanged) await loadGeo(snapshot.ui.dataset, snapshot.format);
     await tick();
   }
 
   async function applyScene(scene = {}) {
     if (scene.dataset !== undefined) await selectDataset(scene.dataset);
+    if (scene.format !== undefined) await selectFormat(scene.format);
 
     const nextUi = scene.ui ?? scene;
     for (const key of [
@@ -294,8 +318,9 @@
   }
 
   function buildFadeGradients(ctx, W, H) {
-    const fadeW = Math.round(W * (80 / 1050));
-    const fadeH = Math.round(H * (80 / 1400));
+    // 80 sketch px on every side, scaled to whatever buffer we're drawing into.
+    const fadeW = Math.round(H * (80 / targetLong));
+    const fadeH = fadeW;
 
     const top = ctx.createLinearGradient(0, 0, 0, fadeH);
     top.addColorStop(0, 'rgba(255,255,255,1)');
@@ -390,12 +415,11 @@
       const p5Canvas = document.querySelector("canvas");
       if (!p5Canvas || !p5Instance) throw new Error("canvas not found");
 
-      // Export resolution — same 3:4 aspect as the sketch, but sized off
-      // EXPORT_LONG rather than targetLong so it never disturbs the sketch's
-      // own coordinate system (see EXPORT_LONG above). Independent of this
-      // display's pixel density too (see compositeFrame).
-      const outW = Math.round((EXPORT_LONG * 3) / 4);
-      const outH = EXPORT_LONG;
+      // Export resolution — same aspect as the sketch's current format, but
+      // sized off EXPORT_LONG rather than targetLong so it never disturbs the
+      // sketch's own coordinate system (see EXPORT_LONG above). Independent
+      // of this display's pixel density too (see compositeFrame).
+      const { W: outW, H: outH } = canvasSize(format, EXPORT_LONG);
 
       const comp = document.createElement("canvas");
       comp.width = outW;
@@ -572,12 +596,15 @@
     for (let i = 0; i < queue.length; i++) {
       if (batchAborted) break;
       batchIndex = i + 1;
-      // Each entry is either just a preset id, or { preset, dataset } to
-      // also pick which underlying map (the 1-5 dataset selector) that video
-      // uses — presets themselves only ever set the category, never the map.
+      // Each entry is either just a preset id, or { preset, dataset, format }
+      // to also pick which underlying map (the 1-5 dataset selector) and
+      // canvas format ("3:4" / "9:16") that video uses — presets themselves
+      // only ever set the category, never the map. Without a format the
+      // one currently selected in the UI is used.
       const entry = queue[i];
       const presetId = typeof entry === "string" ? entry : entry?.preset;
       const datasetId = typeof entry === "string" ? null : entry?.dataset;
+      const formatId = typeof entry === "string" ? null : entry?.format;
       const preset = automationPresets.find((p) => p.id === presetId);
       if (!preset) {
         automationError = `Preset non trovato: "${presetId}"`;
@@ -591,15 +618,17 @@
       }
 
       if (datasetId && datasetId !== ui.dataset) await selectDataset(datasetId);
+      if (formatId && formatId !== format) await selectFormat(formatId);
       ui.category = preset.category;
       await tick();
 
-      // Duplicate ids in the queue (e.g. recording the same preset twice)
+      // Duplicate names in the queue (e.g. recording the same preset twice)
       // get a numbered suffix so they don't overwrite each other.
-      nameCounts[presetId] = (nameCounts[presetId] ?? 0) + 1;
-      const dupSuffix = nameCounts[presetId] > 1 ? `_${nameCounts[presetId]}` : "";
-      const filename = `${presetId}${dupSuffix}.mp4`;
-      const phasePrefix = `video ${i + 1}/${queue.length} — ${preset.label ?? presetId}${datasetId ? ` (mappa ${datasetId})` : ""} · `;
+      const baseName = `${presetId}${fileSuffix(format)}`;
+      nameCounts[baseName] = (nameCounts[baseName] ?? 0) + 1;
+      const dupSuffix = nameCounts[baseName] > 1 ? `_${nameCounts[baseName]}` : "";
+      const filename = `${baseName}${dupSuffix}.mp4`;
+      const phasePrefix = `video ${i + 1}/${queue.length} — ${preset.label ?? presetId}${datasetId ? ` (mappa ${datasetId})` : ""} ${format} · `;
 
       await recordSession({
         getWritable: async () => {
@@ -666,6 +695,7 @@
     get contoursData() { return contoursData; },
     get geoVersion() { return geoVersion; },
     get targetLong() { return targetLong; },
+    get format() { return format; },
     get imageAlpha() { return imageAlpha; },
     get contoursAlpha() { return contoursAlpha; },
     get revealUpTo() { return revealUpTo; },
@@ -738,6 +768,8 @@
 
 <Controls
   bind:ui
+  {format}
+  {selectFormat}
   bind:menuOpen
   bind:citazioniOpen={cit.open}
   bind:citMsPerWord={cit.msPerWord}
@@ -794,9 +826,12 @@
     <div class="absolute inset-x-0 bottom-0 h-20 pointer-events-none" style="background: linear-gradient(to top, {CREAM}, transparent)"></div>
     <div class="absolute inset-y-0 left-0 w-20 pointer-events-none" style="background: linear-gradient(to right, {CREAM}, transparent)"></div>
     <div class="absolute inset-y-0 right-0 w-20 pointer-events-none" style="background: linear-gradient(to left, {CREAM}, transparent)"></div>
+    {#key format}
     {#if cit.open}
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <Citazioni
+          W={size.W}
+          H={size.H}
           category={ui.category}
           text={cit.text}
           textEn={cit.textEn}
@@ -818,6 +853,8 @@
     {#if lista.open}
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <Lista
+          W={size.W}
+          H={size.H}
           category={ui.category}
           words={lista.words}
           bind:fontSize={lista.fontSize}
@@ -832,6 +869,7 @@
         />
       </div>
     {/if}
+    {/key}
   {:else}
     <p class="p-4 text-gray-400">Caricamento…</p>
   {/if}

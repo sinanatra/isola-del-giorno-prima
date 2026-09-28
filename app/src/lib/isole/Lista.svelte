@@ -4,9 +4,9 @@
   import { LISTE } from './citazioni.js';
   import { BLUE } from './palette.js';
 
-  const W = 1050, H = 1400;
-
   let {
+    W = 1050,
+    H = 1400,
     category = 'all',
     words = '',
     fontSize = $bindable(182),
@@ -19,6 +19,10 @@
     colorEn = BLUE,
     onregister = null,
   } = $props();
+
+  // fontSize is set for the 3:4 canvas (1050 wide); narrower formats scale
+  // it down so words fit the same way.
+  let fs = $derived(fontSize * Math.min(1, W / 1050));
 
   let offset = 0;
   let container;
@@ -45,9 +49,9 @@
 
   function computeLines(p) {
     const maxW = W - 80;
-    const spacing = fontSize * 1.15;
-    const tight = fontSize * 0.7;
-    p.textSize(fontSize);
+    const spacing = fs * 1.15;
+    const tight = fs * 0.7;
+    p.textSize(fs);
     const lines = [];
     let y = 0;
     for (const { text, lang } of getWords()) {
@@ -92,7 +96,7 @@
 
       p.draw = () => {
         const { lines, totalHeight } = computeLines(p);
-        const total = H + fontSize + totalHeight + H;
+        const total = H + fs + totalHeight + H;
         offset = loop
           ? (offset + speed) % total
           : Math.min(offset + speed, total);
@@ -100,20 +104,20 @@
         p.clear();
         if (backgroundAlpha > 0) p.background(255, 255, 255, backgroundAlpha * 255);
 
-        p.textSize(fontSize);
+        p.textSize(fs);
         p.noStroke();
 
         for (const { text, lang, y: lineY } of lines) {
-          const y = H + fontSize + lineY - offset;
-          if (y < -fontSize * 2 || y > H + fontSize * 2) continue;
+          const y = H + fs + lineY - offset;
+          if (y < -fs * 2 || y > H + fs * 2) continue;
 
           if (showPill) {
             const tw = p.textWidth(text);
             p.push();
             p.strokeCap(p.ROUND);
             p.stroke(255, 255, 255);
-            p.strokeWeight(fontSize * 1.1);
-            p.line(W / 2 - tw / 2, y - fontSize * 0.35, W / 2 + tw / 2, y - fontSize * 0.35);
+            p.strokeWeight(fs * 1.1);
+            p.line(W / 2 - tw / 2, y - fs * 0.35, W / 2 + tw / 2, y - fs * 0.35);
             p.pop();
           }
 

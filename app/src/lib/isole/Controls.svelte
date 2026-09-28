@@ -1,8 +1,11 @@
 <script>
   import { BLUE } from './palette.js';
+  import { nextFormat } from './format.js';
 
   let {
     ui = $bindable(),
+    format = '3:4',
+    selectFormat = () => {},
     menuOpen = $bindable(),
     citazioniOpen = $bindable(),
     citMsPerWord = $bindable(),
@@ -108,6 +111,7 @@
         {/each}
       </div>
     {/if}
+    <button class={btn(false)} onclick={() => selectFormat(nextFormat(format))} title="formato">{format}</button>
     <select class={sel} bind:value={ui.category}>
       {#each categories as cat}<option value={cat}>{fmtCat(cat)}</option>{/each}
     </select>

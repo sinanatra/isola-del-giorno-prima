@@ -4,9 +4,9 @@
   import { CITAZIONI } from './citazioni.js';
   import { BLUE } from './palette.js';
 
-  const W = 1050, H = 1400;
-
   let {
+    W = 1050,
+    H = 1400,
     category = 'all',
     text = null,
     textEn = null,
@@ -24,6 +24,10 @@
     color = '#000000',
     colorEn = BLUE,
   } = $props();
+
+  // fontSize is set for the 3:4 canvas (1050 wide); narrower formats scale
+  // it down so lines break at the same words.
+  let fs = $derived(fontSize * Math.min(1, W / 1050));
 
   // { text, x, y, w, lang }
   let words = [];
@@ -63,12 +67,12 @@
     if (!blocks.length) { words = []; return; }
 
     p.textFont('Freight');
-    p.textSize(fontSize);
+    p.textSize(fs);
 
     // reliable space: measure difference with middle space
     const spaceW = p.textWidth('x x') - p.textWidth('xx');
-    const lineH = fontSize * lineHeight;
-    const pad = padding ?? Math.max(40, fontSize * 0.45);
+    const lineH = fs * lineHeight;
+    const pad = padding ?? Math.max(40, fs * 0.45);
     const contentW = W - pad * 2;
 
     words = [];
@@ -130,18 +134,18 @@
     if (to <= from) return;
     const g = wordsLayer;
     g.textFont('Freight');
-    g.textSize(fontSize);
+    g.textSize(fs);
     g.textAlign(g.LEFT, g.BASELINE);
 
     if (showPill) {
       g.push();
       g.strokeCap(g.ROUND);
       g.stroke(255, 255, 255);
-      g.strokeWeight(fontSize * 1.1);
+      g.strokeWeight(fs * 1.1);
       g.noFill();
       for (let i = from; i < to; i++) {
         const { x, y, w } = words[i];
-        g.line(x, y - fontSize * 0.35, x + w, y - fontSize * 0.35);
+        g.line(x, y - fs * 0.35, x + w, y - fs * 0.35);
       }
       g.pop();
     }

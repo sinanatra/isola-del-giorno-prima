@@ -7,13 +7,13 @@ import {
   renderCharsIntoGfx,
 } from "./glyphs.js";
 import { CREAM } from "./palette.js";
+import { canvasSize, fileSuffix, DEFAULT_FORMAT } from "./format.js";
 
 const TARGET_LONG = 1400;
 
 export function createSketch(ctx) {
   return (p) => {
-    let W = Math.round((TARGET_LONG * 3) / 4),
-      H = TARGET_LONG;
+    let { W, H } = canvasSize(DEFAULT_FORMAT, TARGET_LONG);
     let contentOffX = 0,
       contentOffY = 0,
       contentW = W,
@@ -76,8 +76,7 @@ export function createSketch(ctx) {
 
     p.setup = () => {
       const TL = ctx.targetLong ?? TARGET_LONG;
-      W = Math.round((TL * 3) / 4);
-      H = TL;
+      ({ W, H } = canvasSize(ctx.format, TL));
       p.createCanvas(W, H);
       p.frameRate(60);
       buildSuperPath();
@@ -91,8 +90,7 @@ export function createSketch(ctx) {
       const d = ctx.contoursData;
       const TL = ctx.targetLong ?? TARGET_LONG;
 
-      const newW = Math.round((TL * 3) / 4);
-      const newH = TL;
+      const { W: newW, H: newH } = canvasSize(ctx.format, TL);
       if (newW !== W || newH !== H) {
         W = newW;
         H = newH;
@@ -367,20 +365,22 @@ export function createSketch(ctx) {
 
     function reloadImage() {
       const suffix = ctx.ui.dataset === "default" ? "" : ctx.ui.dataset;
+      const fs = fileSuffix(ctx.format);
       bgImage = null;
       filteredBgCanvas = null;
       filteredBgKey = "";
-      p.loadImage(
-        `/data/image${suffix}.jpg`,
-        (img) => {
-          bgImage = img;
-          filteredBgCanvas = null;
-          filteredBgKey = "";
-          needsRedraw = true;
-        },
-        () => {
-          bgImage = null;
-        },
+      const onLoad = (img) => {
+        bgImage = img;
+        filteredBgCanvas = null;
+        filteredBgKey = "";
+        needsRedraw = true;
+      };
+      const load = (url, onError) => p.loadImage(url, onLoad, onError);
+      // Format variant first (image1_916.jpg), falling back to the plain file.
+      load(`/data/image${suffix}${fs}.jpg`, () =>
+        fs
+          ? load(`/data/image${suffix}.jpg`, () => (bgImage = null))
+          : (bgImage = null),
       );
     }
 
@@ -615,6 +615,16 @@ export function createSketch(ctx) {
         buildChapterTitleData();
         buildContoursGfx();
         reloadImage();
+        layoutDirty = true;
+        visibilityDirty = true;
+        needsRedraw = true;
+      }
+
+      const size = canvasSize(ctx.format, ctx.targetLong ?? TARGET_LONG);
+      if (size.W !== W || size.H !== H) {
+        buildSuperPath();
+        buildChapterTitleData();
+        buildContoursGfx();
         layoutDirty = true;
         visibilityDirty = true;
         needsRedraw = true;
