@@ -33,7 +33,7 @@
         class="mt-[0.6vh] w-full shrink-0 text-[max(8px,0.6vh)] leading-tight text-[#2a2a2a]"
       >
         <span class="block truncate font-semibold">{book.author}</span>
-        <span class="hidden truncate italic md:block">{book.title}</span>
+        <span class="hidden italic md:line-clamp-4">{book.title}</span>
         <span class="hidden tabular-nums md:block">{book.year}</span>
       </span>
     </button>
