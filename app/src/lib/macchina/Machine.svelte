@@ -21,6 +21,9 @@
   let ready   = false;
 
   let cordPolyline, handleGrp;
+  // The handle lives in its own SVG mounted on <body>, kept aligned with
+  let handleSvg;
+  const HANDLE_Z = 50;
   const CORD_REST_END = { x: 1161.36, y: 485.7 };
   const CORD_MAX_PULL = 360;
   const CORD_GUIDE = { x: CORD_REST_END.x, y: PVT.y };
@@ -163,8 +166,20 @@
   }
 
   // ── Called every rAF frame from the parent ──────────────────────
+  function syncHandleSvg() {
+    if (!handleSvg) return;
+    const r = svg.getBoundingClientRect();
+    const s = handleSvg.style;
+    s.left = `${r.left}px`;
+    s.top = `${r.top}px`;
+    s.width = `${r.width}px`;
+    s.height = `${r.height}px`;
+  }
+
   export function update({ knobAng, wheelAng, scrollOff, machineState, activeSnap }) {
     if (!ready) return;
+
+    syncHandleSvg();
 
     if (!cordDragging) updateCord(idleShakeX(performance.now()));
 
@@ -438,10 +453,19 @@
 
     if (cordPolyline && handlePath) {
       handleGrp = mk('g', { style: 'cursor:grab' });
-      handlePath.parentNode.insertBefore(handleGrp, handlePath);
       handleGrp.appendChild(handlePath);
       handlePath.setAttribute('pointer-events', 'all');
       handleGrp.addEventListener('pointerdown', onCordDown);
+
+      handleSvg = mk('svg', {
+        viewBox: svg.getAttribute('viewBox'),
+        preserveAspectRatio: svg.getAttribute('preserveAspectRatio'),
+      });
+      handleSvg.style.cssText =
+        `position:fixed;pointer-events:none;overflow:visible;z-index:${HANDLE_Z};touch-action:none`;
+      handleSvg.appendChild(handleGrp);
+      document.body.appendChild(handleSvg);
+      syncHandleSvg();
     }
 
     // Pointer tracking is attached once regardless of handle detection.
@@ -468,6 +492,7 @@
     return () => {
       if (drawerRaf)     cancelAnimationFrame(drawerRaf);
       if (cordSpringRaf) cancelAnimationFrame(cordSpringRaf);
+      handleSvg?.remove();
     };
   });
 </script>
