@@ -28,7 +28,7 @@
 
 <div class="w-full h-dvh overflow-hidden flex flex-col gap-4 p-4 bg-white">
   <p
-    class="m-0 shrink-0 text-center text-[max(9px,1.2vh)] leading-tight text-gray-500"
+    class="m-0 shrink-0 text-center text-[max(9px,2vh)] leading-tight text-gray-500"
   >
     Tocca lo schermo per sfogliare i libri<br />
     <span class="italic">Tap the screen to browse books</span>
