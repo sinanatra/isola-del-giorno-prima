@@ -5,7 +5,7 @@
   let { onCordPull, onCordRelease } = $props();
 
   const W        = 56;
-  const H        = 360;
+  const H        = 460;
   const CX       = W / 2;
   const ANCHOR_Y = 18;
   const REST_Y   = 96;

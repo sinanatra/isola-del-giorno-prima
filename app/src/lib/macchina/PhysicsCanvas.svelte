@@ -23,7 +23,7 @@
   const PHYSICS_SUBSTEPS = 2;
   const STUCK_SECONDS = 0.6;
   const STUCK_SPEED = 0.05;
-  const VB = { x: 30, y: 60, w: 1200, h: 790 };
+  const VB = { x: 30, y: 60, w: 1220, h: 790 };
   const FONT_SVG_SIZE = 18;
   const WORD_PAD_X = 10;
 

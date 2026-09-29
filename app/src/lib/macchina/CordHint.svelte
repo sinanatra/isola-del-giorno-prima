@@ -4,16 +4,16 @@
   let {
     show = false,
     text = "",
-    path = "M 1200 190 C 1230 250, 1180 340, 1160 430",
-    textPath = "M 1216 193 C 1246 253, 1196 343, 1176 433",
-    fontSize = 48,
+    path = "M 1200 190 C 1230 250, 1180 340, 1140 520",
+    textPath = "M 1216 193 C 1246 253, 1196 343, 1150 540",
+    fontSize = 62,
     letterSpacing = 1,
   } = $props();
 </script>
 
 {#if show}
   <svg
-    viewBox="0 150 1200 750"
+    viewBox="0 150 1220 750"
     preserveAspectRatio="xMidYMid meet"
     class="absolute inset-0 w-full h-full z-5 pointer-events-none overflow-visible"
     transition:fade={{ duration: 400 }}

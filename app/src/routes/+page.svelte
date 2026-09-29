@@ -342,7 +342,7 @@
   <div class="max-w-350 grid grid-cols-2 gap-2 px-2 py-1">
     {#each t().introLead as paragraph}
       <p class="max-w-170 text-xl leading-tight m-0 p-2 text-[#282828]">
-      {#each paragraph.split("\n") as line, i}
+        {#each paragraph.split("\n") as line, i}
           <span class="block {i > 0 ? 'indent-6' : ''}">{@html line}</span>
         {/each}
       </p>
@@ -358,7 +358,7 @@
 >
   <ArchiveIntro />
   <button
-    class="absolute top-4 right-4 z-40 text-xl border border-black px-3 py-1.5 bg-white text-black hover:bg-black hover:text-white transition-colors"
+    class="absolute z-100 cursor-pointer top-4 right-4 text-xl border border-black px-3 py-1.5 bg-white text-black hover:bg-black hover:text-white transition-colors"
     style="zoom: {pageScale}"
     onclick={toggleLang}
   >
@@ -393,7 +393,7 @@
     bind:clientHeight={machineBoxH}
   >
     <div
-      class="relative aspect-[1200/900] w-[min(100%,calc((100dvh-120px)*1200/900))] mx-auto shrink-0 overflow-visible"
+      class="relative aspect-[1220/900] w-[min(100%,calc((100dvh-120px)*1220/900))] mx-auto shrink-0 overflow-visible"
     >
       <CordHint show={showHint} text={t().hint} />
       <PhysicsCanvas bind:this={physicsRef} />
