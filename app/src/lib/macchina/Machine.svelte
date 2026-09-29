@@ -80,7 +80,7 @@
     return p.matrixTransform(svg.getScreenCTM().inverse());
   };
 
-  const svgVelToPx = v => v * (svg?.getBoundingClientRect().width ?? 800) / 1220;
+  const svgVelToPx = v => v * (svg?.getBoundingClientRect().width ?? 800) / 1200;
 
   // ── Cord visual & interaction ────────────────────────────────────
   function updateCord(shakeX = 0) {
@@ -486,7 +486,7 @@
     svg = host.querySelector('svg');
     if (!svg) return;
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    svg.setAttribute('viewBox', `30 ${VIEWBOX_TOP} 1220 ${VIEWBOX_H}`);
+    svg.setAttribute('viewBox', `30 ${VIEWBOX_TOP} 1200 ${VIEWBOX_H}`);
     buildOverlays();
     ready = true;
     return () => {

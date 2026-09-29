@@ -13,7 +13,7 @@
 
 {#if show}
   <svg
-    viewBox="0 150 1220 750"
+    viewBox="0 150 1200 750"
     preserveAspectRatio="xMidYMid meet"
     class="absolute inset-0 w-full h-full z-5 pointer-events-none overflow-visible"
     transition:fade={{ duration: 400 }}

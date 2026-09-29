@@ -393,7 +393,7 @@
     bind:clientHeight={machineBoxH}
   >
     <div
-      class="relative aspect-[1220/900] w-[min(100%,calc((100dvh-120px)*1220/900))] mx-auto shrink-0 overflow-visible"
+      class="relative aspect-[1200/900] w-[min(100%,calc((100dvh-120px)*1200/900))] mx-auto shrink-0 overflow-visible"
     >
       <CordHint show={showHint} text={t().hint} />
       <PhysicsCanvas bind:this={physicsRef} />
