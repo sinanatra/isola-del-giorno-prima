@@ -357,16 +357,16 @@
     : "position: sticky; top: 0; height: 100dvh"}
 >
   <ArchiveIntro />
-</div>
-
-<div style="zoom: {pageScale}">
   <button
-    class="fixed top-4 right-4 z-40 text-sm border border-black px-2 py-1 bg-white text-black hover:bg-black hover:text-white transition-colors"
+    class="absolute top-4 right-4 z-40 text-xl border border-black px-3 py-1.5 bg-white text-black hover:bg-black hover:text-white transition-colors"
+    style="zoom: {pageScale}"
     onclick={toggleLang}
   >
     {t().langButton}
   </button>
+</div>
 
+<div style="zoom: {pageScale}">
   <div
     class="px-8 py-8"
     style={isVertical
