@@ -42,7 +42,7 @@
   {/if}
 
   <div
-    class="relative bg-red-500 border-t py-10 z-20 h-[30%] shrink-0 w-full max-w-[95vw] mx-auto"
+    class="relative border-t py-10 z-20 h-[30%] shrink-0 w-full max-w-[95vw] mx-auto"
   >
     <BookGrid {books} selectedId={selectedBook?.id} onselect={selectBook} />
   </div>
