@@ -478,7 +478,7 @@
       });
       handleSvg.style.cssText =
         `position:fixed;pointer-events:none;overflow:visible;z-index:${HANDLE_Z};touch-action:none`;
-      handleSvg.appendChild(handleGrp);
+      handleSvg.append(cordPolyline, cordHitLine, handleGrp);
       document.body.appendChild(handleSvg);
 
       // Padded transparent rect behind the handle for an easier grab
