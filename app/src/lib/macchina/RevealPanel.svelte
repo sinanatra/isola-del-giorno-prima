@@ -12,7 +12,10 @@
     return text
       .split(new RegExp(`(${escaped})`, "gi"))
       .filter((part) => part !== "")
-      .map((part) => ({ text: part, hl: part.toLowerCase() === word.toLowerCase() }));
+      .map((part) => ({
+        text: part,
+        hl: part.toLowerCase() === word.toLowerCase(),
+      }));
   }
 
   const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -38,9 +41,13 @@
     const exact = terms.map((t) => `\\b${escapeRe(t)}\\b`);
     const loose = terms
       .filter((t) => !/\s/.test(t) && t.length >= 4)
-      .map((t) => `\\b${escapeRe(t.toLowerCase().replace(/(ies|es|s|e|y)$/, ""))}\\w{0,4}\\b`);
+      .map(
+        (t) =>
+          `\\b${escapeRe(t.toLowerCase().replace(/(ies|es|s|e|y)$/, ""))}\\w{0,4}\\b`,
+      );
     for (const pattern of [...exact, ...loose]) {
-      if (new RegExp(pattern, "i").test(text)) return segmentsFor(text, pattern);
+      if (new RegExp(pattern, "i").test(text))
+        return segmentsFor(text, pattern);
     }
     return [{ text, hl: false }];
   }
@@ -80,54 +87,65 @@
 </script>
 
 {#if quotes && !hidden}
-<div transition:fly={{ y: 220, duration: 450, easing: cubicOut, opacity: 1 }}>
-  <div class="flex px-4 py-4 gap-4">
-    {#each quotes as q}
-      <div class="flex-1 px-4 py-4 bg-white shadow">
-        {#if q.oggetto}
-          <div class="font-bold text-2xl text-black mb-1.5">
-            {#if lang === "en"}
-              {#await translate(q.oggetto)}
-                {q.oggetto}
-              {:then translated}
-                {translated}
-              {/await}
-            {:else}
-              {q.oggetto}
-            {/if}
-          </div>
-          <div class="text-base text-black">
-            {#if q.phrase}
+  <div transition:fly={{ y: 400, duration: 450, easing: cubicOut, opacity: 1 }}>
+    <div class="flex px-4 py-4 gap-4">
+      {#each quotes as q}
+        <div class="flex-1 min-h-65 px-6 py-8 bg-white shadow">
+          {#if q.oggetto}
+            <div class="font-bold text-4xl text-black mb-3 tracking-wide">
               {#if lang === "en"}
-                {#await englishTerms(q.oggetto)}
-                  {q.phrase.testo_en ?? stripCitation(q.phrase.testo)}
-                {:then terms}
-                  {#if q.phrase.testo_en}
-                    {#each highlightAny(q.phrase.testo_en, terms) as seg}
-                      {#if seg.hl}<mark class="bg-yellow-100">{seg.text}</mark>{:else}{seg.text}{/if}
-                    {/each}
-                  {:else}
-                    {#await translate(stripCitation(q.phrase.testo))}
-                      {stripCitation(q.phrase.testo)}
-                    {:then translated}
-                      {#each highlightAny(translated, terms) as seg}
-                        {#if seg.hl}<mark class="bg-yellow-100">{seg.text}</mark>{:else}{seg.text}{/if}
-                      {/each}
-                    {/await}
-                  {/if}
+                {#await translate(q.oggetto)}
+                  {q.oggetto}
+                {:then translated}
+                  {translated}
                 {/await}
               {:else}
-                {#each highlightSegments(stripCitation(q.phrase.testo), q.oggetto) as seg}
-                  {#if seg.hl}<mark class="bg-yellow-100">{seg.text}</mark>{:else}{seg.text}{/if}
-                {/each}
+                {q.oggetto}
               {/if}
-            {:else}
-              —
-            {/if}
-          </div>
-        {/if}
-      </div>
-    {/each}
+            </div>
+            <div class="text-2xl text-black">
+              {#if q.phrase}
+                {#if lang === "en"}
+                  {#await englishTerms(q.oggetto)}
+                    {q.phrase.testo_en ?? stripCitation(q.phrase.testo)}
+                  {:then terms}
+                    {#if q.phrase.testo_en}
+                      {#each highlightAny(q.phrase.testo_en, terms) as seg}
+                        {#if seg.hl}<mark class="hl">{seg.text}</mark
+                          >{:else}{seg.text}{/if}
+                      {/each}
+                    {:else}
+                      {#await translate(stripCitation(q.phrase.testo))}
+                        {stripCitation(q.phrase.testo)}
+                      {:then translated}
+                        {#each highlightAny(translated, terms) as seg}
+                          {#if seg.hl}<mark class="hl">{seg.text}</mark
+                            >{:else}{seg.text}{/if}
+                        {/each}
+                      {/await}
+                    {/if}
+                  {/await}
+                {:else}
+                  {#each highlightSegments(stripCitation(q.phrase.testo), q.oggetto) as seg}
+                    {#if seg.hl}<mark class="hl">{seg.text}</mark
+                      >{:else}{seg.text}{/if}
+                  {/each}
+                {/if}
+              {:else}
+                —
+              {/if}
+            </div>
+          {/if}
+        </div>
+      {/each}
+    </div>
   </div>
-</div>
 {/if}
+
+<style>
+  mark.hl {
+    background: #fde047;
+    color: inherit;
+    padding: 0 0.1em;
+  }
+</style>
