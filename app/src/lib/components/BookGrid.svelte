@@ -8,29 +8,32 @@
   {#each books as book (book.id)}
     {@const isSelected = book.id === selectedId}
     <button
-      class="flex min-h-0 min-w-0 cursor-pointer flex-col items-center text-center transition-opacity duration-300 {isSelected
-        ? 'opacity-100'
-        : 'opacity-50 hover:opacity-100'}"
+      class="group flex min-h-0 min-w-0 cursor-pointer flex-col items-center text-center"
       onclick={() => onselect?.(book)}
       title="{book.author}, {book.title}, {book.year}"
       aria-label={book.title}
       aria-current={isSelected}
     >
-      <span class="flex min-h-0 w-full flex-1 items-end justify-center">
-        {#each book.pages.slice(0, 2) as src}
-          <img
-            {src}
-            alt=""
-            loading="lazy"
-            class="block h-full max-w-1/2 w-auto object-contain {src ===
-            book.pages[0]
-              ? 'object-right'
-              : 'object-left'}"
-          />
-        {/each}
+      <span
+        class="flex min-h-0 w-full flex-1 items-end justify-center @container-size"
+      >
+        <span
+          class="flex aspect-[1.36] w-[min(100cqw,100cqh*1.36)] transition-[filter] duration-300 {isSelected
+            ? ''
+            : 'grayscale group-hover:grayscale-0'}"
+        >
+          {#each book.pages.slice(0, 2) as src}
+            <img
+              {src}
+              alt=""
+              loading="lazy"
+              class="block h-full w-1/2 object-fill"
+            />
+          {/each}
+        </span>
       </span>
       <span
-        class="mt-[0.6vh] w-full shrink-0 text-[max(8px,0.6vh)] leading-tight text-[#2a2a2a]"
+        class="mt-[0.6vh] h-lh w-full shrink-0 overflow-hidden text-[max(8px,0.6vh)] md:h-[6lh] leading-tight text-[#2a2a2a]"
       >
         <span class="block truncate font-semibold">{book.author}</span>
         <span class="hidden italic md:line-clamp-4">{book.title}</span>
