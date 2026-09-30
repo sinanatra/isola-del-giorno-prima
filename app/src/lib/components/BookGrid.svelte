@@ -1,5 +1,37 @@
 <script>
   let { books = [], selectedId = null, onselect } = $props();
+
+  // Tronca il testo a `lines` righe con "…". Serve al posto di line-clamp,
+  // che ignora i float usati per la piramide rovesciata.
+  function clamp(node, { text, lines }) {
+    const fits = (max) => node.offsetHeight <= max;
+    const fit = () => {
+      node.textContent = text;
+      const max = parseFloat(getComputedStyle(node).lineHeight) * lines + 1;
+      if (fits(max)) return;
+      const words = text.split(" ");
+      let lo = 0;
+      let hi = words.length;
+      while (lo < hi) {
+        const mid = Math.ceil((lo + hi) / 2);
+        node.textContent = words.slice(0, mid).join(" ") + "…";
+        if (fits(max)) lo = mid;
+        else hi = mid - 1;
+      }
+      node.textContent =
+        words.slice(0, lo).join(" ").replace(/[\s,.;:…]+$/, "") + "…";
+    };
+    const observer = new ResizeObserver(fit);
+    observer.observe(node.parentElement);
+    document.fonts?.ready.then(fit);
+    return {
+      update(params) {
+        ({ text, lines } = params);
+        fit();
+      },
+      destroy: () => observer.disconnect(),
+    };
+  }
 </script>
 
 <nav
@@ -43,11 +75,14 @@
           aria-hidden="true"
           class="float-right hidden h-full w-1/2 [shape-outside:polygon(100%_0,100%_100%,30%_100%)] md:block"
         ></span>
-        <!-- <span
-          class="block truncate font-semibold md:overflow-visible md:whitespace-normal"
+        <span
+          class="block font-semibold md:overflow-visible md:whitespace-normal"
           >{book.author}</span
-        > -->
-        <span class="hidden italic hyphens-auto md:block">{book.title}</span>
+        >
+        <span
+          class="hidden italic hyphens-auto md:block"
+          use:clamp={{ text: book.title, lines: 3 }}
+        ></span>
         <span class="hidden tabular-nums md:block">{book.year}</span>
       </span>
     </button>
