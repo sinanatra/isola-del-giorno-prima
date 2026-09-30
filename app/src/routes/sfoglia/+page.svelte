@@ -28,7 +28,7 @@
 
 <div class="w-full h-dvh overflow-hidden flex flex-col gap-4 p-4 bg-[#f5f5f5]">
   <p
-    class="m-0 border-b py-10  shrink-0 text-center text-[max(9px,2vh)] leading-tight text-gray-500"
+    class="m-0 border-b py-10 shrink-0 text-center text-[max(9px,2vh)] leading-tight text-gray-500"
   >
     Tocca lo schermo per sfogliare i libri<br />
     <span class="italic">Tap the screen to browse books</span>
@@ -42,7 +42,7 @@
   {/if}
 
   <div
-    class="relative border-t py-10  z-20 h-[30%] shrink-0 w-full max-w-[95vw] mx-auto"
+    class="relative bg-red-500 border-t py-10 z-20 h-[30%] shrink-0 w-full max-w-[95vw] mx-auto"
   >
     <BookGrid {books} selectedId={selectedBook?.id} onselect={selectBook} />
   </div>

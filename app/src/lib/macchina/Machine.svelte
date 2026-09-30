@@ -20,7 +20,9 @@
   let prevGen = -1;
   let ready   = false;
 
-  let cordPolyline, handleGrp;
+  let cordPolyline, cordHitLine, handleGrp;
+  const CORD_HIT_WIDTH = 70;
+  const HANDLE_HIT_PAD = 85;
   // The handle lives in its own SVG mounted on <body>, kept aligned with
   let handleSvg;
   const HANDLE_Z = 50;
@@ -85,8 +87,9 @@
   // ── Cord visual & interaction ────────────────────────────────────
   function updateCord(shakeX = 0) {
     const { x: hx, y: hy } = cordHandlePos();
-    cordPolyline?.setAttribute('points',
-      `${hx + shakeX} ${hy} ${CORD_GUIDE.x} ${CORD_GUIDE.y} ${PVT.x} ${PVT.y}`);
+    const pts = `${hx + shakeX} ${hy} ${CORD_GUIDE.x} ${CORD_GUIDE.y} ${PVT.x} ${PVT.y}`;
+    cordPolyline?.setAttribute('points', pts);
+    cordHitLine?.setAttribute('points', pts);
     handleGrp?.setAttribute('transform',
       `translate(${hx - CORD_REST_END.x + shakeX},${hy - CORD_REST_END.y})`);
   }
@@ -449,6 +452,18 @@
       }
       cordPolyline.style.cursor = 'grab';
       cordPolyline.addEventListener('pointerdown', onCordDown);
+
+      cordHitLine = mk('polyline', {
+        points: cordPolyline.getAttribute('points') || '',
+        fill: 'none',
+        stroke: 'transparent',
+        'stroke-width': String(CORD_HIT_WIDTH),
+        'stroke-linecap': 'round',
+        'pointer-events': 'stroke',
+        style: 'cursor:grab',
+      });
+      cordHitLine.addEventListener('pointerdown', onCordDown);
+      cordPolyline.after(cordHitLine);
     }
 
     if (cordPolyline && handlePath) {
@@ -465,6 +480,18 @@
         `position:fixed;pointer-events:none;overflow:visible;z-index:${HANDLE_Z};touch-action:none`;
       handleSvg.appendChild(handleGrp);
       document.body.appendChild(handleSvg);
+
+      // Padded transparent rect behind the handle for an easier grab
+      const bb = handlePath.getBBox();
+      const hitRect = mk('rect', {
+        x: bb.x - HANDLE_HIT_PAD,
+        y: bb.y - HANDLE_HIT_PAD,
+        width: bb.width + HANDLE_HIT_PAD * 2,
+        height: bb.height + HANDLE_HIT_PAD * 2,
+        fill: 'transparent',
+        'pointer-events': 'all',
+      });
+      handleGrp.insertBefore(hitRect, handlePath);
       syncHandleSvg();
     }
 
@@ -486,6 +513,8 @@
     svg = host.querySelector('svg');
     if (!svg) return;
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    // Drawers extend below the cropped viewBox: let them render outside the svg box
+    svg.style.overflow = 'visible';
     svg.setAttribute('viewBox', `30 ${VIEWBOX_TOP} 1220 ${VIEWBOX_H}`);
     buildOverlays();
     ready = true;

@@ -21,6 +21,7 @@
   const TARGET_BODIES = 300;
   const LEAK_BATCH = 3;
   const PHYSICS_SUBSTEPS = 2;
+  const GRAVITY = 0.6;
   const STUCK_SECONDS = 0.6;
   const STUCK_SPEED = 0.05;
   const VB = { x: 30, y: 60, w: 1220, h: 790 };
@@ -265,7 +266,7 @@
 
     scrollAllBodies();
     syncFunnelPose();
-    engine.gravity.y = 1.6;
+    engine.gravity.y = GRAVITY;
 
     const spinning = Math.abs(omega) > 0.06;
 
@@ -364,7 +365,7 @@
     engine.positionIterations = 30;
     engine.velocityIterations = 10;
     world = engine.world;
-    engine.gravity.y = 1.6;
+    engine.gravity.y = GRAVITY;
     wallL = Matter.Bodies.rectangle(-30, H / 2, 60, H * 3, { isStatic: true });
     wallR = Matter.Bodies.rectangle(W + 30, H / 2, 60, H * 3, {
       isStatic: true,

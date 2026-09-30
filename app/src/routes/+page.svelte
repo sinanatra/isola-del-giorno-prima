@@ -19,6 +19,8 @@
   // Layout and scaling: the machine is designed for a 50x70" screen, but should scale to fit
   const DESIGN_WIDTH = 1512;
   const MIN_PAGE_SCALE = 0.55;
+  // Vertical layout: how far (px) the machine + its sticky text sit above the bottom edge
+  const MACHINE_LIFT = 360;
 
   let pageScale = $state(1);
   let headerH = $state(0);
@@ -339,13 +341,11 @@
     : ""}
   bind:clientHeight={headerH}
 >
-  <div class="max-w-350 grid grid-cols-2 gap-2 px-2 py-1">
-    {#each t().introLead as paragraph}
-      <p class="max-w-170 text-xl leading-tight m-0 p-2 text-[#282828]">
-        {#each paragraph.split("\n") as line, i}
-          <span class="block {i > 0 ? 'indent-6' : ''}">{@html line}</span>
-        {/each}
-      </p>
+  <div
+    class="max-w-350 columns-2 gap-10 px-4 py-3 text-xl leading-tight text-[#282828]"
+  >
+    {#each t().introLead.flatMap((p) => p.split("\n")) as line, i}
+      <p class="m-0 {i > 0 ? 'indent-6' : ''}">{@html line}</p>
     {/each}
   </div>
 </header>
@@ -370,7 +370,7 @@
   <div
     class="px-8 py-8"
     style={isVertical
-      ? `position: fixed; bottom: calc(0.75rem + ${machineBoxH / pageScale}px + .2rem); left: 0; right: 0; z-index: 25`
+      ? `position: fixed; bottom: calc(0.75rem + ${(machineBoxH + MACHINE_LIFT) / pageScale}px + .2rem); left: 0; right: 0; z-index: 25`
       : "position: sticky; top: 1.75rem; margin-top: -18vh"}
   >
     <p
@@ -384,7 +384,7 @@
 <div
   class="z-24"
   style={isVertical
-    ? `position: fixed; bottom: 0; left: 0; right: 0; z-index: 15`
+    ? `position: fixed; bottom: ${MACHINE_LIFT}px; left: 0; right: 0; z-index: 15`
     : "position: sticky; top: 1.75rem"}
 >
   <div
