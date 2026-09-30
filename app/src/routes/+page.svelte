@@ -13,8 +13,21 @@
 
   const usedOggetti = new Set();
 
+  // Oggetto nella lingua corrente (oggetto_en = termine della traduzione di Weaver)
+  const oggettoFor = (p) =>
+    (i18n.lang === "en" && p?.oggetto_en) || p?.oggetto || "";
+
   let machineRef;
   let physicsRef;
+
+  // Al cambio lingua: rinomina le parole nell'imbuto e ridisegna i cassetti aperti
+  $effect(() => {
+    physicsRef?.setLang(i18n.lang);
+    if (machineState === "open") {
+      drawerAnim = false;
+      drawerGen += 1;
+    }
+  });
 
   // Layout and scaling: the machine is designed for a 50x70" screen, but should scale to fit
   const DESIGN_WIDTH = 1512;
@@ -252,7 +265,7 @@
       if (spawnCd <= 0) {
         spawnCd = 0.2 + Math.random() * 0.35;
         const p = phrases[Math.floor(Math.random() * phrases.length)];
-        physicsRef?.spawn(p.oggetto || "·");
+        physicsRef?.spawn(p);
       }
     }
     const snap = [0, 1, 2].map(snapLetter);
@@ -272,7 +285,7 @@
           const q = quotes.find(
             (q) => q.label === LETTERS[row] + "·" + LETTERS[col],
           );
-          return q?.phrase?.oggetto ?? "";
+          return oggettoFor(q?.phrase);
         })
       : [];
     machineRef?.setDrawers(
@@ -290,6 +303,7 @@
 
     requestAnimationFrame(() => {
       physicsRef?.setSvg(machineRef?.getSvg());
+      physicsRef?.setLang(i18n.lang);
       physicsRef?.prepopulate(phrases);
     });
 

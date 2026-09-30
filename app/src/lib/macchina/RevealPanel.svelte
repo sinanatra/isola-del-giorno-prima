@@ -94,7 +94,9 @@
         <div class="flex-1 min-h-65 px-6 py-8 bg-white shadow">
           {#if q.oggetto}
             <div class="font-bold text-4xl text-black mb-3 tracking-wide">
-              {#if lang === "en"}
+              {#if lang === "en" && q.phrase?.oggetto_en}
+                {q.phrase.oggetto_en}
+              {:else if lang === "en"}
                 {#await translate(q.oggetto)}
                   {q.oggetto}
                 {:then translated}
@@ -106,7 +108,12 @@
             </div>
             <div class="text-2xl text-black">
               {#if q.phrase}
-                {#if lang === "en"}
+                {#if lang === "en" && q.phrase.oggetto_en && q.phrase.testo_en}
+                  {#each highlightSegments(q.phrase.testo_en, q.phrase.oggetto_en) as seg}
+                    {#if seg.hl}<mark class="hl">{seg.text}</mark
+                      >{:else}{seg.text}{/if}
+                  {/each}
+                {:else if lang === "en"}
                   {#await englishTerms(q.oggetto)}
                     {q.phrase.testo_en ?? stripCitation(q.phrase.testo)}
                   {:then terms}

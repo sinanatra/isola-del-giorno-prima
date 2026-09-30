@@ -165,6 +165,33 @@
     phrasePool = phrases;
   }
 
+  let lang = "it";
+  const oggettoFor = (p) =>
+    (lang === "en" && p?.oggetto_en) || p?.oggetto || "·";
+
+  // Relabels tiles already on screen: each tile keeps its phrase and word
+  // index, so it takes the same word of the new label (resizing its box);
+  // tiles with no counterpart (new label has fewer words) are dropped.
+  export function setLang(l) {
+    if (l === lang) return;
+    lang = l;
+    if (!world) return;
+    const s = vbScale();
+    for (const b of Matter.Composite.allBodies(world)) {
+      if (b.isStatic || !b._phrase) continue;
+      const txt = splitWords(oggettoFor(b._phrase))[b._idx];
+      if (!txt) {
+        Matter.Composite.remove(world, b);
+        continue;
+      }
+      const w = wordWidth(txt, s);
+      Matter.Body.scale(b, w / b._w, 1);
+      b._w = w;
+      b._txt = txt;
+      if (b.isSleeping) Matter.Sleeping.set(b, false);
+    }
+  }
+
   // Box width follows the actual rendered text width (same font the word is
   // drawn with) instead of a random size unrelated to how long the word is —
   // short words get a short box, long words get a wide one.
@@ -194,31 +221,31 @@
     return String(txt).trim().split(/\s+/).filter(Boolean);
   }
 
-  function spawnWordAt(txt, tl, tr) {
+  function spawnWordAt(txt, tl, tr, phrase, idx) {
     const s = vbScale();
     const w = wordWidth(txt, s);
     const h = WORD_H_MIN * s;
     const cx = tl.x + 8 + Math.random() * (tr.x - tl.x - 16);
     const cy = 0;
     if (!spawnIsClear(cx, cy, w, h)) return;
-    _addBody(cx, cy, w, h, txt, (Math.random() - 0.5) * 1.2, 0.5);
+    const body = _addBody(cx, cy, w, h, txt, (Math.random() - 0.5) * 1.2, 0.5);
+    body._phrase = phrase;
+    body._idx = idx;
   }
 
   function _spawnOne() {
     if (!engine || !canvas || !phrasePool.length) return;
-    const phrase = phrasePool[Math.floor(Math.random() * phrasePool.length)];
-    const edge = funnelTopEdge();
-    if (!edge) return;
-    const { tl, tr } = edge;
-    for (const word of splitWords(phrase?.oggetto || "·")) spawnWordAt(word, tl, tr);
+    spawn(phrasePool[Math.floor(Math.random() * phrasePool.length)]);
   }
 
-  export function spawn(txt) {
+  export function spawn(phrase) {
     if (!engine || !canvas) return;
     const edge = funnelTopEdge();
     if (!edge) return;
     const { tl, tr } = edge;
-    for (const word of splitWords(txt)) spawnWordAt(word, tl, tr);
+    splitWords(oggettoFor(phrase)).forEach((word, i) =>
+      spawnWordAt(word, tl, tr, phrase, i),
+    );
   }
 
   function _addBody(cx, cy, w, h, txt, vx, vy) {
@@ -239,6 +266,7 @@
     Matter.Body.setVelocity(body, { x: vx, y: vy });
     Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.1);
     Matter.Composite.add(world, body);
+    return body;
   }
 
   function antiJam(dt, neckY) {
