@@ -9,8 +9,9 @@
   function highlightSegments(text, word) {
     if (!text || !word) return [{ text, hl: false }];
     const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Solo parole intere: niente lettere prima/dopo (\b non gestisce le accentate)
     return text
-      .split(new RegExp(`(${escaped})`, "gi"))
+      .split(new RegExp(`(?<![\\p{L}\\p{N}])(${escaped})(?![\\p{L}\\p{N}])`, "giu"))
       .filter((part) => part !== "")
       .map((part) => ({
         text: part,
