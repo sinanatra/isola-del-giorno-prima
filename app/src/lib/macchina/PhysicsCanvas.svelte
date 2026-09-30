@@ -17,11 +17,15 @@
   let spawnTimer = 0;
   let leakTimer = 0;
   let lastFunnelTopY = null;
+  let frameRect = null;
+  let stepAcc = 0;
 
-  const TARGET_BODIES = 300;
+  const TARGET_BODIES = 100;
   const LEAK_BATCH = 3;
-  const PHYSICS_SUBSTEPS = 2;
-  const GRAVITY = 0.6;
+  const FIXED_STEP = 1 / 120;
+  const MAX_STEPS_PER_FRAME = 8;
+  const MAX_DPR = 2;
+  const GRAVITY = 0.8;
   const STUCK_SECONDS = 0.6;
   const STUCK_SPEED = 0.05;
   const VB = { x: 30, y: 60, w: 1220, h: 790 };
@@ -43,7 +47,10 @@
     { x: 490.69, y: 65.49 },
   ];
 
+  // During a tick the rect is read once and reused: calling
+  // getBoundingClientRect per body per frame was a major source of jank.
   function svgRect() {
+    if (frameRect) return frameRect;
     return svgEl ? svgEl.getBoundingClientRect() : null;
   }
 
@@ -224,7 +231,7 @@
       sleepThreshold: 20,
       // Rounded corners keep tiles from interlocking into a stable arch
       // across the narrowing funnel throat.
-      chamfer: { radius: Math.min(w, h) * 0.25 },
+      chamfer: { radius: Math.min(w, h) * 0.25, qualityMax: 2 },
     });
     body._w = w;
     body._h = h;
@@ -261,8 +268,17 @@
   }
 
   // omega is the valve: open when spinning, closed when stopped
+  function wordCount() {
+    let n = 0;
+    for (const b of Matter.Composite.allBodies(world)) {
+      if (!b.isStatic && b._w != null) n++;
+    }
+    return n;
+  }
+
   export function tick(dt, omega) {
     if (!engine || !ctx) return;
+    frameRect = svgEl ? svgEl.getBoundingClientRect() : null;
 
     scrollAllBodies();
     syncFunnelPose();
@@ -305,9 +321,7 @@
 
     spawnTimer -= dt;
     if (spawnTimer <= 0) {
-      const count = Matter.Composite.allBodies(world).filter(
-        (b) => !b.isStatic && b._w != null,
-      ).length;
+      const count = wordCount();
       if (count < TARGET_BODIES) {
         const need = Math.min(TARGET_BODIES - count, 2);
         for (let i = 0; i < need; i++) _spawnOne();
@@ -315,9 +329,14 @@
       spawnTimer = 0.22 + Math.random() * 0.15;
     }
 
-    const stepMs = Math.min(dt * 1000, 32) / PHYSICS_SUBSTEPS;
-    for (let i = 0; i < PHYSICS_SUBSTEPS; i++)
-      Matter.Engine.update(engine, stepMs);
+    stepAcc += dt;
+    let steps = 0;
+    while (stepAcc >= FIXED_STEP && steps < MAX_STEPS_PER_FRAME) {
+      Matter.Engine.update(engine, FIXED_STEP * 1000);
+      stepAcc -= FIXED_STEP;
+      steps++;
+    }
+    if (steps === MAX_STEPS_PER_FRAME) stepAcc = 0;
     if (drainOpen) {
       for (const b of Matter.Composite.allBodies(world)) {
         if (!b.isStatic && b._w != null && b.position.y + b._h / 2 > neckY) {
@@ -327,43 +346,42 @@
     }
 
     draw();
+    frameRect = null;
   }
 
+  // Tile width already fits the text (wordWidth), so no per-tile clip is
+  // needed; state is set once and each tile only swaps the transform.
   function draw() {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, cssW, cssH);
+    ctx.font = `${FONT_SVG_SIZE * vbScale()}px Rubik, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.strokeStyle = COLOR;
+    ctx.lineWidth = 1;
     for (const b of Matter.Composite.allBodies(world)) {
       if (b.isStatic || b._w == null) continue;
       const { _w: w, _h: h, _txt: txt } = b;
-      ctx.save();
-      ctx.translate(b.position.x, b.position.y);
-      ctx.rotate(b.angle);
+      const cos = Math.cos(b.angle) * dpr;
+      const sin = Math.sin(b.angle) * dpr;
+      ctx.setTransform(cos, sin, -sin, cos, b.position.x * dpr, b.position.y * dpr);
       ctx.fillStyle = "#ffffff";
-      ctx.strokeStyle = COLOR;
-      ctx.lineWidth = 1;
       ctx.fillRect(-w / 2, -h / 2, w, h);
       ctx.strokeRect(-w / 2, -h / 2, w, h);
       if (txt) {
         ctx.fillStyle = COLOR;
-        ctx.font = `${FONT_SVG_SIZE * vbScale()}px Rubik, sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(-w / 2 + 3, -h / 2, w - 6, h);
-        ctx.clip();
         ctx.fillText(txt, 0, 0);
-        ctx.restore();
       }
-      ctx.restore();
     }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   function createWorld(W, H) {
     engine = Matter.Engine.create({ enableSleeping: true });
     // More solver iterations = stiffer stacks: default (6/4) lets resting
-    // words visibly jitter/sink into each other while settling.
-    engine.positionIterations = 30;
-    engine.velocityIterations = 10;
+    // words visibly jitter/sink into each other while settling. Kept moderate
+    engine.positionIterations = 12;
+    engine.velocityIterations = 8;
     world = engine.world;
     engine.gravity.y = GRAVITY;
     wallL = Matter.Bodies.rectangle(-30, H / 2, 60, H * 3, { isStatic: true });
@@ -388,7 +406,7 @@
       const W = Math.round(width),
         H = Math.round(height);
       if (!W || !H) return;
-      dpr = window.devicePixelRatio || 1;
+      dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
       cssW = W;
       cssH = H;
       canvas.width = Math.round(W * dpr);
