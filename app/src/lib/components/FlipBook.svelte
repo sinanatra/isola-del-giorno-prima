@@ -55,8 +55,9 @@
           autoSize: true,
           drawShadow: true,
           maxShadowOpacity: 0.3,
-          flippingTime: 700,
+          flippingTime: 1200,
           mobileScrollSupport: false,
+          useMouseEvents: false,
         });
 
         pageFlip.loadFromHTML(root.querySelectorAll(".page"));
@@ -118,6 +119,8 @@
 
   const arrowClass =
     "absolute top-1/2 -translate-y-1/2 z-20 size-10 text-[2rem] leading-none text-[#3a3a3a] cursor-pointer transition-opacity disabled:opacity-20 disabled:cursor-default";
+  const tapZoneClass =
+    "absolute inset-y-0 z-[15] w-1/2 cursor-pointer disabled:cursor-default [-webkit-tap-highlight-color:transparent]";
 </script>
 
 <svelte:window onkeydown={onKeydown} />
@@ -134,6 +137,21 @@
     bind:this={container}
     class="relative z-10 w-full h-full m-auto px-10 pb-[2vh]"
   ></div>
+
+  <button
+    class="{tapZoneClass} left-0"
+    onclick={prev}
+    disabled={currentPage === 0}
+    tabindex="-1"
+    aria-hidden="true"
+  ></button>
+  <button
+    class="{tapZoneClass} right-0"
+    onclick={next}
+    disabled={lastVisiblePage >= pageCount - 1}
+    tabindex="-1"
+    aria-hidden="true"
+  ></button>
 
   <button
     class="{arrowClass} right-0"
