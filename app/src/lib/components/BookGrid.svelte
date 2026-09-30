@@ -35,8 +35,19 @@
       <span
         class="mt-[0.6vh] h-lh w-full shrink-0 overflow-hidden text-[max(8px,0.6vh)] md:h-[6lh] leading-tight text-[#2a2a2a]"
       >
-        <span class="block truncate font-semibold">{book.author}</span>
-        <span class="hidden italic md:line-clamp-4">{book.title}</span>
+        <span
+          aria-hidden="true"
+          class="float-left hidden h-full w-1/2 [shape-outside:polygon(0_0,70%_100%,0_100%)] md:block"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="float-right hidden h-full w-1/2 [shape-outside:polygon(100%_0,100%_100%,30%_100%)] md:block"
+        ></span>
+        <!-- <span
+          class="block truncate font-semibold md:overflow-visible md:whitespace-normal"
+          >{book.author}</span
+        > -->
+        <span class="hidden italic hyphens-auto md:block">{book.title}</span>
         <span class="hidden tabular-nums md:block">{book.year}</span>
       </span>
     </button>
