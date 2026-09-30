@@ -121,6 +121,7 @@
           "brightness": 2
         }
       },
+
       {
         "type": "quote",
         "label": "citazione",
@@ -172,6 +173,72 @@
           "speed": 1.6,
           "contrast": 4,
           "brightness": 2
+        }
+      },
+      {
+        "type": "intro",
+        "label": "intro",
+        "duration": 15,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": false,
+          "labelsAlpha": 1,
+          "category": "all",
+          "minValue": 0.15,
+          "fontSize": 44,
+          "animate": true,
+          "displayMode": "flow",
+          "flowDensity": 15,
+          "showContext": false,
+          "speed": 1.8,
+          "contrast": 4,
+          "brightness": 2,
+          "citazioni": {
+            "open": true,
+            "text": "Queste linee sono segni per giungere all'isola. Ogni parola svela una via: assedi, potere; viaggi e scoperte; giochi e duelli; macchine e liste; passione e artificio. Ogni traccia è una rotta per un'Isola che è sempre un giorno prima.",
+            "textEn": "These lines are signs toward the island. Every word reveals a way: sieges, power; voyages and discoveries; games and duels; machines and lists; passion and artifice. Every trace is a route to an Island that is always a day before.",
+            "colorEn": "blue",
+            "backgroundAlpha": 0.8,
+            "verticalAlign": "bottom",
+            "msPerWord": 120,
+            "fontSize": 78,
+            "lineHeight": 1.0
+          }
+        }
+      },
+      {
+        "type": "category-title",
+        "label": "titolo categoria",
+        "duration": 8,
+        "scene": {
+          "showImage": true,
+          "showContours": true,
+          "showTitles": false,
+          "labelsAlpha": 1,
+          "category": "__CATEGORY__",
+          "minValue": 0.1,
+          "fontSize": 22,
+          "animate": true,
+          "displayMode": "flow",
+          "flowDensity": 20,
+          "showContext": false,
+          "speed": 1.5,
+          "contrast": 4,
+          "brightness": 2,
+          "citazioni": {
+            "open": true,
+            "text": "__CATEGORY_LABEL__",
+            "textEn": "__CATEGORY_LABEL_EN__",
+            "backgroundAlpha": 0.6,
+            "verticalAlign": "center",
+            "color": "black",
+            "colorEn": "blue",
+            "align": "center",
+            "msPerWord": 120,
+            "fontSize": 100,
+            "lineHeight": 0.5
+          }
         }
       },
       {

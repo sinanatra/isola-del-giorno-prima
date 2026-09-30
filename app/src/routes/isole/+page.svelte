@@ -83,6 +83,8 @@
     words: "",
     fontSize: 182,
     speed: 2,
+    lineHeight: 1.15,
+    wrapLineHeight: 0.9,
     backgroundAlpha: 0,
     showPill: false,
     color: '#000000',
@@ -303,6 +305,8 @@
       if (s.words !== undefined) lista.words = String(s.words);
       if (s.fontSize !== undefined) lista.fontSize = Number(s.fontSize);
       if (s.speed !== undefined) lista.speed = Number(s.speed);
+      if (s.lineHeight !== undefined) lista.lineHeight = Number(s.lineHeight);
+      if (s.wrapLineHeight !== undefined) lista.wrapLineHeight = Number(s.wrapLineHeight);
       if (s.backgroundAlpha !== undefined) lista.backgroundAlpha = Number(s.backgroundAlpha);
       if (s.showPill !== undefined) lista.showPill = Boolean(s.showPill);
       lista.color = resolveColor(s.color, '#000000');
@@ -810,6 +814,8 @@
   bind:listaOpen={lista.open}
   bind:listaFontSize={lista.fontSize}
   bind:listaSpeed={lista.speed}
+  bind:listaLineHeight={lista.lineHeight}
+  bind:listaWrapLineHeight={lista.wrapLineHeight}
   bind:listaShowPill={lista.showPill}
   bind:listaColor={lista.color}
   bind:listaColorEn={lista.colorEn}
@@ -859,6 +865,8 @@
           words={lista.words}
           bind:fontSize={lista.fontSize}
           bind:speed={lista.speed}
+          bind:lineHeight={lista.lineHeight}
+          bind:wrapLineHeight={lista.wrapLineHeight}
           backgroundAlpha={lista.backgroundAlpha}
           showPill={lista.showPill}
           loop={!recording}

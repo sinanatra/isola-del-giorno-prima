@@ -48,6 +48,8 @@
     listaOpen = $bindable(false),
     listaFontSize = $bindable(120),
     listaSpeed = $bindable(6),
+    listaLineHeight = $bindable(1.15),
+    listaWrapLineHeight = $bindable(0.7),
     listaShowPill = $bindable(false),
     listaColor = $bindable('#000000'),
     listaColorEn = $bindable(BLUE),
@@ -346,6 +348,14 @@
       <label class={lbl}>
         vel {listaSpeed.toFixed(1)}
         <input type="range" class={rng} min="0.5" max="20" step="0.5" bind:value={listaSpeed} />
+      </label>
+      <label class={lbl} title="interlinea tra voci">
+        ×{listaLineHeight.toFixed(2)}
+        <input type="range" class={rng} min="0.5" max="3" step="0.05" bind:value={listaLineHeight} />
+      </label>
+      <label class={lbl} title="interlinea a capo">
+        a capo ×{listaWrapLineHeight.toFixed(2)}
+        <input type="range" class={rng} min="0.3" max="2" step="0.05" bind:value={listaWrapLineHeight} />
       </label>
       <button class={btn(listaShowPill)} onclick={() => (listaShowPill = !listaShowPill)}>pill</button>
       <label class={lbl} title="colore IT">

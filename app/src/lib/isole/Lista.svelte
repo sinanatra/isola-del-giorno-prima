@@ -11,6 +11,10 @@
     words = '',
     fontSize = $bindable(182),
     speed = $bindable(1),
+    // lineHeight: gap between entries; wrapLineHeight: gap between the
+    // wrapped lines of a single entry. Both are multiples of the font size.
+    lineHeight = $bindable(1.15),
+    wrapLineHeight = $bindable(0.7),
     backgroundAlpha = 0,
     showPill = false,
     loop = true,
@@ -49,8 +53,8 @@
 
   function computeLines(p) {
     const maxW = W - 80;
-    const spacing = fs * 1.15;
-    const tight = fs * 0.7;
+    const spacing = fs * lineHeight;
+    const tight = fs * wrapLineHeight;
     p.textSize(fs);
     const lines = [];
     let y = 0;
