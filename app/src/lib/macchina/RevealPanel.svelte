@@ -89,11 +89,11 @@
 
 {#if quotes && !hidden}
   <div transition:fly={{ y: 400, duration: 450, easing: cubicOut, opacity: 1 }}>
-    <div class="flex px-4 py-4 gap-4">
+    <div class="flex px-4 py-4 gap-4 landscape:py-3 landscape:gap-3">
       {#each quotes as q}
-        <div class="flex-1 min-h-65 px-6 py-8 bg-white shadow">
+        <div class="flex-1 min-h-65 px-6 py-8 bg-white shadow landscape:min-h-52 landscape:px-5 landscape:py-6">
           {#if q.oggetto}
-            <div class="font-bold text-4xl text-black mb-3 tracking-wide">
+            <div class="font-bold text-4xl text-black mb-3 landscape:text-3xl landscape:mb-2 tracking-wide">
               {#if lang === "en" && q.phrase?.oggetto_en}
                 {q.phrase.oggetto_en}
               {:else if lang === "en"}
@@ -106,7 +106,7 @@
                 {q.oggetto}
               {/if}
             </div>
-            <div class="text-2xl text-black">
+            <div class="text-2xl text-black landscape:text-xl">
               {#if q.phrase}
                 {#if lang === "en" && q.phrase.oggetto_en && q.phrase.testo_en}
                   {#each highlightSegments(q.phrase.testo_en, q.phrase.oggetto_en) as seg}
