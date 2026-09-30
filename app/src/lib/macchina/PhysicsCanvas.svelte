@@ -15,13 +15,13 @@
   let svgEl = null;
   let phrasePool = [];
   let spawnTimer = 0;
-  let leakTimer = 0;
+  let overflowDrain = false;
   let lastFunnelTopY = null;
   let frameRect = null;
   let stepAcc = 0;
 
   const TARGET_BODIES = 100;
-  const LEAK_BATCH = 3;
+  const OVERFLOW_RESUME = 70;
   const FIXED_STEP = 1 / 120;
   const MAX_STEPS_PER_FRAME = 8;
   const MAX_DPR = 2;
@@ -314,7 +314,12 @@
 
     const spinning = Math.abs(omega) > 0.06;
 
-    if (spinning && !drainOpen) {
+    const count = wordCount();
+    if (!overflowDrain && count >= TARGET_BODIES) overflowDrain = true;
+    else if (overflowDrain && count <= OVERFLOW_RESUME) overflowDrain = false;
+    const wantOpen = spinning || overflowDrain;
+
+    if (wantOpen && !drainOpen) {
       if (funnelFloor) {
         Matter.Composite.remove(world, funnelFloor);
         funnelFloor = null;
@@ -324,24 +329,9 @@
         if (!b.isStatic) Matter.Sleeping.set(b, false);
       }
       drainOpen = true;
-    } else if (!spinning && drainOpen) {
+    } else if (!wantOpen && drainOpen) {
       _buildFloor();
       drainOpen = false;
-    }
-
-    leakTimer -= dt;
-    if (!drainOpen && leakTimer <= 0) {
-      const resting = Matter.Composite.allBodies(world).filter(
-        (b) => !b.isStatic && b._w != null,
-      );
-      if (resting.length >= TARGET_BODIES) {
-        for (let i = 0; i < LEAK_BATCH && resting.length; i++) {
-          const idx = Math.floor(Math.random() * resting.length);
-          Matter.Composite.remove(world, resting[idx]);
-          resting.splice(idx, 1);
-        }
-      }
-      leakTimer = 0.35 + Math.random() * 0.2;
     }
 
     const neckY = funnelNeckY();
@@ -349,8 +339,7 @@
 
     spawnTimer -= dt;
     if (spawnTimer <= 0) {
-      const count = wordCount();
-      if (count < TARGET_BODIES) {
+      if (!overflowDrain && count < TARGET_BODIES) {
         const need = Math.min(TARGET_BODIES - count, 2);
         for (let i = 0; i < need; i++) _spawnOne();
       }
