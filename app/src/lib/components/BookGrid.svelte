@@ -54,7 +54,7 @@
             ? ''
             : 'grayscale group-hover:grayscale-0'}"
         >
-          {#each book.pages.slice(0, 2) as src}
+          {#each book.thumbs.slice(0, 2) as src}
             <img
               {src}
               alt=""

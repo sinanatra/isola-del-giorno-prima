@@ -8,9 +8,21 @@
   let currentPage = $state(0);
 
   onMount(async () => {
-    const response = await fetch("/books.json");
-    const data = await response.json();
-    books = data.books;
+    const [data, arena] = await Promise.all([
+      fetch("/books.json").then((r) => r.json()),
+      fetch("/arena.json")
+        .then((r) => (r.ok ? r.json() : { images: {} }))
+        .catch(() => ({ images: {} })),
+    ]);
+    // fetch are.na
+    const image = (path) =>
+      arena.images[path.split("/").pop().replace(/\.\w+$/, "")];
+    books = data.books.map((book) => ({
+      ...book,
+      pages: book.pages.map((p) => image(p)?.src ?? p),
+      previews: book.pages.map((p) => image(p)?.preview ?? p),
+      thumbs: book.pages.map((p) => image(p)?.thumb ?? p),
+    }));
     if (books.length > 0) {
       selectedBook = books[Math.floor(Math.random() * books.length)];
     }
