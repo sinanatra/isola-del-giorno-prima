@@ -56,8 +56,8 @@ await writeFile(
 const missing = books.flatMap((b) =>
   b.pages.map(pageNumber).filter((n) => !images[n]).map((n) => `${b.id}/${n}`),
 );
-console.log(`${Object.keys(images).length} pagine importate da ${slug}`);
+console.log(`${Object.keys(images).length} from ${slug}`);
 if (missing.length)
-  console.log(`Mancano su Are.na (uso i file locali): ${missing.join(", ")}`);
+  console.log(`${missing.join(", ")}`);
 if (unknown.length)
-  console.log(`Blocchi ignorati (numero non trovato): ${unknown.join(", ")}`);
+  console.log(`${unknown.join(", ")}`);

@@ -24,18 +24,15 @@
       page.className = "page bg-[#f4efe6] overflow-hidden";
       const img = document.createElement("img");
       // Prima l'anteprima, poi l'originale appena è scaricato
-      const preview = book.previews?.[i] ?? src;
-      img.src = preview;
-      if (preview !== src) {
-        const full = new Image();
-        full.src = src;
-        full
-          .decode()
-          .then(() => {
-            if (!destroyed) img.src = src;
-          })
-          .catch(() => {});
-      }
+      img.src = book.previews[i];
+      const full = new Image();
+      full.src = src;
+      full
+        .decode()
+        .then(() => {
+          if (!destroyed) img.src = src;
+        })
+        .catch(() => {});
       img.alt = "";
       img.draggable = false;
       const isLeft = i % 2 === (showCover ? 1 : 0);

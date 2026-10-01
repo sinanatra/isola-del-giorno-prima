@@ -10,19 +10,22 @@
   onMount(async () => {
     const [data, arena] = await Promise.all([
       fetch("/books.json").then((r) => r.json()),
-      fetch("/arena.json")
-        .then((r) => (r.ok ? r.json() : { images: {} }))
-        .catch(() => ({ images: {} })),
+      fetch("/arena.json").then((r) => r.json()),
     ]);
     // fetch are.na
-    const image = (path) =>
-      arena.images[path.split("/").pop().replace(/\.\w+$/, "")];
-    books = data.books.map((book) => ({
-      ...book,
-      pages: book.pages.map((p) => image(p)?.src ?? p),
-      previews: book.pages.map((p) => image(p)?.preview ?? p),
-      thumbs: book.pages.map((p) => image(p)?.thumb ?? p),
-    }));
+    books = data.books
+      .map((book) => {
+        const images = book.pages
+          .map((p) => arena.images[p.split("/").pop().replace(/\.\w+$/, "")])
+          .filter(Boolean);
+        return {
+          ...book,
+          pages: images.map((i) => i.src),
+          previews: images.map((i) => i.preview),
+          thumbs: images.map((i) => i.thumb),
+        };
+      })
+      .filter((book) => book.pages.length > 0);
     if (books.length > 0) {
       selectedBook = books[Math.floor(Math.random() * books.length)];
     }
