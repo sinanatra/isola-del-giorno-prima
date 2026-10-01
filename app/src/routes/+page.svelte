@@ -35,16 +35,25 @@
   // Vertical layout: how far (px) the machine + its sticky text sit above the bottom edge
   const MACHINE_LIFT = 360;
 
+  const MOBILE_MAX_SIDE = 640;
+
   let pageScale = $state(1);
   let headerH = $state(0);
   let machineBoxH = $state(0);
+  let viewW = $state(window.innerWidth);
+  let viewH = $state(window.innerHeight);
+
+  let isMobile = $derived(Math.min(viewW, viewH) < MOBILE_MAX_SIDE);
 
   function updatePageScale() {
-    pageScale = Math.max(window.innerWidth / DESIGN_WIDTH, MIN_PAGE_SCALE);
+    viewW = window.innerWidth;
+    viewH = window.innerHeight;
+    pageScale = isMobile
+      ? 1
+      : Math.max(window.innerWidth / DESIGN_WIDTH, MIN_PAGE_SCALE);
   }
 
-  // Big fixed installs (e.g. a 50x70" vertical panel) or vertical monitors
-  let isVertical = $derived(window.innerHeight > window.innerWidth);
+  let isVertical = $derived(!isMobile && viewH > viewW);
 
   $effect(() => {
     document.documentElement.style.overflow = isVertical ? "hidden" : "";
@@ -356,7 +365,9 @@
   bind:clientHeight={headerH}
 >
   <div
-    class="max-w-350 columns-2 gap-10 px-4 py-3 text-xl leading-tight text-[#282828]"
+    class="max-w-350 gap-10 leading-tight text-[#282828] {isMobile
+      ? 'columns-1 px-3 py-2 text-sm'
+      : 'columns-2 px-4 py-3 text-xl'}"
   >
     {#each t().introLead.flatMap((p) => p.split("\n")) as line, i}
       <p class="m-0 {i > 0 ? 'indent-6' : ''}">{@html line}</p>
@@ -372,7 +383,9 @@
 >
   <ArchiveIntro />
   <button
-    class="absolute z-100 cursor-pointer top-4 right-4 text-xl border border-black px-3 py-1.5 bg-white text-black hover:bg-black hover:text-white transition-colors"
+    class="absolute z-100 cursor-pointer border border-black bg-white text-black hover:bg-black hover:text-white transition-colors {isMobile
+      ? 'top-2 right-2 text-sm px-2 py-1'
+      : 'top-4 right-4 text-xl px-3 py-1.5'}"
     style="zoom: {pageScale}"
     onclick={toggleLang}
   >
@@ -382,13 +395,15 @@
 
 <div style="zoom: {pageScale}">
   <div
-    class="px-8 py-8"
+    class={isMobile ? "px-3 py-3" : "px-8 py-8"}
     style={isVertical
       ? `position: fixed; bottom: calc(0.75rem + ${(machineBoxH + MACHINE_LIFT) / pageScale}px + .2rem); left: 0; right: 0; z-index: 25`
-      : "position: sticky; top: 1.75rem; margin-top: -18vh"}
+      : `position: sticky; top: ${isMobile ? "0.5rem" : "1.75rem"}; margin-top: -18vh`}
   >
     <p
-      class="text-center text-2xl leading-tight text-black max-w-[850px] mx-auto m-0 bg-white px-4 py-4 shadow"
+      class="text-center leading-tight text-black max-w-[850px] mx-auto m-0 bg-white shadow {isMobile
+        ? 'text-base px-3 py-2'
+        : 'text-2xl px-4 py-4'}"
     >
       {@html t().introSticky}
     </p>
@@ -399,7 +414,7 @@
   class="z-24"
   style={isVertical
     ? `position: fixed; bottom: ${MACHINE_LIFT}px; left: 0; right: 0; z-index: 15`
-    : "position: sticky; top: 1.75rem"}
+    : `position: sticky; top: ${isMobile ? "0.5rem" : "1.75rem"}`}
 >
   <div
     class="mx-auto"
@@ -407,7 +422,9 @@
     bind:clientHeight={machineBoxH}
   >
     <div
-      class="relative aspect-[1220/900] w-[min(100%,calc((100dvh-120px)*1220/900))] mx-auto shrink-0 overflow-visible"
+      class="relative aspect-[1220/900] mx-auto shrink-0 overflow-visible {isMobile
+        ? 'w-[min(100%,calc((100dvh-40px)*1220/900))]'
+        : 'w-[min(100%,calc((100dvh-120px)*1220/900))]'}"
     >
       <CordHint show={showHint} text={t().hint} />
       <PhysicsCanvas bind:this={physicsRef} />
@@ -429,6 +446,7 @@
         quotes={revealReady ? quotes : null}
         hidden={panelHidden}
         lang={i18n.lang}
+        compact={isMobile}
       />
     </div>
   </div>
