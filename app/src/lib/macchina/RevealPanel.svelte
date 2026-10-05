@@ -91,13 +91,13 @@
   <div transition:fly={{ y: 400, duration: 450, easing: cubicOut, opacity: 1 }}>
     <div
       class={compact
-        ? "flex px-3 py-3 gap-3 overflow-x-auto snap-x snap-mandatory"
+        ? "flex flex-col px-3 pt-3 pb-6 gap-3"
         : "flex px-4 py-4 gap-4 landscape:py-3 landscape:gap-3"}
     >
       {#each quotes as q}
         <div
           class="bg-white shadow {compact
-            ? 'w-[85%] shrink-0 snap-center max-h-[45dvh] overflow-y-auto px-4 py-4'
+            ? 'px-4 py-4'
             : 'flex-1 min-h-65 px-6 py-8 landscape:min-h-52 landscape:px-5 landscape:py-6'}"
         >
           {#if q.oggetto}

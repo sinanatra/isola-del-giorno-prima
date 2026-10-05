@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import Machine from "$lib/macchina/Machine.svelte";
   import PhysicsCanvas from "$lib/macchina/PhysicsCanvas.svelte";
   import RevealPanel from "$lib/macchina/RevealPanel.svelte";
@@ -39,6 +39,7 @@
 
   let pageScale = $state(1);
   let headerH = $state(0);
+  let archiveEl;
   let machineBoxH = $state(0);
   let viewW = $state(window.innerWidth);
   let viewH = $state(window.innerHeight);
@@ -68,6 +69,15 @@
   let revealTimer = 0;
 
   const REVEAL_DELAY_MS = 1400;
+
+  // Mobile: the cards are a section after the machine rather than an overlay
+  let revealEl;
+  $effect(() => {
+    if (!(revealReady && isMobile && quotes)) return;
+    tick().then(() =>
+      revealEl?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
+  });
 
   $effect(() => {
     quotes;
@@ -334,6 +344,9 @@
         machineState,
         activeSnap,
       });
+      physicsRef?.setClipTop(
+        isMobile ? archiveEl?.getBoundingClientRect().top : 0,
+      );
       physicsRef?.tick(dt, omega);
 
       syncDrawers();
@@ -358,7 +371,7 @@
 </script>
 
 <header
-  class="bg-[gainsboro] shadow {isVertical ? '' : 'sticky top-0'}"
+  class="bg-[gainsboro] shadow {isVertical || isMobile ? '' : 'sticky top-0'}"
   style={isVertical
     ? "position: fixed; top: 0; left: 0; right: 0; z-index: 20"
     : ""}
@@ -377,6 +390,7 @@
 
 <div
   class="shadow"
+  bind:this={archiveEl}
   style={isVertical
     ? `position: fixed; top: ${headerH}px; left: 0; right: 0; bottom: 0; z-index: 10; height: calc(100vh - ${headerH}px); overflow: hidden`
     : "position: sticky; top: 0; height: 100dvh"}
@@ -398,7 +412,7 @@
     class={isMobile ? "px-3 py-3" : "px-8 py-8"}
     style={isVertical
       ? `position: fixed; bottom: calc(0.75rem + ${(machineBoxH + MACHINE_LIFT) / pageScale}px + .2rem); left: 0; right: 0; z-index: 25`
-      : `position: sticky; top: ${isMobile ? "0.5rem" : "1.75rem"}; margin-top: -18vh`}
+      : `position: sticky; top: ${isMobile ? "0.5rem" : "1.75rem"}; margin-top: -18vh${isMobile ? "; z-index: 25" : ""}`}
   >
     <p
       class="text-center leading-tight text-black max-w-[850px] mx-auto m-0 bg-white shadow {isMobile
@@ -414,7 +428,9 @@
   class="z-24"
   style={isVertical
     ? `position: fixed; bottom: ${MACHINE_LIFT}px; left: 0; right: 0; z-index: 15`
-    : `position: sticky; top: ${isMobile ? "0.5rem" : "1.75rem"}`}
+    : isMobile
+      ? "position: relative"
+      : "position: sticky; top: 1.75rem"}
 >
   <div
     class="mx-auto"
@@ -426,13 +442,26 @@
         ? 'w-[min(100%,calc((100dvh-40px)*1220/900))]'
         : 'w-[min(100%,calc((100dvh-120px)*1220/900))]'}"
     >
-      <CordHint show={showHint} text={t().hint} />
+      <!-- Mobile: the machine is full-width, so the label running down the
+           right of the cord would fall off-screen; lay it flat above instead -->
+      <CordHint
+        show={showHint}
+        text={t().hint}
+        {...isMobile
+          ? {
+              textPath: "M 700 156 L 1212 156",
+              textAnchor: "end",
+              startOffset: "100%",
+            }
+          : {}}
+      />
       <PhysicsCanvas bind:this={physicsRef} />
       <Machine
         svgContent={data.svgContent ?? ""}
         {onCordPull}
         {onCordRelease}
         elevated={machineElevated}
+        handleZ={isMobile ? 26 : 50}
         bind:this={machineRef}
       />
     </div>
@@ -440,11 +469,16 @@
 </div>
 
 <div style="zoom: {pageScale}">
-  <div class="fixed inset-x-0 bottom-0 z-30 pointer-events-none">
+  <div
+    bind:this={revealEl}
+    class={isMobile
+      ? "relative z-30"
+      : "fixed inset-x-0 bottom-0 z-30 pointer-events-none"}
+  >
     <div class="pointer-events-auto max-w-360 mx-auto">
       <RevealPanel
         quotes={revealReady ? quotes : null}
-        hidden={panelHidden}
+        hidden={!isMobile && panelHidden}
         lang={i18n.lang}
         compact={isMobile}
       />

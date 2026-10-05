@@ -5,7 +5,7 @@
     COLS_X, ROW0_Y, ROW_STP, BOX_W, BOX_H, D, CYL, CYL_PATH,
   } from './constants.js';
 
-  let { svgContent = '', onCordPull, onCordRelease, elevated = false } = $props();
+  let { svgContent = '', onCordPull, onCordRelease, elevated = false, handleZ = 50 } = $props();
 
   let host;
   let svg, knobGrp;
@@ -25,7 +25,10 @@
   const HANDLE_HIT_PAD = 85;
   // The handle lives in its own SVG mounted on <body>, kept aligned with
   let handleSvg;
-  const HANDLE_Z = 50;
+  $effect(() => {
+    const z = handleZ;
+    if (handleSvg) handleSvg.style.zIndex = z;
+  });
   const CORD_REST_END = { x: 1161.36, y: 485.7 };
   const CORD_MAX_PULL = 360;
   const CORD_GUIDE = { x: CORD_REST_END.x, y: PVT.y };
@@ -477,7 +480,7 @@
         preserveAspectRatio: svg.getAttribute('preserveAspectRatio'),
       });
       handleSvg.style.cssText =
-        `position:fixed;pointer-events:none;overflow:visible;z-index:${HANDLE_Z};touch-action:none`;
+        `position:fixed;pointer-events:none;overflow:visible;z-index:${handleZ};touch-action:none`;
       handleSvg.append(cordPolyline, cordHitLine, handleGrp);
       document.body.appendChild(handleSvg);
 

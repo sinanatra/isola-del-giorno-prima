@@ -8,6 +8,8 @@
     textPath = "M 1216 193 C 1246 253, 1196 343, 1150 540",
     fontSize = 62,
     letterSpacing = 1,
+    textAnchor = "start",
+    startOffset = "0%",
   } = $props();
 </script>
 
@@ -43,13 +45,14 @@
       font-family="Freight, serif"
       font-size={fontSize}
       letter-spacing={letterSpacing}
+      text-anchor={textAnchor}
       style="fill: red"
       stroke="#EFEFEF"
       stroke-width="10"
       stroke-linejoin="round"
       paint-order="stroke fill"
     >
-      <textPath href="#cordHintTextPath" startOffset="0%">{text}</textPath>
+      <textPath href="#cordHintTextPath" {startOffset}>{text}</textPath>
     </text>
   </svg>
 {/if}

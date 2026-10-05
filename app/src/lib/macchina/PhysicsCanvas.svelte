@@ -34,10 +34,24 @@
 
   const WORD_W_MIN = 25;
   const WORD_H_MIN = 22;
+  // On small screens the machine shrinks far below a legible text size
+  const WORD_SCALE_MIN = 0.5;
 
   function vbScale() {
     const r = svgRect();
     return r ? r.width / VB.w : 1;
+  }
+
+  function wordScale() {
+    return Math.max(vbScale(), WORD_SCALE_MIN);
+  }
+
+  function bodyBudget() {
+    const k = (vbScale() / wordScale()) ** 2;
+    return {
+      target: Math.max(8, Math.round(TARGET_BODIES * k)),
+      resume: Math.max(5, Math.round(OVERFLOW_RESUME * k)),
+    };
   }
 
   const FUNNEL = [
@@ -161,6 +175,11 @@
     rebuildFunnel();
   }
 
+  let clipTop = 0;
+  export function setClipTop(y) {
+    clipTop = Math.max(0, y || 0);
+  }
+
   export function prepopulate(phrases) {
     phrasePool = phrases;
   }
@@ -176,7 +195,7 @@
     if (l === lang) return;
     lang = l;
     if (!world) return;
-    const s = vbScale();
+    const s = wordScale();
     for (const b of Matter.Composite.allBodies(world)) {
       if (b.isStatic || !b._phrase) continue;
       const txt = splitWords(oggettoFor(b._phrase))[b._idx];
@@ -222,7 +241,7 @@
   }
 
   function spawnWordAt(txt, tl, tr, phrase, idx) {
-    const s = vbScale();
+    const s = wordScale();
     const w = wordWidth(txt, s);
     const h = WORD_H_MIN * s;
     const cx = tl.x + 8 + Math.random() * (tr.x - tl.x - 16);
@@ -315,8 +334,9 @@
     const spinning = Math.abs(omega) > 0.06;
 
     const count = wordCount();
-    if (!overflowDrain && count >= TARGET_BODIES) overflowDrain = true;
-    else if (overflowDrain && count <= OVERFLOW_RESUME) overflowDrain = false;
+    const { target, resume } = bodyBudget();
+    if (!overflowDrain && count >= target) overflowDrain = true;
+    else if (overflowDrain && count <= resume) overflowDrain = false;
     const wantOpen = spinning || overflowDrain;
 
     if (wantOpen && !drainOpen) {
@@ -339,8 +359,8 @@
 
     spawnTimer -= dt;
     if (spawnTimer <= 0) {
-      if (!overflowDrain && count < TARGET_BODIES) {
-        const need = Math.min(TARGET_BODIES - count, 2);
+      if (!overflowDrain && count < target) {
+        const need = Math.min(target - count, 2);
         for (let i = 0; i < need; i++) _spawnOne();
       }
       spawnTimer = 0.22 + Math.random() * 0.15;
@@ -371,11 +391,19 @@
   function draw() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, cssW, cssH);
-    ctx.font = `${FONT_SVG_SIZE * vbScale()}px Rubik, sans-serif`;
+    if (clipTop >= cssH) return;
+    ctx.save();
+    if (clipTop > 0) {
+      ctx.beginPath();
+      ctx.rect(0, clipTop, cssW, cssH - clipTop);
+      ctx.clip();
+    }
+    const s = wordScale();
+    ctx.font = `${FONT_SVG_SIZE * s}px Rubik, sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.strokeStyle = COLOR;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = Math.min(1, s);
     for (const b of Matter.Composite.allBodies(world)) {
       if (b.isStatic || b._w == null) continue;
       const { _w: w, _h: h, _txt: txt } = b;
@@ -390,6 +418,7 @@
         ctx.fillText(txt, 0, 0);
       }
     }
+    ctx.restore();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
