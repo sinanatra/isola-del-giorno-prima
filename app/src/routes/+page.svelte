@@ -344,9 +344,7 @@
         machineState,
         activeSnap,
       });
-      physicsRef?.setClipTop(
-        isMobile ? archiveEl?.getBoundingClientRect().top : 0,
-      );
+      physicsRef?.setClipTop(archiveEl?.getBoundingClientRect().top);
       physicsRef?.tick(dt, omega);
 
       syncDrawers();

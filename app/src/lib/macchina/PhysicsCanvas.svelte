@@ -245,7 +245,7 @@
     const w = wordWidth(txt, s);
     const h = WORD_H_MIN * s;
     const cx = tl.x + 8 + Math.random() * (tr.x - tl.x - 16);
-    const cy = 0;
+    const cy = clipTop;
     if (!spawnIsClear(cx, cy, w, h)) return;
     const body = _addBody(cx, cy, w, h, txt, (Math.random() - 0.5) * 1.2, 0.5);
     body._phrase = phrase;
