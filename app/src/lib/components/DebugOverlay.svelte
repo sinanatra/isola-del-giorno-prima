@@ -27,7 +27,7 @@
       const mem = performance.memory;
       readSw();
       rows = [
-        ["stato", cur.state + (config.kiosk ? " · kiosk" : "")],
+        ["stato", cur.state],
         ["fps loop", rate("frames")],
         ["fps corda", rate("idleFrames")],
         ["ridisegni/s", rate("draws")],

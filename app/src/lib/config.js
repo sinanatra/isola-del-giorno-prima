@@ -1,11 +1,10 @@
-// Tuning constants. KIOSK overrides apply with ?kiosk=1 (sticky, ?kiosk=0 to
-// clear) or VITE_KIOSK=1 at build time.
-// URL overrides: ?debug=1 ?dpr= ?rain=<s> ?sway=<fps> ?reloadHours= ?reloadAt=HH:MM
+// Tuning constants, sized for the exhibition monitors (same URL as the public site).
+// URL overrides for testing: ?debug=1 ?dpr= ?rain=<s> ?sway=<fps> ?reloadHours= ?reloadAt=HH:MM
 
 const BASE = {
-  kiosk: false,
   debug: false,
   maxDpr: 2,
+  maxCanvasPixels: 4e6, // backing-store budget; lowers the DPR on large screens
 
   physics: {
     fixedStep: 1 / 60,
@@ -18,13 +17,13 @@ const BASE = {
   },
 
   loop: {
-    rainIdleAfterMs: 0, // stop spawning words after this much inactivity; 0 = never
-    swayFps: 60, // cord sway while idle; 0 = still
+    rainIdleAfterMs: 45000, // stop spawning words after this much inactivity; 0 = never
+    swayFps: 30, // cord sway while idle; 0 = still
     layoutRecheckMs: 500,
   },
 
   watchdog: {
-    enabled: false,
+    enabled: true,
     stallMs: 20000,
     heartbeatMs: 2000,
     reloadOnError: true,
@@ -34,17 +33,9 @@ const BASE = {
 
   reload: {
     everyHours: 0, // 0 = off
-    at: "", // "HH:MM" local time, "" = off
+    at: "04:00", // "HH:MM" local time, "" = off
     quietMs: 60000, // no reload until this long after the last input
   },
-};
-
-const KIOSK = {
-  kiosk: true,
-  maxDpr: 1,
-  loop: { rainIdleAfterMs: 45000, swayFps: 30 },
-  watchdog: { enabled: true },
-  reload: { at: "04:00" },
 };
 
 function merge(base, over) {
@@ -76,10 +67,7 @@ const num = (name) => {
 };
 
 function build() {
-  const kiosk =
-    import.meta.env?.VITE_KIOSK === "1" ||
-    stickyFlag("kiosk", hasWindow ? window.localStorage : null);
-  const cfg = kiosk ? merge(BASE, KIOSK) : merge(BASE, {});
+  const cfg = merge(BASE, {});
   cfg.debug = stickyFlag("debug", hasWindow ? window.sessionStorage : null);
 
   const dpr = num("dpr");

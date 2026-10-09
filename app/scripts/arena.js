@@ -1,4 +1,3 @@
-// import highres images from are.na
 
 import { readFile, writeFile } from "node:fs/promises";
 
@@ -42,9 +41,8 @@ for (const block of await fetchBlocks()) {
     continue;
   }
   images[number] = {
-    src: block.image.src,
-    preview: block.image.medium.src,
-    thumb: block.image.small.src_2x,
+    src: block.image.medium.src,
+    thumb: block.image.small.src,
   };
 }
 

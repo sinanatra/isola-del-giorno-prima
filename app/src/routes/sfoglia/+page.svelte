@@ -21,7 +21,6 @@
         return {
           ...book,
           pages: images.map((i) => i.src),
-          previews: images.map((i) => i.preview),
           thumbs: images.map((i) => i.thumb),
         };
       })

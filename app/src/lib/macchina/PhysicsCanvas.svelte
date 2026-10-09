@@ -524,7 +524,14 @@
       const W = Math.round(width),
         H = Math.round(height);
       if (!W || !H) return;
-      dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      dpr = Math.max(
+        1,
+        Math.min(
+          window.devicePixelRatio || 1,
+          MAX_DPR,
+          Math.sqrt(config.maxCanvasPixels / (W * H)),
+        ),
+      );
       cssW = W;
       cssH = H;
       canvas.width = Math.round(W * dpr);
