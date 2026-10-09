@@ -7,6 +7,9 @@
   import CordHint from "$lib/macchina/CordHint.svelte";
   import { i18n, toggleLang, t } from "$lib/macchina/i18n.svelte.js";
   import { LETTERS, FALLBACK, N_LET } from "$lib/macchina/constants.js";
+  import { config } from "$lib/config.js";
+  import { onActivity, idleFor } from "$lib/activity.js";
+  import { debugStats } from "$lib/debugStats.js";
 
   let { data } = $props();
   const phrases = data.phrases?.length ? data.phrases : FALLBACK;
@@ -27,6 +30,7 @@
       drawerAnim = false;
       drawerGen += 1;
     }
+    invalidateLayout();
   });
 
   // Layout and scaling: the machine is designed for a 50x70" screen, but should scale to fit
@@ -204,6 +208,7 @@
   const HOLD_RATE = 0.005;
 
   function onCordPull({ deltaSvg, velocity, pullOff = 0 }) {
+    wake();
     clearHintTimer();
     if (!isDrag) {
       isDrag = true;
@@ -316,52 +321,151 @@
     );
   }
 
+  // Main loop: stops when nothing moves; only the cord sway keeps running.
+  const { rainIdleAfterMs: RAIN_IDLE_MS, swayFps: SWAY_FPS, layoutRecheckMs: RECHECK_MS } =
+    config.loop;
+
+  let rafId = 0;
+  let idleRaf = 0;
+  let idleTimer = 0;
+  let mounted = false;
+  let layoutDirty = true;
+  let lastMeasure = 0;
+
+  const machineBusy = () =>
+    isDrag ||
+    machineState === "spinning" ||
+    machineState === "decelerating" ||
+    machineState === "snapping";
+
+  const rainOn = () =>
+    RAIN_IDLE_MS <= 0 || machineBusy() || idleFor() < RAIN_IDLE_MS;
+
+  function measureLayout(ts) {
+    layoutDirty = false;
+    lastMeasure = ts;
+    return !!physicsRef?.setFrame(
+      machineRef?.measure(),
+      archiveEl?.getBoundingClientRect().top,
+    );
+  }
+
+  function invalidateLayout() {
+    layoutDirty = true;
+    wake();
+  }
+
+  function wake() {
+    if (!mounted || rafId) return;
+    cancelAnimationFrame(idleRaf);
+    clearTimeout(idleTimer);
+    idleRaf = idleTimer = 0;
+    lastTs = 0;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function loop(ts) {
+    rafId = 0;
+    const dt = lastTs ? Math.min((ts - lastTs) / 1000, 0.1) : 0;
+    lastTs = ts;
+
+    stepHoldPull(dt);
+    stepDeceleration(dt);
+    stepSnapping(ts);
+    stepSpin(dt);
+
+    if (layoutDirty || ts - lastMeasure > RECHECK_MS) measureLayout(ts);
+
+    machineRef?.update({
+      knobAng,
+      wheelAng,
+      scrollOff,
+      machineState,
+      activeSnap,
+    });
+    physicsRef?.setRain(rainOn());
+    const physicsBusy = physicsRef ? physicsRef.tick(dt, omega) : true;
+
+    syncDrawers();
+
+    debugStats.frames++;
+    debugStats.machine = machineState;
+
+    if (physicsBusy || machineBusy() || layoutDirty) {
+      debugStats.state = "attivo";
+      rafId = requestAnimationFrame(loop);
+    } else {
+      debugStats.state = "idle";
+      scheduleIdle();
+    }
+  }
+
+  function scheduleIdle() {
+    if (SWAY_FPS <= 0) return;
+    if (SWAY_FPS >= 60) idleRaf = requestAnimationFrame(idleFrame);
+    else
+      idleTimer = setTimeout(() => {
+        idleTimer = 0;
+        idleRaf = requestAnimationFrame(idleFrame);
+      }, 1000 / SWAY_FPS - 8);
+  }
+
+  function idleFrame(ts) {
+    idleRaf = 0;
+    if (rafId) return;
+    if (ts - lastMeasure > RECHECK_MS && measureLayout(ts)) return wake();
+    machineRef?.sway();
+    debugStats.idleFrames++;
+    scheduleIdle();
+  }
+
   onMount(() => {
     updatePageScale();
-    window.addEventListener("resize", updatePageScale);
+    const onResize = () => {
+      updatePageScale();
+      invalidateLayout();
+    };
+    window.addEventListener("resize", onResize);
 
     requestAnimationFrame(() => {
       physicsRef?.setSvg(machineRef?.getSvg());
       physicsRef?.setLang(i18n.lang);
       physicsRef?.prepopulate(phrases);
+      const svg = machineRef?.getSvg();
+      if (svg) layoutObserver.observe(svg);
+      invalidateLayout();
     });
 
-    let rafId;
-    function loop(ts) {
-      rafId = requestAnimationFrame(loop);
-      const dt = lastTs ? Math.min((ts - lastTs) / 1000, 0.1) : 0;
-      lastTs = ts;
+    const layoutObserver = new ResizeObserver(invalidateLayout);
+    if (archiveEl) layoutObserver.observe(archiveEl);
+    layoutObserver.observe(document.body);
+    document.fonts?.ready.then(invalidateLayout);
 
-      stepHoldPull(dt);
-      stepDeceleration(dt);
-      stepSnapping(ts);
-      stepSpin(dt);
+    mounted = true;
+    wake();
 
-      machineRef?.update({
-        knobAng,
-        wheelAng,
-        scrollOff,
-        machineState,
-        activeSnap,
-      });
-      physicsRef?.setClipTop(archiveEl?.getBoundingClientRect().top);
-      physicsRef?.tick(dt, omega);
-
-      syncDrawers();
-    }
-    rafId = requestAnimationFrame(loop);
+    const stopActivity = onActivity(wake);
+    const onVisible = () => !document.hidden && invalidateLayout();
+    document.addEventListener("visibilitychange", onVisible);
 
     function onScroll() {
       panelHidden = true;
+      invalidateLayout();
     }
     window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
+      mounted = false;
       clearHintTimer();
       clearTimeout(revealTimer);
       cancelAnimationFrame(rafId);
+      cancelAnimationFrame(idleRaf);
+      clearTimeout(idleTimer);
+      layoutObserver.disconnect();
+      stopActivity();
+      document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", updatePageScale);
+      window.removeEventListener("resize", onResize);
     };
   });
 

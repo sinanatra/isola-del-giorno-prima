@@ -3,19 +3,19 @@
   import { LETTERS } from "$lib/macchina/constants.js";
 
   const IMAGES = [
-    "/macchine/1889186_orig.jpg",
-    "/macchine/30861738736_bf4f1a7209_b.jpg",
-    "/macchine/891eeec3e397843ab699d3c3770fd6a7.jpg",
-    "/macchine/H20843-L378089995.jpg",
-    "/macchine/Kircher-Arca_musarithmica.jpg",
-    "/macchine/Passages_from_the_Life_of_a_Philosopher_1864_page_ii.png",
-    "/macchine/babbage-analytical-engine-diagram-difference-engine-9000-of-babbage-analytical-engine-diagram.jpg",
-    "/macchine/e1304e49-5307-401b-8efa-8f4cc8643532.png",
-    "/macchine/e647bdfb1391845efc7db3ece00a7f12.png",
-    "/macchine/reference.png",
-    "/macchine/leibniz.png",
-    "/macchine/pascalina.png",
-    "/macchine/turing.png",
+    "/macchine/1889186_orig.webp",
+    "/macchine/30861738736_bf4f1a7209_b.webp",
+    "/macchine/891eeec3e397843ab699d3c3770fd6a7.webp",
+    "/macchine/H20843-L378089995.webp",
+    "/macchine/Kircher-Arca_musarithmica.webp",
+    "/macchine/Passages_from_the_Life_of_a_Philosopher_1864_page_ii.webp",
+    "/macchine/babbage-analytical-engine-diagram-difference-engine-9000-of-babbage-analytical-engine-diagram.webp",
+    "/macchine/e1304e49-5307-401b-8efa-8f4cc8643532.webp",
+    "/macchine/e647bdfb1391845efc7db3ece00a7f12.webp",
+    "/macchine/reference.webp",
+    "/macchine/leibniz.webp",
+    "/macchine/pascalina.webp",
+    "/macchine/turing.webp",
   ];
 
   const COLS = 9;
@@ -189,7 +189,6 @@
     object-fit: contain;
     background: rgb(240, 239, 239);
     padding: 10px;
-    filter: grayscale(100%);
     z-index: 1000;
     mix-blend-mode: multiply; 
   }

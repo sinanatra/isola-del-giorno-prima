@@ -1,6 +1,7 @@
 <script>
   import { fly } from "svelte/transition";
   import { cubicOut } from "svelte/easing";
+  import translations from "./translations.json";
 
   let { quotes = null, hidden = false, lang = "it", compact = false } = $props();
 
@@ -53,38 +54,9 @@
     return [{ text, hl: false }];
   }
 
-  const termsCache = new Map();
-  async function englishTerms(word) {
-    if (!word) return [];
-    if (termsCache.has(word)) return termsCache.get(word);
-    let terms = [word];
-    try {
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=en&dt=t&dt=bd&q=${encodeURIComponent(word)}`;
-      const data = await (await fetch(url)).json();
-      const main = (data[0] ?? []).map((seg) => seg[0]).join("");
-      const alts = (data[1] ?? []).flatMap((entry) => entry[1] ?? []);
-      terms = [main, ...alts, word];
-    } catch {}
-    termsCache.set(word, terms);
-    return terms;
-  }
-
-  const translationCache = new Map();
-  async function translate(text) {
-    if (!text || lang === "it") return text;
-    const key = `en::${text}`;
-    if (translationCache.has(key)) return translationCache.get(key);
-    try {
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=en&dt=t&q=${encodeURIComponent(text)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const translated = data[0].map((seg) => seg[0]).join("");
-      translationCache.set(key, translated);
-      return translated;
-    } catch {
-      return text;
-    }
-  }
+  const englishTerms = (word) =>
+    word ? (translations.terms[word] ?? [word]) : [];
+  const translate = (text) => translations.texts[text] ?? text;
 </script>
 
 {#if quotes && !hidden}
@@ -109,11 +81,7 @@
               {#if lang === "en" && q.phrase?.oggetto_en}
                 {q.phrase.oggetto_en}
               {:else if lang === "en"}
-                {#await translate(q.oggetto)}
-                  {q.oggetto}
-                {:then translated}
-                  {translated}
-                {/await}
+                {translate(q.oggetto)}
               {:else}
                 {q.oggetto}
               {/if}
@@ -130,25 +98,10 @@
                       >{:else}{seg.text}{/if}
                   {/each}
                 {:else if lang === "en"}
-                  {#await englishTerms(q.oggetto)}
-                    {q.phrase.testo_en ?? stripCitation(q.phrase.testo)}
-                  {:then terms}
-                    {#if q.phrase.testo_en}
-                      {#each highlightAny(q.phrase.testo_en, terms) as seg}
-                        {#if seg.hl}<mark class="hl">{seg.text}</mark
-                          >{:else}{seg.text}{/if}
-                      {/each}
-                    {:else}
-                      {#await translate(stripCitation(q.phrase.testo))}
-                        {stripCitation(q.phrase.testo)}
-                      {:then translated}
-                        {#each highlightAny(translated, terms) as seg}
-                          {#if seg.hl}<mark class="hl">{seg.text}</mark
-                            >{:else}{seg.text}{/if}
-                        {/each}
-                      {/await}
-                    {/if}
-                  {/await}
+                  {#each highlightAny(q.phrase.testo_en ?? translate(stripCitation(q.phrase.testo)), englishTerms(q.oggetto)) as seg}
+                    {#if seg.hl}<mark class="hl">{seg.text}</mark
+                      >{:else}{seg.text}{/if}
+                  {/each}
                 {:else}
                   {#each highlightSegments(stripCitation(q.phrase.testo), q.oggetto) as seg}
                     {#if seg.hl}<mark class="hl">{seg.text}</mark

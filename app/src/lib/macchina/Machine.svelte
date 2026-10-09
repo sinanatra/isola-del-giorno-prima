@@ -85,7 +85,7 @@
     return p.matrixTransform(svg.getScreenCTM().inverse());
   };
 
-  const svgVelToPx = v => v * (svg?.getBoundingClientRect().width ?? 800) / 1220;
+  const svgVelToPx = v => v * (svgBox?.width ?? 800) / 1220;
 
   // ── Cord visual & interaction ────────────────────────────────────
   function updateCord(shakeX = 0) {
@@ -171,28 +171,46 @@
     cordSpringRaf   = requestAnimationFrame(cordSpringBack);
   }
 
-  // ── Called every rAF frame from the parent ──────────────────────
-  function syncHandleSvg() {
-    if (!handleSvg) return;
+  let svgBox = null;
+
+  export function measure() {
+    if (!svg) return null;
     const r = svg.getBoundingClientRect();
-    const s = handleSvg.style;
-    s.left = `${r.left}px`;
-    s.top = `${r.top}px`;
-    s.width = `${r.width}px`;
-    s.height = `${r.height}px`;
+    const b = svgBox;
+    if (handleSvg && (!b || b.left !== r.left || b.top !== r.top || b.width !== r.width || b.height !== r.height)) {
+      const s = handleSvg.style;
+      s.left = `${r.left}px`;
+      s.top = `${r.top}px`;
+      s.width = `${r.width}px`;
+      s.height = `${r.height}px`;
+    }
+    svgBox = r;
+    return r;
   }
+
+  export function sway() {
+    if (ready && !cordDragging) updateCord(idleShakeX(performance.now()));
+  }
+
+  // ── Called every active rAF frame from the parent ───────────────
+  let lastKnob = NaN, lastScroll = NaN;
+  const lastWheel = [NaN, NaN, NaN];
+  const lastSlot = [null, null, null];
 
   export function update({ knobAng, wheelAng, scrollOff, machineState, activeSnap }) {
     if (!ready) return;
 
-    syncHandleSvg();
+    sway();
 
-    if (!cordDragging) updateCord(idleShakeX(performance.now()));
-
-    knobGrp?.setAttribute('transform',
-      `rotate(${(knobAng * 180 / Math.PI) % 360},${PVT.x},${PVT.y})`);
+    if (knobAng !== lastKnob) {
+      lastKnob = knobAng;
+      knobGrp?.setAttribute('transform',
+        `rotate(${(knobAng * 180 / Math.PI) % 360},${PVT.x},${PVT.y})`);
+    }
 
     for (let wi = 0; wi < 3; wi++) {
+      if (wheelAng[wi] === lastWheel[wi]) continue;
+      lastWheel[wi] = wheelAng[wi];
       const w = WHEELS[wi];
       for (let j = 0; j < N_LET; j++) {
         const ang = -Math.PI / 2 + (j / N_LET) * 2 * Math.PI + wheelAng[wi];
@@ -212,19 +230,23 @@
       }
     }
 
-    const CYL_H = CYL.b - CYL.t, N = animLines.length;
-    animLines.forEach((ln, i) => {
-      const raw = CYL.t + (i / N) * CYL_H + scrollOff % CYL_H;
-      const y   = ((raw % CYL_H) + CYL_H) % CYL_H + CYL.t;
-      ln.setAttribute('y1', y); ln.setAttribute('y2', y);
-    });
+    if (scrollOff !== lastScroll) {
+      lastScroll = scrollOff;
+      const CYL_H = CYL.b - CYL.t, N = animLines.length;
+      animLines.forEach((ln, i) => {
+        const raw = CYL.t + (i / N) * CYL_H + scrollOff % CYL_H;
+        const y   = ((raw % CYL_H) + CYL_H) % CYL_H + CYL.t;
+        ln.setAttribute('y1', y); ln.setAttribute('y2', y);
+      });
+    }
 
     readSlots.forEach((slot, i) => {
       const snap = wheelAng[i];
       const li = machineState === 'idle' ? -1
                : machineState === 'open' ? activeSnap[i]
                : (((Math.round(N_LET / 4 - snap * N_LET / (2 * Math.PI)) % N_LET) + N_LET) % N_LET);
-      slot.textContent = li < 0 ? '·' : LETTERS[li];
+      const txt = li < 0 ? '·' : LETTERS[li];
+      if (txt !== lastSlot[i]) { lastSlot[i] = txt; slot.textContent = txt; }
     });
   }
 
@@ -495,7 +517,7 @@
         'pointer-events': 'all',
       });
       handleGrp.insertBefore(hitRect, handlePath);
-      syncHandleSvg();
+      measure();
     }
 
     // Pointer tracking is attached once regardless of handle detection.

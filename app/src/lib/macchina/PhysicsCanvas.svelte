@@ -2,6 +2,8 @@
   import { onMount } from "svelte";
   import Matter from "matter-js";
   import { COLOR } from "$lib/macchina/constants.js";
+  import { config } from "$lib/config.js";
+  import { debugStats } from "$lib/debugStats.js";
 
   let canvas, ctx;
   let dpr = 1;
@@ -18,16 +20,24 @@
   let overflowDrain = false;
   let lastFunnelTopY = null;
   let frameRect = null;
+  let frameChanged = true;
   let stepAcc = 0;
+  let needsDraw = true;
+  let raining = true;
+  let restMs = 0;
+  let bodyCount = 0;
 
   const TARGET_BODIES = 100;
   const OVERFLOW_RESUME = 70;
-  const FIXED_STEP = 1 / 120;
-  const MAX_STEPS_PER_FRAME = 8;
-  const MAX_DPR = 2;
+  const {
+    fixedStep: FIXED_STEP,
+    maxStepsPerFrame: MAX_STEPS_PER_FRAME,
+    stuckSeconds: STUCK_SECONDS,
+    stuckSpeed: STUCK_SPEED,
+    settleMs: SETTLE_MS,
+  } = config.physics;
+  const MAX_DPR = config.maxDpr;
   const GRAVITY = 0.8;
-  const STUCK_SECONDS = 0.6;
-  const STUCK_SPEED = 0.05;
   const VB = { x: 30, y: 60, w: 1220, h: 790 };
   const FONT_SVG_SIZE = 18;
   const WORD_PAD_X = 10;
@@ -61,11 +71,30 @@
     { x: 490.69, y: 65.49 },
   ];
 
-  // During a tick the rect is read once and reused: calling
-  // getBoundingClientRect per body per frame was a major source of jank.
   function svgRect() {
-    if (frameRect) return frameRect;
-    return svgEl ? svgEl.getBoundingClientRect() : null;
+    if (!frameRect && svgEl) frameRect = svgEl.getBoundingClientRect();
+    return frameRect;
+  }
+
+  export function setFrame(rect, top) {
+    const y = Math.max(0, top || 0);
+    const f = frameRect;
+    if (
+      rect &&
+      (!f ||
+        f.left !== rect.left ||
+        f.top !== rect.top ||
+        f.width !== rect.width ||
+        f.height !== rect.height)
+    ) {
+      frameRect = rect;
+      frameChanged = true;
+    }
+    if (y !== clipTop) {
+      clipTop = y;
+      needsDraw = true;
+    }
+    return frameChanged || needsDraw;
   }
 
   function svgToCanvas(sx, sy) {
@@ -151,6 +180,9 @@
     funnelFloor = null;
     drainOpen = false;
     lastFunnelTopY = null; // don't scroll-shift bodies off a resize-caused jump
+    frameRect = null;
+    frameChanged = true;
+    needsDraw = true;
     if (!svgEl || !engine) return;
     for (const [i, j] of FUNNEL_WALL_PAIRS) {
       const p1 = svgToCanvas(FUNNEL[i].x, FUNNEL[i].y);
@@ -176,8 +208,9 @@
   }
 
   let clipTop = 0;
-  export function setClipTop(y) {
-    clipTop = Math.max(0, y || 0);
+
+  export function setRain(on) {
+    raining = on;
   }
 
   export function prepopulate(phrases) {
@@ -209,6 +242,7 @@
       b._txt = txt;
       if (b.isSleeping) Matter.Sleeping.set(b, false);
     }
+    needsDraw = true;
   }
 
   // Box width follows the actual rendered text width (same font the word is
@@ -285,6 +319,7 @@
     Matter.Body.setVelocity(body, { x: vx, y: vy });
     Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.1);
     Matter.Composite.add(world, body);
+    needsDraw = true;
     return body;
   }
 
@@ -314,28 +349,50 @@
     }
   }
 
-  // omega is the valve: open when spinning, closed when stopped
-  function wordCount() {
-    let n = 0;
+  function sweep(neckY, resting) {
+    let count = 0;
+    let awake = 0;
     for (const b of Matter.Composite.allBodies(world)) {
-      if (!b.isStatic && b._w != null) n++;
+      if (b.isStatic || b._w == null) continue;
+      const bottom = b.position.y + b._h / 2;
+      if (
+        (drainOpen && bottom > neckY) ||
+        (resting && b.position.y - b._h > cssH * 2)
+      ) {
+        Matter.Composite.remove(world, b);
+        needsDraw = true;
+        continue;
+      }
+      count++;
+      if (!b.isSleeping) awake++;
     }
-    return n;
+    return { count, awake };
   }
 
-  export function tick(dt, omega) {
-    if (!engine || !ctx) return;
-    frameRect = svgEl ? svgEl.getBoundingClientRect() : null;
+  function sleepAll() {
+    for (const b of Matter.Composite.allBodies(world)) {
+      if (!b.isStatic && !b.isSleeping) Matter.Sleeping.set(b, true);
+    }
+  }
 
-    scrollAllBodies();
-    syncFunnelPose();
-    engine.gravity.y = GRAVITY;
+  // omega is the valve: open when spinning, closed when stopped.
+  // Returns false once nothing moves, so the page can stop its loop.
+  export function tick(dt, omega) {
+    if (!engine || !ctx) return true;
+
+    if (frameChanged) {
+      frameChanged = false;
+      needsDraw = true;
+      scrollAllBodies();
+      syncFunnelPose();
+    }
 
     const spinning = Math.abs(omega) > 0.06;
 
-    const count = wordCount();
+    const count = bodyCount;
     const { target, resume } = bodyBudget();
-    if (!overflowDrain && count >= target) overflowDrain = true;
+    if (!raining) overflowDrain = false;
+    else if (!overflowDrain && count >= target) overflowDrain = true;
     else if (overflowDrain && count <= resume) overflowDrain = false;
     const wantOpen = spinning || overflowDrain;
 
@@ -357,13 +414,15 @@
     const neckY = funnelNeckY();
     if (drainOpen) antiJam(dt, neckY);
 
-    spawnTimer -= dt;
-    if (spawnTimer <= 0) {
-      if (!overflowDrain && count < target) {
-        const need = Math.min(target - count, 2);
-        for (let i = 0; i < need; i++) _spawnOne();
+    if (raining) {
+      spawnTimer -= dt;
+      if (spawnTimer <= 0) {
+        if (!overflowDrain && count < target) {
+          const need = Math.min(target - count, 2);
+          for (let i = 0; i < need; i++) _spawnOne();
+        }
+        spawnTimer = 0.22 + Math.random() * 0.15;
       }
-      spawnTimer = 0.22 + Math.random() * 0.15;
     }
 
     stepAcc += dt;
@@ -374,16 +433,31 @@
       steps++;
     }
     if (steps === MAX_STEPS_PER_FRAME) stepAcc = 0;
-    if (drainOpen) {
-      for (const b of Matter.Composite.allBodies(world)) {
-        if (!b.isStatic && b._w != null && b.position.y + b._h / 2 > neckY) {
-          Matter.Composite.remove(world, b);
-        }
-      }
+
+    const resting = !raining && !drainOpen;
+    restMs = resting ? restMs + dt * 1000 : 0;
+    let { count: bodies, awake } = sweep(neckY, resting);
+    if (awake) needsDraw = true;
+    if (resting && awake && restMs > SETTLE_MS) {
+      sleepAll();
+      awake = 0;
     }
 
-    draw();
-    frameRect = null;
+    const drew = needsDraw;
+    if (needsDraw) {
+      needsDraw = false;
+      draw();
+      debugStats.draws++;
+    }
+
+    debugStats.steps += steps;
+    bodyCount = bodies;
+    debugStats.bodies = bodies;
+    debugStats.awake = awake;
+    debugStats.raining = raining;
+    debugStats.dpr = dpr;
+
+    return raining || drainOpen || awake > 0 || drew;
   }
 
   // Tile width already fits the text (wordWidth), so no per-tile clip is
@@ -424,10 +498,8 @@
 
   function createWorld(W, H) {
     engine = Matter.Engine.create({ enableSleeping: true });
-    // More solver iterations = stiffer stacks: default (6/4) lets resting
-    // words visibly jitter/sink into each other while settling. Kept moderate
-    engine.positionIterations = 12;
-    engine.velocityIterations = 8;
+    engine.positionIterations = config.physics.positionIterations;
+    engine.velocityIterations = config.physics.velocityIterations;
     world = engine.world;
     engine.gravity.y = GRAVITY;
     wallL = Matter.Bodies.rectangle(-30, H / 2, 60, H * 3, { isStatic: true });
@@ -458,6 +530,7 @@
       canvas.width = Math.round(W * dpr);
       canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      needsDraw = true;
       if (!engine) createWorld(W, H);
       else repositionWalls(W, H);
     });

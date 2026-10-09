@@ -1,0 +1,46 @@
+{
+  "texts": {
+    "Tempo": "Time",
+    "Isola": "Island",
+    "Mare": "Sea",
+    "Notte": "Night",
+    "Lettera": "Letter",
+    "Corpo": "Body",
+    "Roberto non aveva ancora capito che il tempo era il più grande dei misteri, carcere e libertà insieme": "Roberto had not yet understood that time was the greatest of mysteries, prison and freedom at once",
+    "L'isola giaceva oltre il confine del giorno, irraggiungibile quanto desiderabile": "The island lay beyond the boundary of the day, as unreachable as it was desirable",
+    "Il mare era il suo carcere e la sua speranza, la sola cosa che lo separava da ciò che aveva perduto": "The sea was his prison and his hope, the only thing that separated him from what he had lost",
+    "La notte lo avvolgeva come un mantello di possibilità impossibili": "The night wrapped around him like a cloak of impossible possibilities",
+    "Scriveva lettere che non avrebbe mai spedito, perché il destinatario era lui stesso in un altro tempo": "He wrote letters he would never send, because the recipient was himself in another time",
+    "Il corpo ricordava ciò che la mente cercava di dimenticare": "The body remembered what the mind tried to forget"
+  },
+  "terms": {
+    "Tempo": [
+      "Time",
+      "weather",
+      "Tempo"
+    ],
+    "Isola": [
+      "Island",
+      "isle",
+      "Isola"
+    ],
+    "Mare": [
+      "Sea",
+      "ocean",
+      "Mare"
+    ],
+    "Notte": [
+      "Night",
+      "Notte"
+    ],
+    "Lettera": [
+      "Letter",
+      "Lettera"
+    ],
+    "Corpo": [
+      "Body",
+      "corpse",
+      "Corpo"
+    ]
+  }
+}
