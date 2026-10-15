@@ -1,5 +1,5 @@
 // Tuning constants, sized for the exhibition monitors (same URL as the public site).
-// URL overrides for testing: ?debug=1 ?dpr= ?rain=<s> ?sway=<fps> ?reloadHours= ?reloadAt=HH:MM
+// URL overrides for testing: ?debug=1 ?dpr= ?rain=<s> ?sway=<fps> ?fps= ?reloadHours= ?reloadAt=HH:MM
 
 const BASE = {
   debug: false,
@@ -17,7 +17,8 @@ const BASE = {
   },
 
   loop: {
-    rainIdleAfterMs: 45000, // stop spawning words after this much inactivity; 0 = never
+    rainIdleAfterMs: 0, // stop spawning words after this much inactivity; 0 = never
+    activeFps: 30, // while only the rain is running; full rate while the machine is in use
     swayFps: 30, // cord sway while idle; 0 = still
     layoutRecheckMs: 500,
   },
@@ -76,6 +77,8 @@ function build() {
   if (rain !== null) cfg.loop.rainIdleAfterMs = rain * 1000;
   const sway = num("sway");
   if (sway !== null) cfg.loop.swayFps = sway;
+  const fps = num("fps");
+  if (fps !== null && fps > 0) cfg.loop.activeFps = fps;
   const hours = num("reloadHours");
   if (hours !== null) cfg.reload.everyHours = hours;
   const at = params.get("reloadAt");

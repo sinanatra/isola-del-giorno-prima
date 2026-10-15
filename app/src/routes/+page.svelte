@@ -322,12 +322,18 @@
   }
 
   // Main loop: stops when nothing moves; only the cord sway keeps running.
-  const { rainIdleAfterMs: RAIN_IDLE_MS, swayFps: SWAY_FPS, layoutRecheckMs: RECHECK_MS } =
+  const {
+    rainIdleAfterMs: RAIN_IDLE_MS,
+    activeFps: ACTIVE_FPS,
+    swayFps: SWAY_FPS,
+    layoutRecheckMs: RECHECK_MS,
+  } =
     config.loop;
 
   let rafId = 0;
   let idleRaf = 0;
   let idleTimer = 0;
+  let activeTimer = 0;
   let mounted = false;
   let layoutDirty = true;
   let lastMeasure = 0;
@@ -356,7 +362,7 @@
   }
 
   function wake() {
-    if (!mounted || rafId) return;
+    if (!mounted || rafId || activeTimer) return;
     cancelAnimationFrame(idleRaf);
     clearTimeout(idleTimer);
     idleRaf = idleTimer = 0;
@@ -393,11 +399,22 @@
 
     if (physicsBusy || machineBusy() || layoutDirty) {
       debugStats.state = "attivo";
-      rafId = requestAnimationFrame(loop);
+      scheduleActive();
     } else {
       debugStats.state = "idle";
       scheduleIdle();
     }
+  }
+
+  function scheduleActive() {
+    if (machineBusy() || ACTIVE_FPS >= 60) {
+      rafId = requestAnimationFrame(loop);
+      return;
+    }
+    activeTimer = setTimeout(() => {
+      activeTimer = 0;
+      rafId = requestAnimationFrame(loop);
+    }, 1000 / ACTIVE_FPS - 8);
   }
 
   function scheduleIdle() {
@@ -461,6 +478,7 @@
       cancelAnimationFrame(rafId);
       cancelAnimationFrame(idleRaf);
       clearTimeout(idleTimer);
+      clearTimeout(activeTimer);
       layoutObserver.disconnect();
       stopActivity();
       document.removeEventListener("visibilitychange", onVisible);

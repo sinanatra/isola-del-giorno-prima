@@ -129,8 +129,13 @@
         class="img-block"
         style="grid-column:{block.col}/span {block.colSpan};grid-row:{block.row}/span {block.rowSpan}"
       >
-        {#if block.img && block.visible}
-          <img src={block.img} alt="" draggable="false" />
+        {#if block.img}
+          <img
+            src={block.img}
+            alt=""
+            draggable="false"
+            style:visibility={block.visible ? "visible" : "hidden"}
+          />
         {/if}
       </div>
     {/each}

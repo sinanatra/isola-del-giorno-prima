@@ -4,7 +4,7 @@ import { mkdir, readdir } from "node:fs/promises";
 import { parse } from "node:path";
 import sharp from "sharp";
 
-const SIZE = Number(process.env.MACCHINE_SIZE) || 1200;
+const SIZE = Number(process.env.MACCHINE_SIZE) || 600;
 const QUALITY = 80;
 const SRC = "assets/macchine";
 const OUT = "static/macchine";
